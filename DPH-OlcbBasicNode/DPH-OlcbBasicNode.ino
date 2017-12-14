@@ -207,7 +207,7 @@ void produceFromInputs() {
   #include "unittesting.h"
 #endif
 
-#include "streaming.h"
+//#include "streaming.h"
 
 /**
  * Setup does initial configuration
@@ -220,7 +220,8 @@ void setup()
   //nm.forceInitAll(); // uncomment if need to go back to initial EEPROM state
   //nm.setup(&nodeid, events, eventidOffset, NUM_EVENT, (uint8_t*) 0, (uint16_t)0, (uint16_t)LAST_EEPROM); 
   nm.setup(&nodal, (uint8_t*) 0, (uint16_t)0, (uint16_t)LAST_EEPROM); 
-  Serial << F("Hi there") << _HEX(1234) << "\n";
+//  Serial << F("Hi there") << _HEX(1234) << "\n";
+
 #ifdef DUMMY    
     char s0[10] = "Test Node";
     for(int j=0; j<sizeof(s0); j++) writeByte((uint16_t)&pmem->nodeName+j, s0[j]);
