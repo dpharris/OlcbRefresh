@@ -207,10 +207,9 @@ void pceCallback(uint16_t index) {
   int s = index/3;
   uint8_t b;
   EEPROM.get((int)&pmem->servo[s].pos[p]+1,b);
-  int pl = b;
-  EEPROM.get((int)&pmem->servo[s].pos[p],b);
+  int pl = EEPROM.get((int)&pmem->servo[s].pos[p],b);
   pl = (pl<<8) + b;
-  setServoPulse(s, ((double)pl)/100);
+  setServoPulse(s, ((double)pl)/1000);
 }
 
 /**
@@ -225,11 +224,8 @@ void setup()
   
   // set event types, now that IDs have been loaded from configuration
   // newEvent arguments are (event index, producer?, consumer?)
-  for (int i=2*(FIRST_PRODUCER_CHANNEL_INDEX); i<2*(LAST_PRODUCER_CHANNEL_INDEX+1); i++) {
-      pce.newEvent(i,true,false); // producer
-  }
-  for (int i=2*(FIRST_CONSUMER_CHANNEL_INDEX); i<2*(LAST_CONSUMER_CHANNEL_INDEX+1); i++) {
-      pce.newEvent(i,false,true); // consumer
+  for (int i=0; i<8; i++) {
+      pce.newEvent(i, false, true); // producer
   }
   
   Olcb_setup();

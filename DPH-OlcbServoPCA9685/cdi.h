@@ -8,7 +8,7 @@ const char configDefInfo[] PROGMEM = R"(
 
 <identification>
     <manufacturer>OpenLCB</manufacturer>
-    <model>OlcbBasicNode</model>
+    <model>OlcbServoPCA9685</model>
     <hardwareVersion>1.0</hardwareVersion>
     <softwareVersion>0.4</softwareVersion>
 </identification>
@@ -21,21 +21,22 @@ const char configDefInfo[] PROGMEM = R"(
     <string size='24'><name>Node Description</name></string>
   </group>
   <group>
-    <name>I/O Events</name>
-    <description>Define events associated with input and output pins</description>
-    <group replication='2'>
-      <name>Inputs</name>
-      <repname>Input</repname>
+    <name>Servos</name>
+    <description>Define events associated with servos</description>
+    <group replication='8'>
+      <name>Servos</name>
+      <repname>Servo</repname>
       <string size='16'><name>Description</name></string>
-      <eventid><name>Activation Event</name></eventid>
-      <eventid><name>Inactivation Event</name></eventid>
-    </group>
-    <group replication='2'>
-      <name>Outputs</name>
-      <repname>Output</repname>
-      <string size='16'><name>Description</name></string>
-      <eventid><name>Set Event</name></eventid>
-      <eventid><name>Reset Event</name></eventid>
+      <eventid><name>Position 1 Event</name></eventid>
+      <eventid><name>Position 2 Event</name></eventid>
+      <eventid><name>Position 3 Event</name></eventid>
+      <int size='2'>Position 1 (800-2200 us)</int>
+      <int size='2'>Position 2 (800-2200 us)</int>
+      <int size='2'>Position 3 (800-2200 us)</int>
+      <int size='1'>Rate decending(0-100)</int>
+      <int size='1'>Rate ascending(0-100)</int>
+      <int size='1'>Bounce level (0-16)</int>
+      <int size='1'></int>
     </group>
   </group>
 </segment>

@@ -48,9 +48,11 @@ typedef struct //__attribute__ ((packed))
   struct {
     char desc[16];        // description of this servo
     EventID pos[3];       // eventIDs to set to position 
-    uint16_t drate;       // down rate
-    uint16_t urate;       // up rate
-    uint16_t bounce;      // amoutn of bounce
+    uint16_t pulse[3];    // positions pulse length (us)
+    uint8_t drate;        // down rate
+    uint8_t urate;        // up rate
+    uint8_t bounce;       // amount of bounce
+    uint8_t dummy;        // enforce uint32_t boundary
   } servo[8];             // 8 servos
 } MemStruct;              // type definition
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
