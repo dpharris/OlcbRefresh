@@ -136,15 +136,6 @@ ButtonLed blue(BLUE, LOW);
 ButtonLed gold(GOLD, LOW);
 
 void pceCallback(uint16_t index);
-void pceCallback(uint16_t index){
-  // Invoked when an event is consumed; drive pins as needed
-  // from index of all events.  
-  // Sample code uses inverse of low bit of pattern to drive pin all on or all off.  
-  // The pattern is mostly one way, blinking the other, hence inverse.
-  //
-  //Serial.print(F("\npceCallback()")); Serial.print(index);
-  buttons[index]->on( patterns[index]&0x1 ? 0x0L : ~0x0L );
-}
 
 NodeMemory nm(0);  // allocate from start of EEPROM
 void store() { nm.store(&nodeid, events, eventidOffset, NUM_EVENT); }
@@ -192,6 +183,7 @@ void produceFromInputs() {
 
 
 #include <Adafruit_PWMServoDriver.h>
+Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(0x40);
 // you can use this function if you'd like to set the pulse length in seconds
 // e.g. setServoPulse(0, 0.001) is a ~1 millisecond pulse width. its not precise!
 void setServoPulse(uint8_t n, double pulse) {
@@ -208,13 +200,17 @@ void setServoPulse(uint8_t n, double pulse) {
   pwm.setPWM(n, 0, pulse);
 }
 
-void pceCallback(uint16_t index){
+void pceCallback(uint16_t index) {
   // Invoked when an event is consumed; drive pins as needed
   // from index of all events. 
   int p = index%3;
   int s = index/3;
-  int p = EEPROM.get(&pmem->servo[s].pos[c]);
-  pwm.setServoPulse(s, ((double)pos)/100);
+  uint8_t b;
+  EEPROM.get((int)&pmem->servo[s].pos[p]+1,b);
+  int pl = b;
+  EEPROM.get((int)&pmem->servo[s].pos[p],b);
+  pl = (pl<<8) + b;
+  setServoPulse(s, ((double)pl)/100);
 }
 
 /**
