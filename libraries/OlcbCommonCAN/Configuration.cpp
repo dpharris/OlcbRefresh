@@ -41,7 +41,8 @@
   Configuration::Configuration( Datagram *d, OlcbStream *s,
                         const uint8_t (*gr)(uint32_t address, int space),
                         void (*gw)(uint32_t address, int space, uint8_t value),
-                        void (*res)()
+                        void (*res)(),
+                        void (*uCB)(unsigned int address, unsigned int length)
                  ){
     dg = d;
     str = s;
@@ -49,6 +50,7 @@
     getWrite = gw;
     getRead = gr;
     restart = res;
+    userWriteCB = uCB;
 }
 
 void Configuration::check() {
@@ -151,6 +153,8 @@ void Configuration::processWrite(uint8_t* data, int length) {
     for (int i=0; i<length-6; i++) {
         getWrite(address+i, space, data[i+6]);
     }
+    // notify user App by callback
+    if(userWriteCB) userWriteCB(address, length);
 }
 
 void Configuration::processCmd(uint8_t* data, int length) {

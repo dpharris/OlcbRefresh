@@ -54,6 +54,7 @@ extern "C" {
 extern const uint8_t getRead(uint32_t address, int space);
 extern void getWrite(uint32_t address, int space, uint8_t val);
 extern void restart();
+extern void userConfigWrite(unsigned int address, unsigned int length);
 
 };
 
@@ -72,7 +73,8 @@ unsigned int streamRcvCallback(uint8_t *rbuf, unsigned int length){
 #ifndef OLCB_NO_DATAGRAM
 unsigned int datagramCallback(uint8_t *rbuf, unsigned int length, unsigned int from);
 Datagram dg(&txBuffer, datagramCallback, &link);
-Configuration cfg(&dg, &str, &getRead, &getWrite, (void (*)())0);
+Configuration cfg(&dg, &str, &getRead, &getWrite, (void (*)())0, &userConfigWrite);
+//Configuration cfg(&dg, &str, &getRead, &getWrite, (void (*)())0, (void (*)())0);
 
 unsigned int datagramCallback(uint8_t *rbuf, unsigned int length, unsigned int from){
   // invoked when a datagram arrives

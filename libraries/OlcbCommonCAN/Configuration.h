@@ -26,7 +26,8 @@ class Configuration {
   Configuration(Datagram* datagramHandler, OlcbStream *streamHandler,
                         const uint8_t (*getRead)(uint32_t address, int space),
                         void (*getWrite)(uint32_t address, int space, uint8_t val),
-                        void (*restart)()
+                        void (*restart)(),
+                        void (*uCB)(unsigned int address, unsigned int length)
             );
             
   void check(); 
@@ -51,6 +52,7 @@ class Configuration {
   const uint8_t (*getRead)(uint32_t address, int space);
   void (*getWrite)(uint32_t address, int space, uint8_t val);
   void (*restart)();
+  void (*userWriteCB)(unsigned int address, unsigned int length);
  
 };
 

@@ -5,7 +5,7 @@
 #include "LinkControl.h"
 #include "Datagram.h"
 
-#include<stdio.h>
+#include <stdio.h>
 
 #include "logging.h"
 

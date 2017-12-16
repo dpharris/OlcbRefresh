@@ -187,7 +187,20 @@ void produceFromInputs() {
   }
 }
 
-
+//
+// Callback from a Configuration write
+// Use this to detect changes in the ndde's configuration
+// This may be useful to take immediate action on a change.
+// 
+void userConfigWrite(unsigned int address, unsigned int length){
+  // example: if a servo's position changed, then update it immediately
+  // uint8_t posn;
+  // for(unsigned i=0; i<NCHANNEL; i++) {
+  //    unsigned int pposn = &pmem->channel[i].posn; 
+  //    if( (address<=pposn) && (pposn<(address+length) ) posn = EEPROM.read(pposn);
+  //    servo[i].set(i,posn);
+  // }
+}
 
 
 // Unit testing
