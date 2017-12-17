@@ -6,12 +6,12 @@ It is meant to simplify and extend the Arduino code.
 ## Changes: 
 1. Added support for multiple processors: Arduino, Teensy, Tiva.  
     Each set of libraries are in a separate directory.
-2. Simplified the writing of CDI/xml for the node
+2. To speed up eventID processing, 
+    uses Index[]'s to allow eventID's to be sorted and searched.
+3. Simplified the writing of CDI/xml for the node
     by making a struct{} that parallels the xml structure.   
-3. To speed up eventID processing, 
-    uses Index[]'s to allow eventID's to be sorted and searched.  
 
-CDI/Memory:
+e.g.: CDI/Memory:
 ```
     <cdi>
         <group replication='8'>
@@ -33,9 +33,8 @@ becomes:
 
 ## Memory Models:
 1. Small: All operations are from EEPROM;
-2. Medium**\***: eventIDs are copied to RAM as eventids[];
+2. Medium: eventIDs are copied to RAM as eventids[];
 3. Large:  The whole of EEPROM is mirrored to RAM as mem[].
-    \* - default Model
 
 ### In RAM:
 - The offset in EEPROM of each eventID is stored into eventidOffset[].
