@@ -33,8 +33,9 @@ becomes:
 
 ## Memory Models:
 1. Small: All operations are from EEPROM;
-2. Medium: eventIDs are copied to RAM as eventids[] (default);
+2. Medium*\**: eventIDs are copied to RAM as eventids[];
 3. Large:  The whole of EEPROM is mirrored to RAM as mem[].
+   \* - default Model
 
 ### In RAM:
 - The offset in EEPROM of each eventID is stored into eventidOffset[].
