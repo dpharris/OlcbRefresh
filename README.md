@@ -5,7 +5,8 @@ It is meant to simplify and extend the Arduino code.
 
 ## Changes: 
 1. Added support for multiple processors: Arduino, Teensy, Tiva.  
-    Each set of libraries specific to a CAN-processor are in a separate directory. The set used is automatically selected in the processor.h file.  
+    Each set of libraries specific to a CAN-processor are in a separate directory. 
+    The set used is automatically selected in the processor.h file.  
 2. To speed up eventID processing, it uses Index[]'s to allow eventID's to be sorted and searched. 
 3. Simplified the definition of CDI/xml for the node, by making a struct{} that parallels the xml structure, see the example below.   
 
