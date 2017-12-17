@@ -4,7 +4,7 @@ This is a refresh of the Arduino base libs, ie OlcbStarLibraries.
 It is meant to simplify and extend the Arduino code.
 
 ## Changes: 
-1. Added support for multiple processors: Arduino, Teensy, Tiva
+1. Added support for multiple processors: Arduino, Teensy, Tiva.  
     Each set of libraries are in a separate directory.
 2. Simplified the writing of CDI/xml for the node
     by making a struct{} that parallels the xml structure.   
@@ -43,6 +43,7 @@ becomes:
 - In all models: 
 ```
         eventidIndex[]--->eventidOffset[]-->mem[] or EEPROM[]
+        eventidIndex[]--->Events[].flags
 ```
 - In the Medium model, eventIndex also indexes the eventIDs:
 ```
