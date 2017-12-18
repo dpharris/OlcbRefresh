@@ -5,12 +5,13 @@ It is meant to simplify and extend the Arduino code.
 
 ## Changes: 
 1. Added support for multiple processors: Arduino, Teensy, Tiva. 
-  - Each set of libraries specific to a CAN-processor are in a separate directory.   
-  - The set used is automatically selected in the processor.h file. 
-2. To speed up eventID processing, Index[]s are used sort eventID's and enable faster searches. 
-3. Simplified the definition of CDI/xml for the node, by making a struct{} that parallels the xml structure, see the example below.   
+  - Each set of files specific to a CAN-processor is kept in its own directory.   
+  - The processor is automatically selected in the processor.h file. 
+2. A sorted Index[] is used to speed eventID processing
+  - The Index uses a hash of the eventid.  
+3. Simplified the definition of CDI/xml for the node by matching a struct{} to the xml structure, see the example below.   
 
-e.g.: CDI/Memory:
+e.g.: CDI/xml:
 ```
     <cdi>
         <group replication='8'>
@@ -20,7 +21,7 @@ e.g.: CDI/Memory:
         </group>
     </cdi>
 ```
-becomes:    
+parallels this structure:    
 ```
     typedef struct {
         struct {
@@ -34,11 +35,10 @@ becomes:
 1. Small: All operations are from EEPROM;
 2. Medium: eventIDs are copied to RAM as eventids[];
 3. Large:  The whole of EEPROM is mirrored to RAM as mem[].
-
-### In RAM:
-- The offset in EEPROM of each eventID is stored into eventidOffset[].
-- The node's eventIDs are hashed, and storied along with a sequential index into eventidIndex[],
-  and this is sorted on the hash value. 
+#### In RAM:
+- eventidOffset[] stores the offset of each eventID into the EEPROM or RAM struct{}.
+- eventidIndex[] contains a hash of each eventID, and an associated sequential index into eventidIndex[], it is sorted on the hash values.  
+- in the medium model, eventids[] contains a copy of the eventIDs, and is indexed by eventidIndex[].
 - In all models: 
 ```
         eventidIndex[]--->eventidOffset[]-->mem[] or EEPROM[]
