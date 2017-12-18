@@ -58,28 +58,28 @@ It consists of:
      - Announces state of Node
      - Announcement of *Intialization Complete*
      - Announcement of *Consumed-* and *Produced-eventIDs*
-     - NodeID reporting on request.
-     - EventID reporting on request.
-     - On CAN maintains alias assignment and maintenance;
+     - *NodeID reporting* on request.
+     - *EventID reporting* on request.
+     - On CAN maintains *alias assignment* and *maintenance*;
    - SNII
-     - Simple Node Information -- brief description for UI Tools to use.
+     - Simple Node Information -- brief description for *UI Tools* to use.
    - PIP
-     - Protocol Information -- A bit=map of which protocols the node knows.  
+     - Protocol Information -- A bit-map of which protocols the node uses.  
    - CDI
-     - Reporting of the CDI/xml on request.
+     - *Reporting of the CDI/xml* on request.
    - Memory Configuration
-     - Reading and writing to teh node's memory spaces, including Configuration, RAM and EEPROM
+     - Reading and writing to the node's memory spaces, including Configuration, RAM and EEPROM
  - Application Messaging
    - PCE - Events
-     - Implements PRoducer/Consumer Events (64-bit)
+     - Implements *Producer/Consumer Events* (64-bit)
      - EventIDs are globally unique 64-bit numbers.
-     - These are Unaddressed EventID messages.
+     - These are *unaddressed* EventID messages.
      - 1:N.
    - Datagrams
-     - These are addressed messages containing up to 70-bytes of data
+     - These are *addressed* messages containing up to 70-bytes of data
      - 1:1.
    - Streams
-     - These are addressed messages carrying unlimited data.
+     - These are *addressed* messages carrying unlimited data.
      - 1:1.
  - Additional Protocols
    - BG - Blue/Green -- node health indicators
@@ -96,12 +96,12 @@ However, each protocol needs to be:
  - initialized, and
  - processed
     
-For example there are lines of code from the OlcbBasicNode example: 
-'''
+For example there are lines of code from the OlcbBasicNode example for *initialization*: 
+```
   NodeID nodeid(5,1,1,1,3,255);    // This node's default ID; must be valid 
   const char SNII_const_data[] PROGMEM = "\001OpenLCB\000DPHOlcbBasicNode\0001.0\000" OlcbCommonVersion ; 
   uint8_t protocolIdentValue[6] = {0xD7,0x58,0x00,0,0,0};
   ButtonLed* buttons[] = { &pA,&pA,&pB,&pB,&pC,&pC,&pD,&pD };
   PCE pce(&nodal, &txBuffer, pceCallback, restore, &link);
   BG bg(&pce, buttons, patterns, NUM_EVENT, &blue, &gold, &txBuffer);
-'''
+```
