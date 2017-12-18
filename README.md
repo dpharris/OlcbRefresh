@@ -81,9 +81,9 @@ It consists of:
    - Streams
      - These are *addressed* messages carrying unlimited data.
      - 1:1.
- - Additional Protocols
+ - Additional Protocols/Utility-Libraries
    - BG - Blue/Green -- node health indicators
-   - ButtonLED -- controlling a button and LED on one processor pin
+   - ButtonLed -- controlling a button and LED on one processor pin
    - Teaching -- teaching an eventID from one node to one or more others.  
    - Traction Control -- train control
 
@@ -119,5 +119,5 @@ The programmer of the Application must:
  - Write additional support and glue code for the Application.  
 
 ## Example Applications
- - **OlcbBasicNode** implements a simple node which exercises most of the protocols.  It has two inputs and two outputs.  Each input has two Producer-eventIDs and each output has two Consumer-eventIDs, so 8 eventIDs in total.  This Application makes use of the ButtonLED library to control two buttons and two LEDs.  In addition, it implements the BG (Blue-Gold) protocol to allow the **teaching** of eventIDs between this node and others.  
+ - **OlcbBasicNode** implements a simple node which exercises most of the protocols.  It has two inputs and two outputs.  Each input has two Producer-eventIDs and each output has two Consumer-eventIDs, so 8 eventIDs in total.  This Application makes use of the ButtonLed library to control two buttons and two LEDs.  In addition, it implements the BG (Blue-Gold) protocol to allow the **teaching** of eventIDs between this node and others.  
 - **OlcbServoPCA8695** implements driving a number of servos from a PCA8695 PWM chip.  It shows how to write a different **pceCallback()**.  It also uses **userConfigWrite()** to allow real-time updating of a servo positions from a **UI Tool**, such as **JMRI** or **Model Railroad System**.  
