@@ -40,12 +40,12 @@ parallels this structure:
 - in the medium model, eventids[] contains a copy of the eventIDs, and is indexed by eventidIndex[].
 - In all models: 
 ```
-        **eventidIndex[]**--(index)-->**eventidOffset[]**--(offset)-->**mem[]** or **EEPROM[]**
-        **eventidIndex[]**--(index)-->**Events[].flags**
+        eventidIndex[]--(index)-->eventidOffset[]--(offset)-->mem[] or EEPROM[]
+        eventidIndex[]--(index)-->Events[].flags
 ```
-- In the Medium model, eventIndex also indexes the eventIDs:
+- In the Medium model, eventIndex also indexes the eventIDs array:
 ```
-        **eventidIndex[]**--->**eventids[]**
+        **eventidIndex[]--(index)-->eventids[]
 ```
 
 
