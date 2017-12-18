@@ -76,16 +76,17 @@ It consists of:
      - These are *unaddressed* EventID messages.
      - 1:N.
    - Datagrams
-     - These are *addressed* messages containing up to 70-bytes of data
+     - These are *addressed* messages containing up to 70-bytes of data.
      - 1:1.
    - Streams
      - These are *addressed* messages carrying unlimited data.
      - 1:1.
- - Additional Protocols/Utility-Libraries
-   - BG - Blue/Green -- node health indicators
-   - ButtonLed -- controlling a button and LED on one processor pin
+ - Additional Protocols
    - Teaching -- teaching an eventID from one node to one or more others.  
-   - Traction Control -- train control
+   - Traction Control -- train control.
+ - Additional Utility-Libraries
+   - BG - Blue/Green -- node health indicators and system buttons.
+   - ButtonLed -- implements controlling a button and LED from a single processor pin.
 
 ## How the Above Translates to the Codebase
 Each protocol has corresponding code, usually in the form of a class.  
