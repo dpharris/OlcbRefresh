@@ -53,6 +53,18 @@ parallels this structure:
 OpenLCB/LCC is a set of heirarchical protocols to let nodes talk to each other.  
 
 It consists of: 
+ - System/Application Messaging
+   - PCE - Events
+     - Implements *Producer/Consumer Events* (64-bit)
+     - EventIDs are globally unique 64-bit numbers.
+     - These are *unaddressed* EventID messages.
+     - 1:N.
+   - Datagrams
+     - These are *addressed* messages containing up to 70-bytes of data.
+     - 1:1.
+   - Streams
+     - These are *addressed* messages carrying unlimited data.
+     - 1:1.
  - System/Housekeeping
    - Link - establishes and maintains the node's link to the network
      - Announces state of Node
@@ -69,18 +81,6 @@ It consists of:
      - *Reporting of the CDI/xml* on request.
    - Memory Configuration
      - Reading and writing to the node's memory spaces, including Configuration, RAM and EEPROM
- - System/Application Messaging
-   - PCE - Events
-     - Implements *Producer/Consumer Events* (64-bit)
-     - EventIDs are globally unique 64-bit numbers.
-     - These are *unaddressed* EventID messages.
-     - 1:N.
-   - Datagrams
-     - These are *addressed* messages containing up to 70-bytes of data.
-     - 1:1.
-   - Streams
-     - These are *addressed* messages carrying unlimited data.
-     - 1:1.
  - Additional Protocols
    - Teaching -- teaching an eventID from one node to one or more others.  
    - Traction Control -- train control.
