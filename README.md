@@ -108,16 +108,16 @@ For example there are lines of code from the OlcbBasicNode example for *initiali
 
 ## How Does the Application Interact with the Codebase?
 The programmer of the Application must: 
- - Choose the NodeID - this must be from a range **controlled** by the manufacturer - ie **you**.  
- - Write the **CDI/xml** describibg the node and its node-variables, including its eventIDs. 
+ - Choose the NodeID - this must be from a range **controlled** by the manufacturer - **ie you**.  
+ - Write the **CDI/xml** describing the node and its node-variables, including its eventIDs. 
  - Write a **MemStruct{}** that matches the xml description.  
- - Choosiing the Memory Model, one of: **SMALL. MEDIUM, or LARGE**.  A good first choice is MEDIUM.  
- - Write code to flag each evntID as **Producer, Consumer, or Both**.  
- - Write **pceCallback()** which processes any received eventIDs, ie eventIDs to be consumed, and causing whatever action is required, eg a LED being lit ot extinguished.  
- - Write **produceFromInputs()** which scans the node's inputs and flags an evenItD to be sent.  
- - Write **userConfigWrite()** which is called whenever a UI Tool writes to the node's memory.  This code can then compare the memory address range and take wahtever action is appropriate, e.g. update a servo position.
+ - Choose the Memory Model, one of: **SMALL. MEDIUM, or LARGE**.  A good first choice is **MEDIUM**.  
+ - Write code to flag each eventID as a **Producer, Consumer, or Both**.  
+ - Write **pceCallback()**, which processes received eventIDs, ie eventIDs to be consumed, and causing whatever action is required, eg a LED being lit or extinguished.  
+ - Write **produceFromInputs()** which scans the node's inputs and, if appropriate, flags an evenItD to be sent.  
+ - Write **userConfigWrite()** which is called whenever a UI Tool writes to the node's memory.  This code can then compare the memory address range of the change to the node's variables, and take whatever action is appropriate, e.g. update a servo position.
  - Write additional support and glue code for the Application.  
 
 ## Example Applications
- - **OlcbBasicNode** implements a simple node which excercises most of the protocols.  It has two inputs and two outputs.  Each input has two Producer-eventIDs and each output has two Consumer-eventIDs, so 8 eventIDs is total.  This Application makes use of the ButtonLED library to control two buttons and two LEDs.  IN addition, it implements the BG (Blue-Gold) protocol to allow teaching and learning of eventIDs between this node and others.  
+ - **OlcbBasicNode** implements a simple node which exercises most of the protocols.  It has two inputs and two outputs.  Each input has two Producer-eventIDs and each output has two Consumer-eventIDs, so 8 eventIDs in total.  This Application makes use of the ButtonLED library to control two buttons and two LEDs.  In addition, it implements the BG (Blue-Gold) protocol to allow the **teaching** of eventIDs between this node and others.  
 - **OlcbServoPCA8695** implements driving a number of servos from a PCA8695 PWM chip.  It shows how to write a different **pceCallback()** and also the **userConfigWrite()** to allow updating the servo positions in real-time from the JMRI UI.  
