@@ -54,17 +54,17 @@ OpenLCB/LCC is a set of heirarchical protocols to let nodes talk to each other.
 
 It consists of: 
  - System/Application Messaging
-   - PCE - Events
-     - Implements *Producer/Consumer Events* (64-bit)
-     - EventIDs are globally unique 64-bit numbers.
+   - PCE - Event Messages
      - These are *unaddressed* EventID messages.
-     - 1:N.
-   - Datagrams
-     - These are *addressed* messages containing up to 70-bytes of data.
-     - 1:1.
-   - Streams
-     - These are *addressed* messages carrying unlimited data.
-     - 1:1.
+     - They implement *Producer/Consumer Events* (64-bit)
+     - EventIDs are globally unique 64-bit numbers.
+     - These are one-to-many messages.
+   - Datagram Messages
+     - These are *addressed* messages containing up to 70-bytes of data in a single message.
+     - These are one-to-one messages.
+   - Stream Messages
+     - These are *addressed* messages carrying unlimited data in multiple messages.
+     - These are one-to-one messages.
  - System/Housekeeping
    - Link - establishes and maintains the node's link to the network
      - Announces state of Node
@@ -72,7 +72,7 @@ It consists of:
      - Announcement of *Consumed-* and *Produced-eventIDs*
      - *NodeID reporting* on request.
      - *EventID reporting* on request.
-     - On CAN maintains *alias assignment* and *maintenance*;
+     - On the CAN-implementation, this maintains *alias assignment and maintenance*;
    - SNII
      - Simple Node Information -- brief description for *UI Tools* to use.
    - PIP
