@@ -10,8 +10,6 @@
 //   Bob Jacobsen 2010, 2012
 //      based on examples by Alex Shepherd and David Harris
 //==============================================================
-//#include "debug.h"
-//#include <Arduino.h>
 
 #define MEM_SMALL 1
 #define MEM_MEDIUM 2
@@ -23,37 +21,19 @@
 
 // next line for stand-alone compile
 #include <Arduino.h>
-//#include <ctype.h>
-//#include <stdarg.h>
-//#include <stdio.h>
 #include <avr/pgmspace.h>
 //#include "logging.h"
 #include "OlcbCommonVersion.h"
 
-//#include "processor.h" // selects by processor and supplies EEPROM and CAN libs -- see OpenLcbCanInterface.h
-
-//#include CANlibrary.h"
-//#include <can.h>
-
 // Number of channels implemented. Each corresonds 
 // to an input or output pin.
-#define NUM_CHANNEL 4
+#define NUM_CHANNEL 8
 
 // total number of events, two per channel
-#define NUM_EVENT 2*NUM_CHANNEL
+#define NUM_EVENT 3*NUM_CHANNEL
 
 // Description of EEPROM memory structure, and the mirrored mem if in MEM_LARGE
 #include "MemStruct.h"
-
-// The following lines are needed because the Arduino environment 
-// won't search a library directory unless the library is included 
-// from the top level file (this file) [[ this may have changed with more recent IDEs ]]
-//#include <EEPROM.h>
-
-//#include <can.h>
-//#include <ButtonLed.h>
-
-//#include "NodeID.h"
 
 // init for serial communications if used
 #define         BAUD_RATE       115200
@@ -62,10 +42,9 @@ NodeID nodeid(5,1,1,1,3,255);    // This node's default ID; must be valid
 
 // Define pins
 // BLUE is 18 LEDuino; others defined by board (48 IO, 14 IOuino)
-#define BLUE 18
-
+#define BLUE 48
 // GOLD is 19 LEDuino; others defined by board (49 IO, 15 IOuino)
-#define GOLD 19
+#define GOLD 49
 
 // next lines get "warning: only initialized variables can be placed into program memory area" due to GCC bug
 extern "C" {
@@ -89,7 +68,6 @@ extern "C" {
 uint8_t protocolIdentValue[6] = {0xD7,0x58,0x00,0,0,0};
       // PIP, Datagram, MemConfig, P/C, ident, teach/learn, 
       // ACDI, SNIP, CDI
-
       /* whole set: 
        *  Simple, Datagram, Stream, MemConfig, Reservation, Events, Ident, Teach
        *  Remote, ACDI, Display, SNIP, CDI, Traction, Function, DCC
@@ -101,41 +79,16 @@ uint8_t protocolIdentValue[6] = {0xD7,0x58,0x00,0,0,0};
 #include "OlcbInc1.h"
 
 // Events this node can produce or consume, used by PCE and loaded from EEPROM by NM
-Event events[] = { // should be NUM_EVENT of these
-    Event(), Event(), Event(), Event(), 
-    Event(), Event(), Event(), Event() 
-};
-
+Event events[NUM_EVENT] = { Event() }; 
 
 //Nodal_t nodal = { {5,1,1,1,3,255}, events, eventsIndex, eventidOffset, NUM_EVENT };
 Nodal_t nodal = { &nodeid, events, eventsIndex, eventidOffset, NUM_EVENT };
-
-// input/output pin drivers
-// 14, 15, 16, 17 for LEDuino with standard shield
-// 16, 17, 18, 19 for IOduino to clear built-in blue and gold
-// Io 0-7 are outputs & LEDs, 8-15 are inputs
-ButtonLed pA(0, LOW); 
-ButtonLed pB(1, LOW);
-ButtonLed pC(8, LOW);
-ButtonLed pD(9, LOW);
-
-#define ShortBlinkOn   0x00010001L
-#define ShortBlinkOff  0xFFFEFFFEL
-
-uint32_t patterns[] = { // two per cchannel, one per event
-  ShortBlinkOff,ShortBlinkOn,
-  ShortBlinkOff,ShortBlinkOn,
-  ShortBlinkOff,ShortBlinkOn,
-  ShortBlinkOff,ShortBlinkOn
-};
-ButtonLed* buttons[] = {  // One for each event; each channel is a pair
-                        &pA,&pA,&pB,&pB,&pC,&pC,&pD,&pD
-                       };
 
 ButtonLed blue(BLUE, LOW);
 ButtonLed gold(GOLD, LOW);
 
 void pceCallback(uint16_t index);
+void restore();
 
 NodeMemory nm(0);  // allocate from start of EEPROM
 void store() { nm.store(&nodeid, events, eventidOffset, NUM_EVENT); }
@@ -145,42 +98,28 @@ void store() { nm.store(&nodeid, events, eventidOffset, NUM_EVENT); }
 PCE pce(&nodal, &txBuffer, pceCallback, restore, &link);
 
 // Set up Blue/Gold configuration
-BG bg(&pce, buttons, patterns, NUM_EVENT, &blue, &gold, &txBuffer);
+BG bg(&pce, 0, 0, 0, &blue, &gold, &txBuffer);
 
 bool states[] = {false, false, false, false}; // current input states; report when changed
 
-// On the assumption that the producers (inputs) and consumers (outputs) are consecutive, 
-// these are used later to label the individual channels as producer or consumer
-#define FIRST_PRODUCER_CHANNEL_INDEX    0
-#define LAST_PRODUCER_CHANNEL_INDEX     NUM_CHANNEL/2-1
-#define FIRST_CONSUMER_CHANNEL_INDEX    NUM_CHANNEL/2
-#define LAST_CONSUMER_CHANNEL_INDEX     NUM_CHANNEL-1
+// This is called to process actions --> producer events -- none in this application
+void produceFromInputs() {}
 
-void produceFromInputs() {
-  // called from loop(), this looks at changes in input pins and 
-  // and decides which events to fire
-  // with pce.produce(i);
-  // The first event of each pair is sent on button down,
-  // and second on button up.
-  // 
-  // To reduce latency, only MAX_INPUT_SCAN inputs are scanned on each loop
-  //    (Should not exceed the total number of inputs, nor about 4)
-  #define MAX_INPUT_SCAN 4
-  static int scanIndex = 0;
-  //
-  for (int i = 0; i<(MAX_INPUT_SCAN); i++) { // simply a counter of how many to scan
-    if (scanIndex < (LAST_PRODUCER_CHANNEL_INDEX)) scanIndex = (FIRST_PRODUCER_CHANNEL_INDEX);
-    if (states[scanIndex] != buttons[scanIndex*2]->state) {
-      states[scanIndex] = buttons[scanIndex*2]->state;
-      if (states[scanIndex]) {
-        pce.produce(scanIndex*2);
-      } else {
-        pce.produce(scanIndex*2+1);
-      }
-    }
-  }
+//
+// Callback from a Configuration write
+// Use this to detect changes in the node's configuration
+// This may be useful to take immediate action on a change.
+// 
+void userConfigWrite(unsigned int address, unsigned int length){
+   uint8_t pl;  // pulse length
+   for(unsigned s=0; s<NUM_CHANNEL; s++) {
+     for(unsigned p=0; p<3; p++) {
+       unsigned int pp = &pmem->servo[s].pulse[p]; 
+       if( (address<=pp) && (pp<(address+length)) ) pl = EEPROM.read(pp);
+       setServoPulse(s, ((double)pl)/1000);
+     }
+   }
 }
-
 
 #include <Adafruit_PWMServoDriver.h>
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(0x40);
@@ -188,7 +127,6 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(0x40);
 // e.g. setServoPulse(0, 0.001) is a ~1 millisecond pulse width. its not precise!
 void setServoPulse(uint8_t n, double pulse) {
   double pulselength;
-  
   pulselength = 1000000;   // 1,000,000 us per second
   pulselength /= 60;   // 60 Hz
   Serial.print(pulselength); Serial.println(" us per period"); 
@@ -203,8 +141,8 @@ void setServoPulse(uint8_t n, double pulse) {
 void pceCallback(uint16_t index) {
   // Invoked when an event is consumed; drive pins as needed
   // from index of all events. 
-  int p = index%3;
-  int s = index/3;
+  int p = index%3;  // position 0-2
+  int s = index/3;  // servo 0-7
   uint8_t b;
   EEPROM.get((int)&pmem->servo[s].pos[p]+1,b);
   int pl = EEPROM.get((int)&pmem->servo[s].pos[p],b);
@@ -247,8 +185,8 @@ void loop() {
         OpenLcb_can_active = false;
     }
     // handle the status lights  
-    blue.process();
-    gold.process();
+//    blue.process();
+//    gold.process();
 
 }
 

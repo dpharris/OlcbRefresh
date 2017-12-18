@@ -62,7 +62,9 @@ MemStruct * pmem = 0;
 
 // define eventsOffset array in flash      (Balaz's idea) Note: this negates the need for userInitEventIDOffsets()
 #define ADDR_EID(x) ((unsigned int)&pmem->x)
-#define REG_SERVO(s) ADDR_EID(servo[s].pos[0]), ADDR_EID(servo[s].pos[1]), ADDR_EID(servo[s].pos[2]) 
+
+// helper macro to shorten initialization text below
+#define REG_SERVO(s) ADDR_EID(servo[s].pos[0]), ADDR_EID(servo[s].pos[1]), ADDR_EID(servo[s].pos[2])  
 const PROGMEM uint16_t eventidOffset[] = {
    REG_SERVO(0),
    REG_SERVO(1),

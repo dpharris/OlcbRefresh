@@ -98,15 +98,10 @@ uint8_t protocolIdentValue[6] = {0xD7,0x58,0x00,0,0,0};
 #include "OlcbArduinoCAN.h"
 #include "OlcbInc1.h"
 
-// Events this node can produce or consume, used by PCE and loaded from EEPROM by NM
-Event events[] = { // should be NUM_EVENT of these
-    Event(), Event(), Event(), Event(), 
-    Event(), Event(), Event(), Event() 
-};
+Event events[NUM_EVENT] = { Event() };   // repeated for all eight events.  
 
-
-//Nodal_t nodal = { {5,1,1,1,3,255}, events, eventsIndex, eventidOffset, NUM_EVENT };
 Nodal_t nodal = { &nodeid, events, eventsIndex, eventidOffset, NUM_EVENT };
+//Nodal_t nodal = { &NodeID(5,1,1,1,3,255), events, eventsIndex, eventidOffset, NUM_EVENT };  // alternate form.
 
 // input/output pin drivers
 // 14, 15, 16, 17 for LEDuino with standard shield
