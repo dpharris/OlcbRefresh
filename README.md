@@ -69,7 +69,7 @@ It consists of:
      - *Reporting of the CDI/xml* on request.
    - Memory Configuration
      - Reading and writing to the node's memory spaces, including Configuration, RAM and EEPROM
- - Application Messaging
+ - System/Application Messaging
    - PCE - Events
      - Implements *Producer/Consumer Events* (64-bit)
      - EventIDs are globally unique 64-bit numbers.
