@@ -106,7 +106,7 @@ For example there are lines of code from the OlcbBasicNode example for **initial
   PCE pce(&nodal, &txBuffer, pceCallback, restore, &link);
   BG bg(&pce, buttons, patterns, NUM_EVENT, &blue, &gold, &txBuffer);
 ```
-Moat of the **processing** is hidden in the #include files.  
+Most of the **processing** is hidden in the #include files.  
 
 ## How Does the Application Interact with the Codebase?
 The programmer of the Application must: 
