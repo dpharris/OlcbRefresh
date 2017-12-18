@@ -89,7 +89,7 @@ It consists of:
    - ButtonLed -- implements controlling a button and LED from a single processor pin.
 
 ## How the Above Translates to the Codebase
-Each protocol has corresponding code, usually in the form of a class.  
+Each protocol has corresponding code, usually in the form of a class, and implenented as a pair of *.h and *.cpp  files.  
 
 The codebase tries to hide some of the complexity in #include files.  
 
@@ -106,6 +106,7 @@ For example there are lines of code from the OlcbBasicNode example for *initiali
   PCE pce(&nodal, &txBuffer, pceCallback, restore, &link);
   BG bg(&pce, buttons, patterns, NUM_EVENT, &blue, &gold, &txBuffer);
 ```
+Moat of the processing is hidden in the #include files.  
 
 ## How Does the Application Interact with the Codebase?
 The programmer of the Application must: 
