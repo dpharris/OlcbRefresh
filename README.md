@@ -64,7 +64,7 @@ It consists of:
    - SNII
      - Simple Node Information -- brief description for *UI Tools* to use.
    - PIP
-     - Protocol Information -- A bit-map of which protocols the node uses.  
+     - Protocol Identification -- Which protocols the node uses reported as a bit-map.  
    - CDI
      - *Reporting of the CDI/xml* on request.
    - Memory Configuration
