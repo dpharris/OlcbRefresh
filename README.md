@@ -74,13 +74,13 @@ It consists of:
      - *EventID reporting* on request.
      - On the CAN-implementation, this maintains *alias assignment and maintenance*;
    - SNII
-     - Simple Node Information -- brief description for *UI Tools* to use.
+     - Simple Node Information -- provides a brief description of the node for *UI Tools* to use.
    - PIP
-     - Protocol Identification -- Which protocols the node uses reported as a bit-map.  
+     - Protocol Identification -- Defines which protocols the node uses, and it is reported as a bit-map.  
    - CDI
-     - *Reporting of the CDI/xml* on request.
+     - *Reporting of the node's CDI/xml* on request.
    - Memory Configuration
-     - Reading and writing to the node's memory spaces, including Configuration, RAM and EEPROM
+     - Reading and writing to the node's memory spaces, including Configuration, RAM and EEPROM spaces.
  - Additional Protocols
    - Teaching -- teaching an eventID from one node to one or more others.  
    - Traction Control -- train control.
