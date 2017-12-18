@@ -93,11 +93,11 @@ Each protocol has corresponding code, usually in the form of a class, and implen
 
 The codebase tries to hide some of the complexity in #include files.  
 
-However, each protocol needs to be: 
- - initialized, and
- - processed
+However, each protocol needs to have: 
+ - **initialization**, and
+ - **processing**
     
-For example there are lines of code from the OlcbBasicNode example for *initialization*: 
+For example there are lines of code from the OlcbBasicNode example for **initialization**: 
 ```
   NodeID nodeid(5,1,1,1,3,255);    // This node's default ID; must be valid 
   const char SNII_const_data[] PROGMEM = "\001OpenLCB\000DPHOlcbBasicNode\0001.0\000" OlcbCommonVersion ; 
@@ -106,7 +106,7 @@ For example there are lines of code from the OlcbBasicNode example for *initiali
   PCE pce(&nodal, &txBuffer, pceCallback, restore, &link);
   BG bg(&pce, buttons, patterns, NUM_EVENT, &blue, &gold, &txBuffer);
 ```
-Moat of the processing is hidden in the #include files.  
+Moat of the **processing** is hidden in the #include files.  
 
 ## How Does the Application Interact with the Codebase?
 The programmer of the Application must: 
