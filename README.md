@@ -105,3 +105,19 @@ For example there are lines of code from the OlcbBasicNode example for *initiali
   PCE pce(&nodal, &txBuffer, pceCallback, restore, &link);
   BG bg(&pce, buttons, patterns, NUM_EVENT, &blue, &gold, &txBuffer);
 ```
+
+## How Does the Application Interact with the Codebase?
+The programmer of teh Application is responsible to: 
+ - Choose the NodeID - this must be from a range **controlled** by the manufacturer - ie **you**.  
+ - Write the **CDI/xml** describibg the node and its node-variables, including its eventIDs. 
+ - Write a **MemStruct{}** that matches the xml description.  
+ - Choosiing the Memory Model, one of: **SMALL. MEDIUM, or LARGE**.  A good first choice is MEDIUM.  
+ - Write code to flag each evntID as **Producer, Consumer, or Both**.  
+ - Write **pceCallback()** which processes any received eventIDs, ie eventIDs to be consumed, and causing whatever action is required, eg a LED being lit ot extinguished.  
+ - Write **produceFromInputs()** which scans the node's inputs and flags an evenItD to be sent.  
+ - Write **userConfigWrite()** which is called whenever a UI Tool writes to the node's memory.  This code can then compare the memory address range and take wahtever action is appropriate, e.g. update a servo position.
+ - Write additional support and glue code for the Application.  
+
+## Example Applications
+ - **OlcbBasicNode** implements a simple node which excercises most of the protocols.  It has two inputs and two outputs.  Each input has two Producer-eventIDs and each output has two Consumer-eventIDs, so 8 eventIDs is total.  This Application makes use of the ButtonLED library to control two buttons and two LEDs.  IN addition, it implements the BG (Blue-Gold) protocol to allow teaching and learning of eventIDs between this node and others.  
+- **OlcbServoPCA8695** implements driving a number of servos from a PCA8695 PWM chip.  It shows how to write a different **pceCallback()** and also the **userConfigWrite()** to allow updating the servo positions in real-time from the JMRI UI.  
