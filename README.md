@@ -54,26 +54,26 @@ OpenLCB/LCC is a set of heirarchical protocols to let nodes talk to each other.
 
 It consists of: 
  - System/Housekeeping
-  - Link - establishes and maintains the node's link to the network
-   - On CAN maintains alias assignment and maintenance;
-   - Announcement of *Intialization Complete*
-   - Announcement of *Consumed-* and *Produced-eventIDs*
-   - NodeID reporting on request.
-   - EventID reporting on request.
-  - CDI
-   - Reporting of the CDI/xml on request.
-  - Memory Configuration
-   - Reading and writing to teh node's memory spaces, including Configuration, RAM and EEPROM
+   - Link - establishes and maintains the node's link to the network
+     - On CAN maintains alias assignment and maintenance;
+     - Announcement of *Intialization Complete*
+     - Announcement of *Consumed-* and *Produced-eventIDs*
+     - NodeID reporting on request.
+     - EventID reporting on request.
+   - CDI
+     - Reporting of the CDI/xml on request.
+   - Memory Configuration
+     - Reading and writing to teh node's memory spaces, including Configuration, RAM and EEPROM
  - Application Messaging
-  - Events
-   - Unaddressed globally unique eventIDs (64-bit)
-  - Datagrams
-   - Addressed messages containing up to 70-bytes of data
-  - Streams
-   - Addressed unlimited data
+   - Events
+     - Unaddressed globally unique eventIDs (64-bit)
+   - Datagrams
+     - Addressed messages containing up to 70-bytes of data
+   - Streams
+     - Addressed unlimited data
  - Additional Protocols
-  - Teaching
-  - Traction Control
-  - Button
+   - Teaching
+   - Traction Control
+   - Button
 
     
