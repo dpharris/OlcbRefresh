@@ -107,7 +107,7 @@ For example there are lines of code from the OlcbBasicNode example for *initiali
 ```
 
 ## How Does the Application Interact with the Codebase?
-The programmer of teh Application is responsible to: 
+The programmer of the Application must: 
  - Choose the NodeID - this must be from a range **controlled** by the manufacturer - ie **you**.  
  - Write the **CDI/xml** describibg the node and its node-variables, including its eventIDs. 
  - Write a **MemStruct{}** that matches the xml description.  
