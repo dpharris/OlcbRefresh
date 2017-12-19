@@ -53,7 +53,8 @@ parallels this structure:
 OpenLCB/LCC is a set of heirarchical protocols to let nodes talk to each other.  
 
 It consists of: 
- - System/Application Messaging
+ - Systems/Application Messaging
+   - These are the 'workhorse' messages on which most applications will be built, they are useful for sytems-messaging as well, and for building further systems-protocols.  
    - PCE - Event Messages
      - These are *unaddressed* EventID messages.
      - They implement *Producer/Consumer Events* (64-bit)
@@ -65,7 +66,8 @@ It consists of:
    - Stream Messages
      - These are *addressed* messages carrying unlimited data in multiple messages.
      - These are one-to-one messages.
- - System/Housekeeping
+ - Systems/Housekeeping
+   - These are the 'behind-the-scenes' protocol that enables and ensures the system's construction. 
    - Link - establishes and maintains the node's link to the network
      - Announces state of Node
      - Announcement of *Intialization Complete*
@@ -82,16 +84,19 @@ It consists of:
    - Memory Configuration
      - Reading and writing to the node's memory spaces, including Configuration, RAM and EEPROM spaces.
  - Additional Protocols
+   - These protocols extend the base-system.
    - Teaching -- teaching an eventID from one node to one or more others.  
    - Traction Control -- train control.
  - Additional Utility-Libraries
+   - These libraries implement useful functionality.  
    - BG - Blue/Green -- node health indicators and system buttons.
    - ButtonLed -- implements controlling a button and LED from a single processor pin.
 
 ## How the Above Translates to the Codebase
-Each protocol has corresponding code, usually in the form of a class, and implenented as a pair of *.h and *.cpp  files.  
+The 'codebase' is a set of libraries and functions that implement the basic protocols of OpenLCB/LCC.  
 
-The codebase tries to hide some of the complexity in #include files.  
+ - Each protocol has corresponding code, usually in the form of a class, and implenented as a pair of *.h and *.cpp  files.  
+ - The codebase tries to hide some of the complexity in #include files.  
 
 However, each protocol needs to have: 
  - **initialization**, and
@@ -110,6 +115,7 @@ Most of the **processing** is hidden in the #include files.
 
 ## How Does the Application Interact with the Codebase?
 The programmer of the Application must: 
+ - Decide what and how the new Application works, ie how eventids and other node variables are used to build the Aplication.  
  - Choose the NodeID - this must be from a range **controlled** by the manufacturer - **ie you**.  
  - Write the **CDI/xml** describing the node and its node-variables, including its eventIDs. 
  - Write a **MemStruct{}** that matches the xml description.  
@@ -121,5 +127,6 @@ The programmer of the Application must:
  - Write additional support and glue code for the Application.  
 
 ## Example Applications
+The provided examples will give some ideas of how to accomplish sample projects.  They can form the basis of and be adapted for a new Application, or used for inspiration.  
  - **OlcbBasicNode** implements a simple node which exercises most of the protocols.  It has two inputs and two outputs.  Each input has two Producer-eventIDs and each output has two Consumer-eventIDs, so 8 eventIDs in total.  This Application makes use of the ButtonLed library to control two buttons and two LEDs.  In addition, it implements the BG (Blue-Gold) protocol to allow the **teaching** of eventIDs between this node and others.  
 - **OlcbServoPCA8695** implements driving a number of servos from a PCA8695 PWM chip.  It shows how to write a different **pceCallback()**.  It also uses **userConfigWrite()** to allow real-time updating of a servo positions from a **UI Tool**, such as **JMRI** or **Model Railroad System**.  
