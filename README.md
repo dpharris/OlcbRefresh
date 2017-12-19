@@ -31,19 +31,29 @@ parallels this structure:
 ```
 
 ## Memory Models:
-1. Small: All operations are from EEPROM;
-2. Medium: eventIDs are copied to RAM as eventids[];
-3. Large:  The whole of EEPROM is mirrored to RAM as mem[].
+The code can be written to be maximize space or speed, and the user can choose from three memory models: 
+1. Small: All operations are from EEPROM<br>
+    Minimizes RAM size, but is slower.  If many eventIDs are needed, it may be the only choice.  
+2. Medium: only eventIDs are copied to RAM into eventids[]<br>
+    Quite good compromixe on size and speed.
+3. Large:  The whole of EEPROM is mirrored to RAM as mem[]<br>
+    Faster but bigger.  This is good for larger processors.  
+#### In Flash:<br>
+    **eventidOffset[]** stores the offset of each eventID into the EEPROM or RAM struct{}.<br>
+    It is initialized at compile-time.
 #### In RAM:
-- eventidOffset[] stores the offset of each eventID into the EEPROM or RAM struct{}.
-- eventidIndex[] contains a hash of each eventID, and an associated sequential index into eventidIndex[], it is sorted on the hash values.  
-- in the medium model, eventids[] contains a copy of the eventIDs, and is indexed by eventidIndex[].
-- In all models: 
+    **eventidIndex[]** contains a hash of each eventID, and an associated sequential index into eventidOffset[].<br>
+    It is sorted on the hash values.  
+
+In the medium model, **eventids[]** contains a copy of the node's eventIDs, and is indexed by eventidIndex[].
+
+In a diagram:
+ - In all models: 
 ```
         eventidIndex[]--(index)-->eventidOffset[]--(offset)-->mem[] or EEPROM[]
         eventidIndex[]--(index)-->Events[].flags
 ```
-- In the Medium model, eventIndex also indexes the eventIDs array:
+ - In the Medium model, eventIndex also indexes the eventIDs array:
 ```
         **eventidIndex[]--(index)-->eventids[]
 ```
@@ -101,7 +111,7 @@ However, each protocol needs to have:
  - **initialization**, and
  - **processing**
     
-For example there are lines of code from the OlcbBasicNode example for **initialization**: 
+For example there are some selected lines of code from the OlcbBasicNode example used for **initialization**: 
 ```c++
   NodeID nodeid(5,1,1,1,3,255);    // This node's default ID; must be valid 
   const char SNII_const_data[] PROGMEM = "\001OpenLCB\000DPHOlcbBasicNode\0001.0\000" OlcbCommonVersion ; 
@@ -110,7 +120,7 @@ For example there are lines of code from the OlcbBasicNode example for **initial
   PCE pce(&nodal, &txBuffer, pceCallback, restore, &link);
   BG bg(&pce, buttons, patterns, NUM_EVENT, &blue, &gold, &txBuffer);
 ```
-Most of the **processing** is hidden in the #include files.  
+Most of the **processing** is hidden as functions in the #include files.  
 
 ## How Does the Application Interact with the Codebase?
 The programmer of the Application must: 
