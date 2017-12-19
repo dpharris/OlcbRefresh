@@ -1,4 +1,5 @@
 # OlcbRefresh
+## **WARNING** This code is in development.  TiaCAN appears to work, but AT90CAN transmits, but does not receive.  Others not tested.  
 This is a refresh of the Arduino base libs, ie OlcbStarLibraries.  
 
 It is meant to simplify and extend the Arduino code.
