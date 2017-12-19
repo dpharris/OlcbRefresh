@@ -10,12 +10,12 @@ It is meant to simplify and extend the Arduino code.
 2. A sorted Index[] is used to speed eventID processing, using a hash of the eventid.  
 3. Simplified the definition of CDI/xml for the node by matching a struct{} to the xml structure, see the example below.   
 
-e.g.: This CDI/xml:
+e.g.: This CDI/xml, which self-describes the node to the system:
 ```xml
     <cdi>
         <group replication='8'>
         <name>Channels</name>
-            <eventid><name>evento</name></eventid>
+             <eventid><name>event0</name></eventid>
             <eventid><name>event1</name></eventid>
         </group>
     </cdi>
@@ -45,24 +45,24 @@ The code can be written to be maximize space or speed, and the user can choose f
 **eventidIndex[]** contains a hash of each eventID, and an associated sequential index into eventidOffset[].<br>
     It is sorted on the hash values.  
 
-In the medium model, **eventids[]** contains a copy of the node's eventIDs, and is indexed by eventidIndex[].
+In the medium model *only*, **eventids[]** contains a copy of the node's eventIDs, and is indexed by eventidIndex[].
 
-In a diagram:
+This restated as diagram:
  - In all models: 
 ```
         eventidIndex[]--(index)-->eventidOffset[]--(offset)-->mem[] or EEPROM[]
         eventidIndex[]--(index)-->Events[].flags
 ```
- - In the Medium model, eventIndex also indexes the eventIDs array:
+ - In the Medium model *only*, eventIndex also indexes the eventIDs array:
 ```
         **eventidIndex[]--(index)-->eventids[]
 ```
 
-## More about OpenLCB/LCC
+## More about OpenLCB/LCC - what is it?
 
-OpenLCB/LCC is a set of heirarchical protocols to let nodes talk to each other.  
+OpenLCB/LCC is a set of heirarchical protocols to **let nodes talk to each other**.  
 
-These consist of: 
+These protocols consist of: 
  - Systems/Application Messaging<br>
     These are the 'workhorse' messages on which most applications will be built, they are useful for sytems-messaging as well, and for building further systems-protocols.  
    - PCE - Event Messages
@@ -85,10 +85,10 @@ These consist of:
      - *NodeID reporting* on request.
      - *EventID reporting* on request.
      - On the CAN-implementation, this maintains *alias assignment and maintenance*;
-   - SNII
-     - Simple Node Information -- provides a brief description of the node for *UI Tools* to use.
+   - SNIP
+     - Simple Node Information Protocol-- provides a brief description of the node for *UI Tools* to use.
    - PIP
-     - Protocol Identification -- Defines which protocols the node uses, and it is reported as a bit-map.  
+     - Protocol Identification Protocol -- Defines which protocols the node uses, and it is reported as a bit-map.  
    - CDI
      - *Reporting of the node's CDI/xml* on request.
    - Memory Configuration
