@@ -106,7 +106,7 @@ These protocols consist of:
 
 ## How the Above Translates to the Codebase
 The 'codebase' is a set of libraries and functions that implement the basic protocols of OpenLCB/LCC. <br> 
-Each protocol has corresponding **code**, usually in the form of a **class**, and implenented as a pair of *.h and *.cpp  files. <br> 
+Each protocol has corresponding **code**, usually in the form of a **class**, and implemented as a pair of *.h and *.cpp  files. <br> 
 The codebase tries to hide some of the complexity in #include files.  <br>
 
 However, each protocol needs to have: 
