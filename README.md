@@ -60,12 +60,14 @@ This restated as a diagram:
 
 ## More about OpenLCB/LCC - what is it?
 
-OpenLCB/LCC is a set of heirarchical protocols to **let nodes talk to each other**.  
+OpenLCB/LCC is a set of heirarchical protocols to **let nodes talk to each other**. 
+For more information on OpenLCB, see: [OpenLCB.org](http://openlcb.org)
+For protocol descriptions, see: [Adopted LCC Documents](http://openlcb.org/openlcb-and-lcc-documents/layout-command-control-lcc/)
 
 These protocols consist of: 
  - **Systems/Application Messaging**<br>
     These are the 'workhorse' messages on which most applications will be built, they are useful for sytems-messaging as well, and for building further systems-protocols.  
-   - PCE - Event Messages
+   - PCE - Produver/Consumer Event Messages
      - These are *unaddressed* EventID messages.
      - They implement *Producer/Consumer Events* (64-bit)
      - EventIDs are globally unique 64-bit numbers.
@@ -85,12 +87,12 @@ These protocols consist of:
      - *NodeID reporting* on request.
      - *EventID reporting* on request.
      - On the CAN-implementation, this maintains *alias assignment and maintenance*;
-   - SNIP
-     - Simple Node Information Protocol-- provides a brief description of the node for *UI Tools* to use.
-   - PIP
-     - Protocol Identification Protocol -- Defines which protocols the node uses, and it is reported as a bit-map.  
-   - CDI
-     - *Reporting of the node's CDI/xml* on request.
+   - SNIP - Simple Node Information Protocol
+     - Provides a brief description of the node for *UI Tools* to use.
+   - PIP - Protocol Identification Protocol
+     - Defines which protocols the node uses, and it is reported as a bit-map.  
+   - CDI - Configuration Description Information
+     - *Reports the node's CDI/xml* on request.
    - Memory Configuration
      - Reading and writing to the node's memory spaces, including Configuration, RAM and EEPROM spaces.
  - **Additional Protocols**<br>
