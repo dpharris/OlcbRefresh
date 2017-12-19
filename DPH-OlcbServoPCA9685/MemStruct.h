@@ -53,7 +53,7 @@ typedef struct //__attribute__ ((packed))
     uint8_t urate;        // up rate
     uint8_t bounce;       // amount of bounce
     uint8_t dummy;        // enforce uint32_t boundary
-  } servo[8];             // 8 servos
+  } servo[16];             // 16 servos
 } MemStruct;              // type definition
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -66,14 +66,10 @@ MemStruct * pmem = 0;
 // helper macro to shorten initialization text below
 #define REG_SERVO(s) ADDR_EID(servo[s].pos[0]), ADDR_EID(servo[s].pos[1]), ADDR_EID(servo[s].pos[2])  
 const PROGMEM uint16_t eventidOffset[] = {
-   REG_SERVO(0),
-   REG_SERVO(1),
-   REG_SERVO(2),
-   REG_SERVO(3),
-   REG_SERVO(4),
-   REG_SERVO(5),
-   REG_SERVO(6),
-   REG_SERVO(7)
+   REG_SERVO(0),  REG_SERVO(1),  REG_SERVO(2),  REG_SERVO(3),
+   REG_SERVO(4),  REG_SERVO(5),  REG_SERVO(6),  REG_SERVO(7),
+   REG_SERVO(8),  REG_SERVO(9),  REG_SERVO(10), REG_SERVO(11),
+   REG_SERVO(12), REG_SERVO(13), REG_SERVO(14), REG_SERVO(15)
 };
 
 // Sorted index to eventids

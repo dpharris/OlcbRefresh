@@ -27,7 +27,7 @@
 
 // Number of channels implemented. Each corresonds 
 // to an input or output pin.
-#define NUM_CHANNEL 8
+#define NUM_CHANNEL 16
 
 // total number of events, two per channel
 #define NUM_EVENT 3*NUM_CHANNEL

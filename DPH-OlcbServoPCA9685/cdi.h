@@ -23,7 +23,7 @@ const char configDefInfo[] PROGMEM = R"(
   <group>
     <name>Servos</name>
     <description>Define events associated with servos</description>
-    <group replication='8'>
+    <group replication='16'>
       <name>Servos</name>
       <repname>Servo</repname>
       <string size='16'><name>Description</name></string>
