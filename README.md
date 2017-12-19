@@ -14,20 +14,24 @@ It is meant to simplify and extend the Arduino code.
 e.g.: This CDI/xml, which self-describes the node to the system:
 ```xml
     <cdi>
+        ...
         <group replication='8'>
         <name>Channels</name>
-             <eventid><name>event0</name></eventid>
+            <eventid><name>event0</name></eventid>
             <eventid><name>event1</name></eventid>
         </group>
+        ...
     </cdi>
 ```
 parallels this program structure:    
 ```c++
     typedef struct {
+        ...
         struct {
             EventID event0;
             EventID event1;
         } channels[8];
+        ...
     } MemStruct;
 ```
 
