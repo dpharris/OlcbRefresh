@@ -10,7 +10,7 @@ It is meant to simplify and extend the Arduino code.
 2. A sorted Index[] is used to speed eventID processing, using a hash of the eventid.  
 3. Simplified the definition of CDI/xml for the node by matching a struct{} to the xml structure, see the example below.   
 
-e.g.: CDI/xml:
+e.g.: This CDI/xml:
 ```xml
     <cdi>
         <group replication='8'>
@@ -20,7 +20,7 @@ e.g.: CDI/xml:
         </group>
     </cdi>
 ```
-parallels this structure:    
+parallels this program structure:    
 ```c++
     typedef struct {
         struct {
@@ -35,14 +35,14 @@ The code can be written to be maximize space or speed, and the user can choose f
 1. Small: All operations are from EEPROM<br>
     Minimizes RAM size, but is slower.  If many eventIDs are needed, it may be the only choice.  
 2. Medium: only eventIDs are copied to RAM into eventids[]<br>
-    Quite good compromixe on size and speed.
+    Quite good compromize between size and speed.
 3. Large:  The whole of EEPROM is mirrored to RAM as mem[]<br>
-    Faster but bigger.  This is good for larger processors.  
+    Faster but larger.  This is best on larger processors.  
 #### In Flash:<br>
-    **eventidOffset[]** stores the offset of each eventID into the EEPROM or RAM struct{}.<br>
+**eventidOffset[]** stores the offset of each eventID into the EEPROM or RAM struct{}.<br>
     It is initialized at compile-time.
 #### In RAM:
-    **eventidIndex[]** contains a hash of each eventID, and an associated sequential index into eventidOffset[].<br>
+**eventidIndex[]** contains a hash of each eventID, and an associated sequential index into eventidOffset[].<br>
     It is sorted on the hash values.  
 
 In the medium model, **eventids[]** contains a copy of the node's eventIDs, and is indexed by eventidIndex[].
