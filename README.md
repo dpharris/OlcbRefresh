@@ -11,7 +11,7 @@ It is meant to simplify and extend the Arduino code.
 3. Simplified the definition of CDI/xml for the node by matching a struct{} to the xml structure, see the example below.   
 
 e.g.: CDI/xml:
-```
+```xml
     <cdi>
         <group replication='8'>
         <name>Channels</name>
@@ -21,7 +21,7 @@ e.g.: CDI/xml:
     </cdi>
 ```
 parallels this structure:    
-```
+```c++
     typedef struct {
         struct {
             EventID event0;
@@ -66,8 +66,8 @@ These consist of:
    - Stream Messages
      - These are *addressed* messages carrying unlimited data in multiple messages.
      - These are one-to-one messages.
- - Systems/Housekeeping
-   - These are the 'behind-the-scenes' protocol that enables and ensures the system's construction. 
+ - Systems/Housekeeping<br>
+    These are the 'behind-the-scenes' protocol that enables and ensures the system's construction. 
    - Link - establishes and maintains the node's link to the network
      - Announces state of Node
      - Announcement of *Intialization Complete*
@@ -83,27 +83,26 @@ These consist of:
      - *Reporting of the node's CDI/xml* on request.
    - Memory Configuration
      - Reading and writing to the node's memory spaces, including Configuration, RAM and EEPROM spaces.
- - Additional Protocols
-   - These protocols extend the base-system.
+ - Additional Protocols<br>
+    These protocols extend the base-system.
    - Teaching -- teaching an eventID from one node to one or more others.  
    - Traction Control -- train control.
- - Additional Utility-Libraries
-   - These libraries implement useful functionality.  
+ - Additional Utility-Libraries<br>
+    These libraries implement useful functionality.  
    - BG - Blue/Green -- node health indicators and system buttons.
    - ButtonLed -- implements controlling a button and LED from a single processor pin.
 
 ## How the Above Translates to the Codebase
-The 'codebase' is a set of libraries and functions that implement the basic protocols of OpenLCB/LCC.  
-
- - Each protocol has corresponding code, usually in the form of a class, and implenented as a pair of *.h and *.cpp  files.  
- - The codebase tries to hide some of the complexity in #include files.  
+The 'codebase' is a set of libraries and functions that implement the basic protocols of OpenLCB/LCC. <br> 
+Each protocol has corresponding code, usually in the form of a class, and implenented as a pair of *.h and *.cpp  files. <br> 
+The codebase tries to hide some of the complexity in #include files.  <br>
 
 However, each protocol needs to have: 
  - **initialization**, and
  - **processing**
     
 For example there are lines of code from the OlcbBasicNode example for **initialization**: 
-```
+```c++
   NodeID nodeid(5,1,1,1,3,255);    // This node's default ID; must be valid 
   const char SNII_const_data[] PROGMEM = "\001OpenLCB\000DPHOlcbBasicNode\0001.0\000" OlcbCommonVersion ; 
   uint8_t protocolIdentValue[6] = {0xD7,0x58,0x00,0,0,0};
