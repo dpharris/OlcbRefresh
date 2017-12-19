@@ -52,9 +52,9 @@ parallels this structure:
 
 OpenLCB/LCC is a set of heirarchical protocols to let nodes talk to each other.  
 
-It consists of: 
+These consist of: 
  - Systems/Application Messaging
-   - These are the 'workhorse' messages on which most applications will be built, they are useful for sytems-messaging as well, and for building further systems-protocols.  
+    These are the 'workhorse' messages on which most applications will be built, they are useful for sytems-messaging as well, and for building further systems-protocols.  
    - PCE - Event Messages
      - These are *unaddressed* EventID messages.
      - They implement *Producer/Consumer Events* (64-bit)
