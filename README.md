@@ -47,7 +47,7 @@ The code can be written to be maximize space or speed, and the user can choose f
 
 In the medium model *only*, **eventids[]** contains a copy of the node's eventIDs, and is indexed by eventidIndex[].
 
-This restated as diagram:
+This restated as a diagram:
  - In all models: 
 ```
         eventidIndex[]--(index)-->eventidOffset[]--(offset)-->mem[] or EEPROM[]
@@ -63,7 +63,7 @@ This restated as diagram:
 OpenLCB/LCC is a set of heirarchical protocols to **let nodes talk to each other**.  
 
 These protocols consist of: 
- - Systems/Application Messaging<br>
+ - **Systems/Application Messaging**<br>
     These are the 'workhorse' messages on which most applications will be built, they are useful for sytems-messaging as well, and for building further systems-protocols.  
    - PCE - Event Messages
      - These are *unaddressed* EventID messages.
@@ -76,7 +76,7 @@ These protocols consist of:
    - Stream Messages
      - These are *addressed* messages carrying unlimited data in multiple messages.
      - These are one-to-one messages.
- - Systems/Housekeeping<br>
+ - **Systems/Housekeeping**<br>
     These are the 'behind-the-scenes' protocol that enables and ensures the system's construction. 
    - Link - establishes and maintains the node's link to the network
      - Announces state of Node
@@ -93,18 +93,18 @@ These protocols consist of:
      - *Reporting of the node's CDI/xml* on request.
    - Memory Configuration
      - Reading and writing to the node's memory spaces, including Configuration, RAM and EEPROM spaces.
- - Additional Protocols<br>
+ - **Additional Protocols**<br>
     These protocols extend the base-system.
    - Teaching -- teaching an eventID from one node to one or more others.  
    - Traction Control -- train control.
- - Additional Utility-Libraries<br>
+ - **Additional Utility-Libraries**<br>
     These libraries implement useful functionality.  
    - BG - Blue/Green -- node health indicators and system buttons.
    - ButtonLed -- implements controlling a button and LED from a single processor pin.
 
 ## How the Above Translates to the Codebase
 The 'codebase' is a set of libraries and functions that implement the basic protocols of OpenLCB/LCC. <br> 
-Each protocol has corresponding code, usually in the form of a class, and implenented as a pair of *.h and *.cpp  files. <br> 
+Each protocol has corresponding **code**, usually in the form of a **class**, and implenented as a pair of *.h and *.cpp  files. <br> 
 The codebase tries to hide some of the complexity in #include files.  <br>
 
 However, each protocol needs to have: 
@@ -125,7 +125,7 @@ Most of the **processing** is hidden as functions in the #include files.
 ## How Does the Application Interact with the Codebase?
 The programmer of the Application must: 
  - Decide what and how the new Application works, ie how eventids and other node variables are used to build the Aplication.  
- - Choose the NodeID - this must be from a range **controlled** by the manufacturer - **ie you**.  
+ - Choose the **NodeID** - this must be from **a range controlled** by the manufacturer - **ie you**.  
  - Write the **CDI/xml** describing the node and its node-variables, including its eventIDs. 
  - Write a **MemStruct{}** that matches the xml description.  
  - Choose the Memory Model, one of: **SMALL. MEDIUM, or LARGE**.  A good first choice is **MEDIUM**.  
@@ -136,6 +136,8 @@ The programmer of the Application must:
  - Write additional support and glue code for the Application.  
 
 ## Example Applications
-The provided examples will give some ideas of how to accomplish sample projects.  They can form the basis of and be adapted for a new Application, or used for inspiration.  
- - **OlcbBasicNode** implements a simple node which exercises most of the protocols.  It has two inputs and two outputs.  Each input has two Producer-eventIDs and each output has two Consumer-eventIDs, so 8 eventIDs in total.  This Application makes use of the ButtonLed library to control two buttons and two LEDs.  In addition, it implements the BG (Blue-Gold) protocol to allow the **teaching** of eventIDs between this node and others.  
-- **OlcbServoPCA8695** implements driving a number of servos from a PCA8695 PWM chip.  It shows how to write a different **pceCallback()**.  It also uses **userConfigWrite()** to allow real-time updating of a servo positions from a **UI Tool**, such as **JMRI** or **Model Railroad System**.  
+The provided examples will give some ideas of how to accomplish sample projects.  They can form the basis of, or  be adapted to, a new Application, or just used for inspiration.  
+ - **OlcbBasicNode**<br>
+    Implements a simple node which exercises most of the protocols.  It has **two inputs** and **two outputs**.  Each input has two Producer-eventIDs and each output has two Consumer-eventIDs, so 8 eventIDs in total.  This Application makes use of the ButtonLed library to control **two buttons** and **two LEDs**.  In addition, it implements the BG (Blue-Gold) protocol to allow the **teaching** of eventIDs between this node and others.  
+- **OlcbServoPCA8695**<br>
+    Implements driving a number of servos from a PCA8695 PWM chip.  It shows how to write a different **pceCallback()**.  It also uses **userConfigWrite()** to allow real-time updating of a servo positions from a **UI Tool**, such as **JMRI** or **Model Railroad System**.  
