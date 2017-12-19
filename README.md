@@ -60,8 +60,8 @@ This restated as a diagram:
 
 ## More about OpenLCB/LCC - what is it?
 
-OpenLCB/LCC is a set of heirarchical protocols to **let nodes talk to each other**. 
-For more information on OpenLCB, see: [OpenLCB.org](http://openlcb.org)
+OpenLCB/LCC is a set of heirarchical protocols to **let nodes talk to each other**. <br>
+For more information on OpenLCB, see: [OpenLCB.org](http://openlcb.org)<br>
 For protocol descriptions, see: [Adopted LCC Documents](http://openlcb.org/openlcb-and-lcc-documents/layout-command-control-lcc/)
 
 These protocols consist of: 
