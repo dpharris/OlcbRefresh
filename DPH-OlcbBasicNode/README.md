@@ -27,6 +27,9 @@ To describe this we need to write the following xml:
 ```
 This is pretty basic and is not descriptive.  Therefore, additional descriptive text can be added to name and describe the variables. In addition, for each input and output, we can add a node variable that contains a description of the input/output.  This looks like:
 ```
+    <group>
+        <name>I/O Events</name>                                     -- header name
+        <description>Define events associated with input and output pins</description>
         <group replication='2'>                                     -- two inputs
         <name>Inputs</name>                                         -- Group name
         <repname>Input</repname>                                    -- Name labelling each input, with a # added
@@ -41,4 +44,91 @@ This is pretty basic and is not descriptive.  Therefore, additional descriptive 
             <eventid><name>Set Event</name></eventid>
             <eventid><name>Reset Event</name></eventid>
         </group>
+    </group>
+```
+That is essentially the CDI/xml.  However, every node also has some system-variables stored in its EEPROM.  These are stored at a known location, so the system code can find them.  So, we need to add some preface-xml:
+```
+<cdi>
+    <identification>
+        <manufacturer>OpenLCB</manufacturer>
+        <model>OlcbBasicNode</model>
+        <hardwareVersion>1.0</hardwareVersion>
+        <softwareVersion>0.4</softwareVersion>
+    </identification>
+    <segment origin='12' space='253'> <!-- bypasses magic, nextEID, nodeID -->
+        <group>
+            <name>Node ID</name>
+            <description>User-provided description of the node</description>
+            <string size='20'><name>Node Name</name></string>
+            <string size='24'><name>Node Description</name></string>
+        </group>
+```
+Note that you can edit the identification entries, and the description as you want.  
+
+And we also need a footer.  This describes the system variables, and let's the user reset the node from the GUI-Tool.  At this point, just leave it alone. 
+```
+    </segment>
+    <segment origin='0' space='253'> <!-- stuff magic to trigger resets -->
+        <name>Reset</name>
+        <description>Controls reloading and clearing node memory. Board must be restarted for this to take effect.</description>
+        <int size='4'>
+            <map>
+                <relation><property>3998572261</property><value>(No reset)</value></relation>
+                <relation><property>3998561228</property><value>User clear: New default EventIDs, blank strings</value></relation>
+                <relation><property>0</property><value>Mfg clear: Reset all, including Node ID</value></relation>
+            </map>
+        </int>
+    </segment>
+</cdi>
+```
+The actual xml is coded as follows:
+```
+const char configDefInfo[] PROGMEM = R"(
+<cdi xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='http://openlcb.org/trunk/prototypes/xml/schema/cdi.xsd'>
+
+    <identification>
+        <manufacturer>OpenLCB</manufacturer>
+        <model>OlcbBasicNode</model>
+        <hardwareVersion>1.0</hardwareVersion>
+        <softwareVersion>0.4</softwareVersion>
+    </identification>
+
+    <segment origin='12' space='253'> <!-- bypasses magic, nextEID, nodeID -->
+        <group>
+            <name>Node ID</name>
+            <description>User-provided description of the node</description>
+            <string size='20'><name>Node Name</name></string>
+            <string size='24'><name>Node Description</name></string>
+        </group>
+        <group>
+            <name>I/O Events</name>
+            <description>Define events associated with input and output pins</description>
+            <group replication='2'>
+                <name>Inputs</name>
+                <repname>Input</repname>
+                <string size='16'><name>Description</name></string>
+                <eventid><name>Activation Event</name></eventid>
+                <eventid><name>Inactivation Event</name></eventid>
+            </group>
+            <group replication='2'>
+                <name>Outputs</name>
+                <repname>Output</repname>
+                <string size='16'><name>Description</name></string>
+                <eventid><name>Set Event</name></eventid>
+                <eventid><name>Reset Event</name></eventid>
+            </group>
+        </group>
+    </segment>
+    <segment origin='0' space='253'> <!-- stuff magic to trigger resets -->
+        <name>Reset</name>
+        <description>Controls reloading and clearing node memory. Board must be restarted for this to take effect.</description>
+        <int size='4'>
+          <map>
+            <relation><property>3998572261</property><value>(No reset)</value></relation>
+            <relation><property>3998561228</property><value>User clear: New default EventIDs, blank strings</value></relation>
+            <relation><property>0</property><value>Mfg clear: Reset all, including Node ID</value></relation>
+          </map>
+        </int>
+    </segment>
+</cdi>)";
 ```
