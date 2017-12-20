@@ -137,21 +137,21 @@ The matching C++ struct{} MemStruct consists of some fixed system variables, and
 ```
 typedef struct //__attribute__ ((packed)) 
 { 
-uint32_t magic;         // used to check eeprom status
-uint16_t nextEID;       // the next available eventID for use from this node's set
-uint8_t  nid[6];        // the nodeID
-char     nodeName[20];  // optional node-name, used by ACDI
-char     nodeDesc[24];  // optional node-description, used by ACDI
-struct {
-char desc[16];        // description of this input-pin
-EventID activation;   // eventID which is Produced on activation of this input-pin 
-EventID inactivation; // eventID which is Produced on inactivation of this input-pin
-} inputs[2];            // 2 inputs
-struct {
-char desc[16];        // decription of this output
-EventID setEvent;     // Consumed eventID which sets this output-pin
-EventID resetEvent;   // Consumed eventID which resets this output-pin
-} outputs[2];           // 2 outputs
+    uint32_t magic;         // used to check eeprom status
+    uint16_t nextEID;       // the next available eventID for use from this node's set
+    uint8_t  nid[6];        // the nodeID
+    char     nodeName[20];  // optional node-name, used by ACDI
+    char     nodeDesc[24];  // optional node-description, used by ACDI
+    struct {
+        char desc[16];        // description of this input-pin
+        EventID activation;   // eventID which is Produced on activation of this input-pin 
+        EventID inactivation; // eventID which is Produced on inactivation of this input-pin
+    } inputs[2];            // 2 inputs
+    struct {
+        char desc[16];        // decription of this output
+        EventID setEvent;     // Consumed eventID which sets this output-pin
+        EventID resetEvent;   // Consumed eventID which resets this output-pin
+    } outputs[2];           // 2 outputs
 } MemStruct;              // type definition
 ```
 It looks much simpler because it does not contain all the descriptive text for the GUI, but only the node-variables that are stored in the node.  The first three variables are system-variables used for node integrity, so they can not be altered.  
