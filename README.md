@@ -84,7 +84,7 @@ These protocols consist of:
      - These are *addressed* messages carrying unlimited data in multiple messages.
      - These are one-to-one messages.
  - **Systems/Housekeeping**<br>
-    These are the 'behind-the-scenes' protocol that enables and ensures the system's construction. 
+    These are the 'behind-the-scenes' protocol that enables and ensures the system's integrity. 
    - Link - establishes and maintains the node's link to the network
      - Announces state of Node
      - Announcement of *Intialization Complete*
@@ -131,7 +131,7 @@ Most of the **processing** is hidden as functions in the #include files.
 
 ## How Does the Application Interact with the Codebase?
 The programmer of the Application must: 
- - Decide what and how the new Application works, ie how eventids and other node variables are used to build the Aplication.  
+ - Decide what and how the new Application works, ie how eventids and other node variables are used to build the Application.  
  - Choose the **NodeID** - this must be from **a range controlled** by the manufacturer - **ie you**.  
  - Write the **CDI/xml** describing the node and its node-variables, including its eventIDs. 
  - Write a **MemStruct{}** that matches the xml description.  
