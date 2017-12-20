@@ -65,7 +65,7 @@ That is essentially the CDI/xml.  However, every node also has some system-varia
 ```
 Note that you can edit the identification entries, and the description as you want.  
 
-And we also need a footer.  This describes the system variables, and let's the user reset the node from the GUI-Tool.  At this point, just leave it alone. 
+And we also need some footer-xml.  This describes the system variables, and let's the user reset the node from the GUI-Tool.  At this point, just leave it alone and do not edit it. 
 ```
     </segment>
     <segment origin='0' space='253'> <!-- stuff magic to trigger resets -->
@@ -81,7 +81,7 @@ And we also need a footer.  This describes the system variables, and let's the u
     </segment>
 </cdi>
 ```
-The actual xml is coded as follows:
+The actual xml is coded in the sketch as follows:
 ```
 const char configDefInfo[] PROGMEM = R"(
 <cdi xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='http://openlcb.org/trunk/prototypes/xml/schema/cdi.xsd'>
@@ -132,3 +132,29 @@ const char configDefInfo[] PROGMEM = R"(
     </segment>
 </cdi>)";
 ```
+### Matching MemStruct
+The matching C++ struct{} MemStruct consists of some fixed system variables, and node variables matching the xml.  It is coded as: 
+```
+typedef struct //__attribute__ ((packed)) 
+{ 
+uint32_t magic;         // used to check eeprom status
+uint16_t nextEID;       // the next available eventID for use from this node's set
+uint8_t  nid[6];        // the nodeID
+char     nodeName[20];  // optional node-name, used by ACDI
+char     nodeDesc[24];  // optional node-description, used by ACDI
+struct {
+char desc[16];        // description of this input-pin
+EventID activation;   // eventID which is Produced on activation of this input-pin 
+EventID inactivation; // eventID which is Produced on inactivation of this input-pin
+} inputs[2];            // 2 inputs
+struct {
+char desc[16];        // decription of this output
+EventID setEvent;     // Consumed eventID which sets this output-pin
+EventID resetEvent;   // Consumed eventID which resets this output-pin
+} outputs[2];           // 2 outputs
+} MemStruct;              // type definition
+```
+It looks much simpler because it does not contain all the descriptive text for the GUI, but only the node-variables that are stored in the node.  The first three variables are system-variables used for node integrity, so they can not be altered.  
+
+
+
