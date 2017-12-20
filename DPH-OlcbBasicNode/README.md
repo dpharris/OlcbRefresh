@@ -22,7 +22,7 @@ To describe this we need to write the following xml:
             <eventid></eventid>                       -- second eventID
         </group>
 ```
-This is pretty basic and is not descriptive.  Therefore, additional descriptive text can be added to name and describe the variables. In addition, for each input and output, we can add a node variable that contains a description of the input/output.  This looks like:
+This is pretty basic but it is not descriptive.  So additional descriptive text can be added in order to give names to, and describe, the variables. In addition, for each input and output, we can add a text node-variable that saves a description of the input/output inthe EEPROM.  This looks like:
 ```
     <group>
         <name>I/O Events</name>                                     -- header name
