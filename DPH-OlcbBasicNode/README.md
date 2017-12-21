@@ -7,7 +7,7 @@ It implements two inputs and two outputs. Each inpit and output pin has a LED an
     [[I will include a diagram]]
 
 ### CDI/xml
-The CDI/xml describes the variables and eventIDs that are used by a UI-Tool, so that it can display them in a useful way.  See: [XML Wikipedia](https://en.wikipedia.org/wiki/XML)
+The CDI/xml describes the variables and eventIDs that are used by a GUI-Tool, so that it can display them in a useful way.  See: [XML Wikipedia](https://en.wikipedia.org/wiki/XML)
 
 Since each input pin has two states, we will want two producer-eventIDs, one for each state, for each input.  Also, each output pin also has two states, and so will have two consumer-eventids each.  
 
@@ -153,5 +153,56 @@ typedef struct //__attribute__ ((packed))
 ```
 It looks much simpler because it does not contain all the descriptive text for the GUI, but only the node-variables that are stored in the node.  The first three variables are system-variables used for node integrity, so they can not be altered.  
 
+### Stepping through the code
+
+```C++
+#define MEM_SMALL 1
+#define MEM_MEDIUM 2
+#define MEM_LARGE 3
+#define MEM_MODEL MEM_SMALL      // 18892 1207  147 ms          // default to small
+//#define MEM_MODEL MEM_MEDIUM   // 19098 1329  121 ms
+//#define MEM_MODEL MEM_LARGE    // 19090 1419  130 ms
+```
+These defines let you choose the Memory Model.  Just uncomment one of the last three to choose the model.  
+```C++
+// Number of channels implemented. Each corresonds 
+// to an input or output pin.
+#define NUM_CHANNEL 4
+// total number of events, two per channel
+#define NUM_EVENT 2*NUM_CHANNEL
+```
+These determin how many channels, and how many eventIDs this node uses.  In this case, there are 2 inputs and 2 outputs, or 4 channels.  Each input and output is 'on' or 'off' and each state has an eventID, so twice the channels, or 8.  
+```C++
+#include "MemStruct.h"
+```
+This line includes the includes the defintion of the structure of the EEPROM, and the mirrored in RAM copy if in LARGE-mode.  
+```C++
+NodeID nodeid(5,1,1,1,3,255);    // This node's default ID; must be valid 
+```
+This defines the node's ID.  It must be changed to one that you control.  
+```C++
+// Define pins
+// BLUE is 18 LEDuino; others defined by board (48 IO, 14 IOuino)
+#define BLUE 18
+
+// GOLD is 19 LEDuino; others defined by board (49 IO, 15 IOuino)
+#define GOLD 19
+```
+The example node implements two status lights, one blue, and the other gold.  The blue LED flashes when the node receives a message, and the gold LED flashes when this noe sends a message.  This example also implements Blue and Gold buttons which can be used to Teach eventIDs to other nodes, or to reset theis node.  
+```c++
+// next lines get "warning: only initialized variables can be placed into program memory area" due to GCC bug
+extern "C" {
+
+// CDI (Configuration Description Information) in xml, must match MemStruct
+// See: http://openlcb.com/wp-content/uploads/2016/02/S-9.7.4.1-ConfigurationDescriptionInformation-2016-02-06.pdf
+#include "cdi.h"
+
+// SNIP Short node description for use by the Simple Node Information Protocol 
+// See: http://openlcb.com/wp-content/uploads/2016/02/S-9.7.4.3-SimpleNodeInformation-2016-02-06.pdf
+const char SNII_const_data[] PROGMEM = "\001OpenLCB\000DPHOlcbBasicNode\0001.0\000" OlcbCommonVersion ; // last zero in double-quote
+
+}; // end extern "C"
+```
+These lines include the CDI/xml dscription of the node's EEPROM in a form that is useful to a GUI-Tool.  The second part defines a string that has a shortened desription of the node that includes its type, and versions of its hardware and software.  It is requested by the Simple Node Information protocol, and the string is sent in reply.  This lets the GUI-Tool make a list of the available nodes online.  
 
 
