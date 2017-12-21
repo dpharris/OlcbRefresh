@@ -14,9 +14,9 @@
 #define MEM_SMALL 1
 #define MEM_MEDIUM 2
 #define MEM_LARGE 3
-#define MEM_MODEL MEM_SMALL      // 18892 1207  147 ms          // default to small
-//#define MEM_MODEL MEM_MEDIUM   // 19098 1329  121 ms
-//#define MEM_MODEL MEM_LARGE    // 19090 1419  130 ms
+#define MEM_MODEL MEM_SMALL    // small but slow, works out of EEPROM
+//#define MEM_MODEL MEM_MEDIUM   // faster, eventIDs are copied to RAM
+//#define MEM_MODEL MEM_LARGE    // fastest but large, EEPROM is mirrored to RAM 
 
 
 // next line for stand-alone compile
