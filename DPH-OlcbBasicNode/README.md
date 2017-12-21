@@ -203,6 +203,6 @@ const char SNII_const_data[] PROGMEM = "\001OpenLCB\000DPHOlcbBasicNode\0001.0\0
 
 }; // end extern "C"
 ```
-These lines include the CDI/xml dscription of the node's EEPROM in a form that is useful to a GUI-Tool.  The second part defines a string that has a shortened desription of the node that includes its type, and versions of its hardware and software.  It is requested by the Simple Node Information protocol, and the string is sent in reply.  This lets the GUI-Tool make a list of the available nodes online.  
+These lines #include the CDI/xml description of the node's EEPROM in a form that is useful to a GUI-Tool.  The second part defines a string that has a short-hand description of the node that includes its type and versions of its hardware and software.  It is requested by the GUI-Tool using the Simple Node Information protocol, and this string is sent in reply.  This allows the GUI-Tool to build a list of which nodes are on the bus.    
 
 
