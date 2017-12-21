@@ -159,11 +159,11 @@ It looks much simpler because it does not contain all the descriptive text for t
 #define MEM_SMALL 1
 #define MEM_MEDIUM 2
 #define MEM_LARGE 3
-#define MEM_MODEL MEM_SMALL      // 18892 1207  147 ms          // default to small
-//#define MEM_MODEL MEM_MEDIUM   // 19098 1329  121 ms
-//#define MEM_MODEL MEM_LARGE    // 19090 1419  130 ms
+#define MEM_MODEL MEM_SMALL    // small but slow, works out of EEPROM
+//#define MEM_MODEL MEM_MEDIUM   // faster, eventIDs are copied to RAM
+//#define MEM_MODEL MEM_LARGE    // fastest but large, EEPROM is mirrored to RAM 
 ```
-These defines let you choose the Memory Model.  Just uncomment one of the last three to choose the model.  
+These #defines let you choose the Memory Model.  Just uncomment one of the last three #defines to choose the model.  
 ```C++
 // Number of channels implemented. Each corresonds 
 // to an input or output pin.
@@ -171,15 +171,15 @@ These defines let you choose the Memory Model.  Just uncomment one of the last t
 // total number of events, two per channel
 #define NUM_EVENT 2*NUM_CHANNEL
 ```
-These determin how many channels, and how many eventIDs this node uses.  In this case, there are 2 inputs and 2 outputs, or 4 channels.  Each input and output is 'on' or 'off' and each state has an eventID, so twice the channels, or 8.  
+These lines determine how many channels and eventIDs this node uses.  In this case, there are four channels: two inputs and two outputs.  Each channel is either 'on' or 'off' and each state-transition has an associated eventID, so there are twice as many eventIDs as there are channels.  
 ```C++
 #include "MemStruct.h"
 ```
-This line includes the includes the defintion of the structure of the EEPROM, and the mirrored in RAM copy if in LARGE-mode.  
+This line #includes the struct{} defintion of the format of the EEPROM, and, if in LARGE-mode, the mirrored copy of it in RAM.  
 ```C++
 NodeID nodeid(5,1,1,1,3,255);    // This node's default ID; must be valid 
 ```
-This defines the node's ID.  It must be changed to one that you control.  
+This defines the node's ID.  It must be *changed* to one that *you control or own*.  
 ```C++
 // Define pins
 // BLUE is 18 LEDuino; others defined by board (48 IO, 14 IOuino)
@@ -188,7 +188,7 @@ This defines the node's ID.  It must be changed to one that you control.
 // GOLD is 19 LEDuino; others defined by board (49 IO, 15 IOuino)
 #define GOLD 19
 ```
-The example node implements two status lights, one blue, and the other gold.  The blue LED flashes when the node receives a message, and the gold LED flashes when this noe sends a message.  This example also implements Blue and Gold buttons which can be used to Teach eventIDs to other nodes, or to reset theis node.  
+This example node implements two status indicators, one blue, and the other gold.  The blue LED flashes when the node receives a message, and the gold LED flashes when this noe sends a message.  This example also implements Blue and Gold buttons which can be used to Teach eventIDs to other nodes, or to reset theis node.  
 ```c++
 // next lines get "warning: only initialized variables can be placed into program memory area" due to GCC bug
 extern "C" {
