@@ -305,3 +305,6 @@ This initializes the BlueGold subsystem, which handles the Blue and Gold buttons
 bool states[] = {false, false, false, false}; // current input states; report when changed
 ```
 This line initializes the states of the four I/O pins.  
+<br>
+<br>
+... to be continued.
