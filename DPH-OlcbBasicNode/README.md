@@ -7,6 +7,7 @@ It implements two inputs and two outputs. Each inpit and output pin has a LED an
 Here is a video that shows one such node with buttons and LEDs (the node at the bottom) [OlcbBasicNode Video](https://www.youtube.com/watch?v=D95Y2Z-4gRQ). <br>
     [[I will include a diagram]]
 
+
 // Hardware is: <br>
 //  +5V---R1---LED>|----pin----R2----button---gnd <br>
 // where R1 is 0.5-1k, R2 is >0.5k. <br>
@@ -307,7 +308,7 @@ This initializes the Producer-Consumer Event processing subsystem.
 // Set up Blue/Gold configuration
 BG bg(&pce, buttons, patterns, NUM_EVENT, &blue, &gold, &txBuffer);
 ```
-This initializes the BlueGold subsystem, which handles the Blue and Gold buttons and LEDs.  These indicate bus activity and implement the Teach/Learn protocol and node resets.  
+This line initializes the BlueGold subsystem, which handles the Blue and Gold LEDs and buttons.  The LEDs are used to indicate bus activity received and sent, whie the buttons are used to implement the Teach/Learn protocol and node resets.  
 ```C++
 bool states[] = {false, false, false, false}; // current input states; report when changed
 ```
