@@ -223,4 +223,48 @@ This line defines which protocol that this example node uses, these are listed i
 #include "OlcbInc1.h"
 ```
 These lines include some of the back-story system code and libraries.  
-
+```C++
+Event events[NUM_EVENT] = { Event() };   // repeated for all eight events.  
+```
+The events array contains one ebtry per eventID.  Each entry contains a flags word that has bits indicating qualities of, or actions to take on, that eventID.  For example whether the eeventID is a consumer, producer, or both, or whether it should be sent onto the bus.  
+```C++
+Nodal_t nodal = { &nodeid, events, eventsIndex, eventidOffset, NUM_EVENT };
+//Nodal_t nodal = { &NodeID(5,1,1,1,3,255), events, eventsIndex, eventidOffset, NUM_EVENT };  // alternate form.
+```
+This variable simply holds a number of system items which need to be passed to sub-systems.  
+```C++
+// input/output pin drivers
+// 14, 15, 16, 17 for LEDuino with standard shield
+// 16, 17, 18, 19 for IOduino to clear built-in blue and gold
+// Io 0-7 are outputs & LEDs, 8-15 are inputs
+ButtonLed pA(0, LOW); 
+ButtonLed pB(1, LOW);
+ButtonLed pC(8, LOW);
+ButtonLed pD(9, LOW);
+```
+ButtoLed is a library which performs button debouncing and flashing of a LED on a single pin.  The parameters define the Arduino pin-number and the sense of the pin.Here we are defining the two inputs and outputs on pins 0 and 1, and 8 and 9, respectively. They are all "on" when the button is pushed, ie the pin is grounded.  
+```C++
+#define ShortBlinkOn   0x00010001L
+#define ShortBlinkOff  0xFFFEFFFEL
+```
+The flashing is accomplished by stepping through a 32-bit array, and these #defines are defining a strobe-effect, and a reverse strob-effect.  
+```C++
+uint32_t patterns[] = { // two per cchannel, one per event
+ShortBlinkOff,ShortBlinkOn,
+ShortBlinkOff,ShortBlinkOn,
+ShortBlinkOff,ShortBlinkOn,
+ShortBlinkOff,ShortBlinkOn
+};
+```
+This array associates the flashing patterns to with the 8 four buttons.  
+```C++
+ButtonLed* buttons[] = {  // One for each event; each channel is a pair
+&pA,&pA,&pB,&pB,&pC,&pC,&pD,&pD
+};
+```
+This is an array determines which button is associated with each of the node's eight eventIDs. 
+```C++
+ButtonLed blue(BLUE, LOW);
+ButtonLed gold(GOLD, LOW);
+```
+These lines define two buttons associated with the previously defined Blue and Gold pins.  
