@@ -189,7 +189,7 @@ This defines the node's ID.  It must be *changed* to one that *you control or ow
 #define GOLD 19
 ```
 This example node implements two status indicators, one blue, and the other gold.  The blue LED flashes when the node receives a message, and the gold LED flashes when this noe sends a message.  This example also implements Blue and Gold buttons which can be used to Teach eventIDs to other nodes, or to reset theis node.  
-```c++
+```C++
 // next lines get "warning: only initialized variables can be placed into program memory area" due to GCC bug
 extern "C" {
 
@@ -204,13 +204,13 @@ const char SNII_const_data[] PROGMEM = "\001OpenLCB\000DPHOlcbBasicNode\0001.0\0
 }; // end extern "C"
 ```
 These lines #include the CDI/xml description of the node's EEPROM in a form that is useful to a GUI-Tool.  The second part defines a string that has a short-hand description of the node that includes its type and versions of its hardware and software.  It is requested by the GUI-Tool using the Simple Node Information protocol, and this string is sent in reply.  This allows the GUI-Tool to build a list of which nodes are on the bus.    
-```
+```C++
 // Establish location of node Name and Node Decsription in memory
 #define SNII_var_data &pmem->nodeName           // location of SNII_var_data EEPROM, and address of nodeName
 #define SNII_var_offset sizeof(pmem->nodeName)  // location of nodeDesc
 ```
 These lines establish the address in EEPROM of the node's name, and the node's description.  
-```
+```C++
 // PIP Protocol Identification Protocol uses a bit-field to indicate which protocols this node supports
 // See 3.3.6 and 3.3.7 in http://openlcb.com/wp-content/uploads/2016/02/S-9.7.3-MessageNetwork-2016-02-06.pdf
 uint8_t protocolIdentValue[6] = {0xD7,0x58,0x00,0,0,0};
@@ -218,7 +218,7 @@ uint8_t protocolIdentValue[6] = {0xD7,0x58,0x00,0,0,0};
         // ACDI, SNIP, CDI
 ```
 This line defines which protocol that this example node uses, these are listed in the commented lines below.  
-```
+```C++
 #include "OlcbArduinoCAN.h"
 #include "OlcbInc1.h"
 ```
