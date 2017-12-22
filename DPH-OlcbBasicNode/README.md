@@ -129,7 +129,7 @@ const char configDefInfo[] PROGMEM = R"(
     </segment>
 </cdi>)";
 ```
-For more information about CDI/xml, see the Configuration Description Protocol documents: [S](http://openlcb.org/wp-content/uploads/2016/02/S-9.7.4.1-ConfigurationDescriptionInformation-2016-02-06.pdf)and [TN](http://openlcb.org/wp-content/uploads/2016/02/TN-9.7.4.1-ConfigurationDescriptionInformation-2016-02-06.pdf)
+For more information about CDI/xml, see the Configuration Description Protocol documents: [Standard](http://openlcb.org/wp-content/uploads/2016/02/S-9.7.4.1-ConfigurationDescriptionInformation-2016-02-06.pdf) and [TechNote](http://openlcb.org/wp-content/uploads/2016/02/TN-9.7.4.1-ConfigurationDescriptionInformation-2016-02-06.pdf)
 ### Matching MemStruct
 The matching C++ struct{} MemStruct consists of some fixed system variables, and node variables matching the xml.  It is coded as: 
 ```
@@ -197,14 +197,18 @@ extern "C" {
 // CDI (Configuration Description Information) in xml, must match MemStruct
 // See: http://openlcb.com/wp-content/uploads/2016/02/S-9.7.4.1-ConfigurationDescriptionInformation-2016-02-06.pdf
 #include "cdi.h"
-
+```
+This #includes the CDI/xml description of the node's EEPROM in a form that is useful to a GUI-Tool.  <br>
+See: [Standard](http://openlcb.org/wp-content/uploads/2016/02/S-9.7.4.1-ConfigurationDescriptionInformation-2016-02-06.pdf) and [TechNote](http://openlcb.org/wp-content/uploads/2016/02/TN-9.7.4.1-ConfigurationDescriptionInformation-2016-02-06.pdf)
+```C++
 // SNIP Short node description for use by the Simple Node Information Protocol 
 // See: http://openlcb.com/wp-content/uploads/2016/02/S-9.7.4.3-SimpleNodeInformation-2016-02-06.pdf
 const char SNII_const_data[] PROGMEM = "\001OpenLCB\000DPHOlcbBasicNode\0001.0\000" OlcbCommonVersion ; // last zero in double-quote
 
 }; // end extern "C"
 ```
-These lines #include the CDI/xml description of the node's EEPROM in a form that is useful to a GUI-Tool.  The second part defines a string that has a short-hand description of the node that includes its type and versions of its hardware and software.  It is requested by the GUI-Tool using the Simple Node Information protocol, and this string is sent in reply.  This allows the GUI-Tool to build a list of which nodes are on the bus.    
+These lines define a string that has a short-hand description of the node that includes its type and versions of its hardware and software.  It is requested by the GUI-Tool using the Simple Node Information protocol, and this string is sent in reply.  This allows the GUI-Tool to build a list of which nodes are on the bus.  <br>
+See: [Standard](http://openlcb.org/wp-content/uploads/2016/02/S-9.7.4.3-SimpleNodeInformation-2016-02-06.pdf) and [TechNote](http://openlcb.org/wp-content/uploads/2016/02/TN-9.7.4.3-SimpleNodeInformation-2016-02-06.pdf)
 ```C++
 // Establish location of node Name and Node Decsription in memory
 #define SNII_var_data &pmem->nodeName           // location of SNII_var_data EEPROM, and address of nodeName
@@ -216,7 +220,8 @@ These lines establish the address in EEPROM of the node's name, and the node's d
 // See 3.3.6 and 3.3.7 in http://openlcb.com/wp-content/uploads/2016/02/S-9.7.3-MessageNetwork-2016-02-06.pdf
 uint8_t protocolIdentValue[6] = {0xD7,0x58,0x00,0,0,0};
         // PIP, Datagram, MemConfig, P/C, ident, teach/learn, 
-        // ACDI, SNIP, CDI
+        // ACDI, SNIP, CDI <br.
+See: Section 3.3.6 in [Standard](http://openlcb.org/wp-content/uploads/2016/02/S-9.7.3-MessageNetwork-2016-02-06.pdf) and [TechNote](http://openlcb.org/wp-content/uploads/2016/02/TN-9.7.3-MessageNetwork-2016-02-06.pdf)
 ```
 This line defines which protocol that this example node uses, these are listed in the commented lines below.  
 ```C++
