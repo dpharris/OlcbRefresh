@@ -267,4 +267,34 @@ This array associates a button to each of the node's eight eventIDs.
 ButtonLed blue(BLUE, LOW);
 ButtonLed gold(GOLD, LOW);
 ```
-These lines instnasiate two buttons associated with the previously defined Blue and Gold pins.  
+These lines instnasiate two buttons associated with the previously defined Blue and Gold pins. 
+```C++
+void pceCallback(uint16_t index){
+// Invoked when an event is consumed; drive pins as needed
+// from index of all events.  
+// Sample code uses inverse of low bit of pattern to drive pin all on or all off.  
+// The pattern is mostly one way, blinking the other, hence inverse.
+//
+//Serial.print(F("\npceCallback()")); Serial.print(index);
+buttons[index]->on( patterns[index]&0x1 ? 0x0L : ~0x0L );
+}
+```
+This defines pceCallback() which is called when one of the node's eventIDs is received by the node.  The eight eventIDs are indexed, or numbered sequentially, from 0 to 7, and the received eventID's index is supplied as the paramter.  This routine has to be defined by the application developer.  In this case the code determines which of the buttons[] is involved  and applies the approprite pattern is applied, depending on the which eventID was received.  'patterns[index]&0x1' determines which of the pair of 'on' or 'off' was received.  
+```C++
+NodeMemory nm(0);  // allocate from start of EEPROM
+void store() { nm.store(&nodeid, events, eventidOffset, NUM_EVENT); }
+```
+These lines initializes the NodeMemory subsystem.  
+```C++
+PCE pce(&nodal, &txBuffer, pceCallback, restore, &link);
+```
+This initializes the Producer-Consumer Event processing subsystem.  
+```C++
+// Set up Blue/Gold configuration
+BG bg(&pce, buttons, patterns, NUM_EVENT, &blue, &gold, &txBuffer);
+```
+This initializes the BlueGold subsystem, which handles the Blue and Gold buttons and LEDs.  These indicate bus activity and implement the Teach/Learn protocol and node resets.  
+```C++
+bool states[] = {false, false, false, false}; // current input states; report when changed
+```
+This line initializes the states of the four I/O pins.  
