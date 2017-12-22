@@ -4,6 +4,7 @@
 This node is designed to demonstrate how to use Consumer and Producer eventIDs.
 
 It implements two inputs and two outputs. Each inpit and output pin has a LED and push-button attached to it, such that driving the pin low will illuminate the LED, and letting the pin float as an input allows the button state, pushed or released, be sensed.  <br>
+Here is a video that shows one such node with buttons and LEDs (the one on the bottom) [video](https://www.youtube.com/watch?v=D95Y2Z-4gRQ) <br>
     [[I will include a diagram]]
 
 ### CDI/xml
