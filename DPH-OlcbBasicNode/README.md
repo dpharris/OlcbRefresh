@@ -7,6 +7,12 @@ It implements two inputs and two outputs. Each inpit and output pin has a LED an
 Here is a video that shows one such node with buttons and LEDs (the node at the bottom) [OlcbBasicNode Video](https://www.youtube.com/watch?v=D95Y2Z-4gRQ). <br>
     [[I will include a diagram]]
 
+// Hardware is: <br>
+//  +5V---R1---LED>|----pin----R2----button---gnd <br>
+// where R1 is 0.5-1k, R2 is >0.5k. <br>
+// Values of 500 and 1k work well for cheap LEDs.  <br>
+// For high intensity LEDs, R1 should perhaps be 1k. <br>
+
 ### CDI/xml
 The CDI/xml describes the variables and eventIDs that are used by a GUI-Tool, so that it can display them in a useful way.  See: [XML Wikipedia](https://en.wikipedia.org/wiki/XML)
 
