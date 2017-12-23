@@ -87,7 +87,7 @@ And we also need some footer-xml.  This describes the system variables, and let'
     </segment>
 </cdi>
 ```
-The actual xml is coded in the sketch as follows:
+The actual xml is coded in the sketch in the CDI.h file as follows:
 ```
 const char configDefInfo[] PROGMEM = R"(
 <cdi xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='http://openlcb.org/trunk/prototypes/xml/schema/cdi.xsd'>
@@ -140,7 +140,7 @@ const char configDefInfo[] PROGMEM = R"(
 ```
 For more information about CDI/xml, see the Configuration Description Protocol documents: [Standard](http://openlcb.org/wp-content/uploads/2016/02/S-9.7.4.1-ConfigurationDescriptionInformation-2016-02-06.pdf) and [TechNote](http://openlcb.org/wp-content/uploads/2016/02/TN-9.7.4.1-ConfigurationDescriptionInformation-2016-02-06.pdf)
 ### Matching MemStruct
-The matching C++ struct{} MemStruct consists of some fixed system variables, and node variables matching the xml.  It is coded as: 
+The matching C++ struct{} MemStruct consists of some fixed system variables, and node variables matching the xml.  It is included in the MemStruct,h file, and is coded as: 
 ```
 typedef struct //__attribute__ ((packed)) 
 { 
@@ -411,4 +411,4 @@ void loop() {
 ```
 The other mandatory routine, loop().  The system internals are called by Olcb_loop(), and any received bus traffic is displayed on teh Blue LED.  Any outgping activity is displayed on the Gold LED.  And finally, the Blue and Gold buttons are processed.  
 <br>
-The End,  
+The End.  
