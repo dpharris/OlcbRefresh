@@ -87,7 +87,7 @@ And we also need some footer-xml.  This describes the system variables, and let'
     </segment>
 </cdi>
 ```
-The actual xml is coded in the sketch in the CDI.h file as follows:
+The actual xml is coded in the sketch in the **cdi.h** file as follows:
 ```
 const char configDefInfo[] PROGMEM = R"(
 <cdi xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='http://openlcb.org/trunk/prototypes/xml/schema/cdi.xsd'>
@@ -140,7 +140,7 @@ const char configDefInfo[] PROGMEM = R"(
 ```
 For more information about CDI/xml, see the Configuration Description Protocol documents: [Standard](http://openlcb.org/wp-content/uploads/2016/02/S-9.7.4.1-ConfigurationDescriptionInformation-2016-02-06.pdf) and [TechNote](http://openlcb.org/wp-content/uploads/2016/02/TN-9.7.4.1-ConfigurationDescriptionInformation-2016-02-06.pdf)
 ### Matching MemStruct
-The matching C++ struct{} MemStruct consists of some fixed system variables, and node variables matching the xml.  It is included in the MemStruct,h file, and is coded as: 
+The matching C++ struct{} MemStruct consists of some fixed system variables, and node variables matching the xml.  It is included in the **MemStruct.h** file, and is coded as: 
 ```
 typedef struct //__attribute__ ((packed)) 
 { 
@@ -164,7 +164,7 @@ typedef struct //__attribute__ ((packed))
 It looks much simpler because it does not contain all the descriptive text for the GUI, but only the node-variables that are stored in the node.  The first three variables are system-variables used for node integrity, so they can not be altered.  
 See: Memory Config [Standard](http://openlcb.org/wp-content/uploads/2016/02/S-9.7.4.2-MemoryConfiguration-2016-02-06.pdf) and [TechNote](http://openlcb.org/wp-content/uploads/2016/02/TN-9.7.4.2-MemoryConfiguration-2016-02-06.pdf)
 
-### Stepping through the code
+### Stepping Through the Sketch's Code
 
 ```C++
 #define MEM_SMALL 1
@@ -365,7 +365,7 @@ void userConfigWrite(unsigned int address, unsigned int length){
     // }
 }
 ```
-Thisis another user-define routine.  It is not used in this sketch, but it is called whenever the EEPROM is changed by a GUI-Tool.  It is useful when you want the node to respond immediately to such a change, rather than doing a node reset.  THe commented code shows a theoretical example where a servo position chan be updated in real time, by updating its position from a node variable (channel.posn) immediately on its change.   
+This is another user-define routine.  It is not actually used in this sketch, but it is called whenever the EEPROM is changed by a GUI-Tool.  It is useful when you want the node to respond immediately to such a change, rather than waiting for it to take effect at the end of an editting seesion on the GUI-Tool. The commented code shows a theoretical example where a servo position can be updated in real time, by updating its position from a node variable (channel.posn) immediately on each change.   
 ```C++
 /**
 * Setup does initial configuration
@@ -377,7 +377,7 @@ void setup()
     Serial.print(F("\nMemModel=")); Serial.print(MEM_MODEL);
     nm.setup(&nodal, (uint8_t*) 0, (uint16_t)0, (uint16_t)LAST_EEPROM); 
 ```
-Every Sketch has to have a setup() and loop() routine.  Here we see the Serial being inialized, and the Node Memory being initialized.  
+Every Sketch has to have a setup() and loop() routine.  Here is the first half of setup(), where we see the Serial  and the Node Memory being initialized.  
 ```C++
 // set event types, now that IDs have been loaded from configuration
 // newEvent arguments are (event index, producer?, consumer?)
@@ -391,7 +391,7 @@ Every Sketch has to have a setup() and loop() routine.  Here we see the Serial b
     Olcb_setup();
 }
 ```
-This is the rest of setup().  THe user is responsible to tag each eventID as a Consumer-eventid or a Producer-eventID.  These two 'for' loops do this by calling pce.newEvent().  In addition, other system internals are initialized by calling Olcb_setup().  
+This is the rest of setup().  The user is responsible to flag each eventID as a Consumer-eventid ,a Producer-eventID, or both, by calling calling pce.newEvent().  In addition, system internals are initialized by calling Olcb_setup().  
 ```C+
 void loop() {
     bool activity = Olcb_loop();
@@ -409,6 +409,6 @@ void loop() {
 }
 
 ```
-The other mandatory routine, loop().  The system internals are called by Olcb_loop(), and any received bus traffic is displayed on teh Blue LED.  Any outgping activity is displayed on the Gold LED.  And finally, the Blue and Gold buttons are processed.  
+The other mandatory routine, loop(), where the system internals are processed by calling Olcb_loop(), which returns an indication of received bus activity.  This is displayed on teh Blue LED.  Any outgping activity is similarly displayed on the Gold LED.  The gold.blimk() call implements a 'keep-aline' blink on the Gold LED.  And finally, the Blue and Gold buttons are processed.  
 <br>
 The End.  
