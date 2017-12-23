@@ -15,7 +15,7 @@ Here is a video that shows one such node with buttons and LEDs (the node at the 
 // For high intensity LEDs, R1 should perhaps be 1k. <br>
 
 ### CDI/xml
-The CDI/xml describes the variables and eventIDs that are used by a GUI-Tool, so that it can display them in a useful way.  For xml description, see: [XML Wikipedia](https://en.wikipedia.org/wiki/XML)
+The CDI/xml describes the variables and eventIDs that are used by a GUI-Tool, so that it can display them in a useful way.  Here is a snapshot of a GUI-Tool displaying this node's CDI/xml.  For a general xml description, see: [XML Wikipedia](https://en.wikipedia.org/wiki/XML)
 ![Sample GUI-Tool snsp-shot.](http://jmri.sourceforge.net/help/en/package/jmri/jmrix/openlcb/swing/networktree/FilledOutConfigWindow.png)
 
 Since each input pin has two states, we will want two producer-eventIDs, one for each state, for each input.  Also, each output pin also has two states, and so will have two consumer-eventids each.  
@@ -31,7 +31,7 @@ To describe this we need to write the following xml:
             <eventid></eventid>                       -- second eventID
         </group>
 ```
-This xml is pretty basic, but it is not descriptive.  However, additional descriptive text can be added in order to make it more 'user-friendly' by giving names to and descriptions of the variables. These are visible in the GUI-Tool.  In addition, we can add a text node-variable that is saved in the node.  All these additions look  like:
+This xml is pretty basic, but it is not descriptive.  Fortunately, descriptive text can be added in order to make it more 'user-friendly' by giving names to and descriptions of the variables. These are visible in the GUI-Tool.  In addition, we can add a text node-variable that is saved in the node.  All these additions look  like:
 ```
     <group>
         <name>I/O Events</name>                                     -- header name
@@ -52,7 +52,7 @@ This xml is pretty basic, but it is not descriptive.  However, additional descri
         </group>
     </group>
 ```
-That is the essentially the CDI/xml desription of the App.  However, every node also has some system-variables stored in its EEPROM, which are stored at a known memory location, so the system code can find them.  So, we need to add some preface-xml:
+That is the essentially the CDI/xml desription of the App.  You can compare to the GUI-Tool snapshot above.  However, every node also has some system-variables stored in its EEPROM, which are stored at a known memory location, so the system code can find them.  So, we need to add some preface-xml:
 ```
 <cdi>
     <identification>
@@ -314,6 +314,101 @@ This line initializes the BlueGold subsystem, which handles the Blue and Gold LE
 bool states[] = {false, false, false, false}; // current input states; report when changed
 ```
 This line initializes the states of the four I/O pins.  
+```C++
+// On the assumption that the producers (inputs) and consumers (outputs) are consecutive, 
+// these are used later to label the individual channels as producer or consumer
+#define FIRST_PRODUCER_CHANNEL_INDEX    0
+#define LAST_PRODUCER_CHANNEL_INDEX     NUM_CHANNEL/2-1
+#define FIRST_CONSUMER_CHANNEL_INDEX    NUM_CHANNEL/2
+#define LAST_CONSUMER_CHANNEL_INDEX     NUM_CHANNEL-1
+
+void produceFromInputs() {
+    // called from loop(), this looks at changes in input pins and 
+    // and decides which events to fire
+    // with pce.produce(i);
+    // The first event of each pair is sent on button down,
+    // and second on button up.
+    // 
+    // To reduce latency, only MAX_INPUT_SCAN inputs are scanned on each loop
+    //    (Should not exceed the total number of inputs, nor about 4)
+    #define MAX_INPUT_SCAN 4
+    static int scanIndex = 0;
+    //
+    for (int i = 0; i<(MAX_INPUT_SCAN); i++) { // simply a counter of how many to scan
+        if (scanIndex < (LAST_PRODUCER_CHANNEL_INDEX)) scanIndex = (FIRST_PRODUCER_CHANNEL_INDEX);
+        if (states[scanIndex] != buttons[scanIndex*2]->state) {
+            states[scanIndex] = buttons[scanIndex*2]->state;
+            if (states[scanIndex]) {
+                pce.produce(scanIndex*2);
+            } else {
+                pce.produce(scanIndex*2+1);
+            }
+        }
+    }
+}
+```
+This is a user-defined routine.  Its job is to scan any triggers that would cause the node to send a Producer-eventID.  In this case it scans the input pins, but generally it might also scan its clock, calculate logic, or scan other node peripherals.  <br>
+This particualr routine scans each input pin, and if any change happens, it flags the appropriate eventid to be send onto the bus.  It has addition code to limit how many inputs it scans every timme it is called, so that it does not excute for too long and block other code from running.  
+```C++
+//
+// Callback from a Configuration write
+// Use this to detect changes in the ndde's configuration
+// This may be useful to take immediate action on a change.
+// 
+void userConfigWrite(unsigned int address, unsigned int length){
+    // example: if a servo's position changed, then update it immediately
+    // uint8_t posn;
+    // for(unsigned i=0; i<NCHANNEL; i++) {
+    //    unsigned int pposn = &pmem->channel[i].posn; 
+    //    if( (address<=pposn) && (pposn<(address+length) ) posn = EEPROM.read(pposn);
+    //    servo[i].set(i,posn);
+    // }
+}
+```
+Thisis another user-define routine.  It is not used in this sketch, but it is called whenever the EEPROM is changed by a GUI-Tool.  It is useful when you want the node to respond immediately to such a change, rather than doing a node reset.  THe commented code shows a theoretical example where a servo position chan be updated in real time, by updating its position from a node variable (channel.posn) immediately on its change.   
+```C++
+/**
+* Setup does initial configuration
+*/
+void setup()
+{
+    // set up serial comm; may not be space for this!
+    delay(250);Serial.begin(BAUD_RATE);Serial.print(F("\nOlcbBasicNode\n"));
+    Serial.print(F("\nMemModel=")); Serial.print(MEM_MODEL);
+    nm.setup(&nodal, (uint8_t*) 0, (uint16_t)0, (uint16_t)LAST_EEPROM); 
+```
+Every Sketch has to have a setup() and loop() routine.  Here we see the Serial being inialized, and the Node Memory being initialized.  
+```C++
+// set event types, now that IDs have been loaded from configuration
+// newEvent arguments are (event index, producer?, consumer?)
+    for (int i=2*(FIRST_PRODUCER_CHANNEL_INDEX); i<2*(LAST_PRODUCER_CHANNEL_INDEX+1); i++) {
+        pce.newEvent(i,true,false); // producer
+    }
+    for (int i=2*(FIRST_CONSUMER_CHANNEL_INDEX); i<2*(LAST_CONSUMER_CHANNEL_INDEX+1); i++) {
+        pce.newEvent(i,false,true); // consumer
+    }
+
+    Olcb_setup();
+}
+```
+This is the rest of setup().  THe user is responsible to tag each eventID as a Consumer-eventid or a Producer-eventID.  These two 'for' loops do this by calling pce.newEvent().  In addition, other system internals are initialized by calling Olcb_setup().  
+```C+
+void loop() {
+    bool activity = Olcb_loop();
+    if (activity) {
+        // blink blue to show that the frame was received
+        blue.blink(0x1);
+    }
+    if (OpenLcb_can_active) { // set when a frame sent
+        gold.blink(0x1);
+        OpenLcb_can_active = false;
+    }
+    // handle the status lights  
+    blue.process();
+    gold.process();
+}
+
+```
+The other mandatory routine, loop().  The system internals are called by Olcb_loop(), and any received bus traffic is displayed on teh Blue LED.  Any outgping activity is displayed on the Gold LED.  And finally, the Blue and Gold buttons are processed.  
 <br>
-<br>
-... to be continued.
+The End,  
