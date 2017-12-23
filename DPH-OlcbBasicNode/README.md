@@ -15,7 +15,8 @@ Here is a video that shows one such node with buttons and LEDs (the node at the 
 // For high intensity LEDs, R1 should perhaps be 1k. <br>
 
 ### CDI/xml
-The CDI/xml describes the variables and eventIDs that are used by a GUI-Tool, so that it can display them in a useful way.  See: [XML Wikipedia](https://en.wikipedia.org/wiki/XML)
+The CDI/xml describes the variables and eventIDs that are used by a GUI-Tool, so that it can display them in a useful way.  For xml description, see: [XML Wikipedia](https://en.wikipedia.org/wiki/XML)
+![Sample GUI-Tool snsp-shot.](http://jmri.sourceforge.net/help/en/package/jmri/jmrix/openlcb/swing/networktree/FilledOutConfigWindow.png)
 
 Since each input pin has two states, we will want two producer-eventIDs, one for each state, for each input.  Also, each output pin also has two states, and so will have two consumer-eventids each.  
 
