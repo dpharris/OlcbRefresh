@@ -409,6 +409,6 @@ void loop() {
 }
 
 ```
-The other mandatory routine, loop(), where the system internals are processed by calling Olcb_loop(), which returns an indication of received bus activity.  This is displayed on teh Blue LED.  Any outgping activity is similarly displayed on the Gold LED.  The gold.blimk() call implements a 'keep-aline' blink on the Gold LED.  And finally, the Blue and Gold buttons are processed.  
+The other mandatory routine, loop(), where the system internals are processed by calling Olcb_loop(), which returns an indication of received bus activity.  This is displayed on the Blue LED.  Any outgping activity is similarly displayed on the Gold LED.  The gold.blimk() call implements a 'keep-alive' blink on the Gold LED.  And finally, the Blue and Gold buttons are processed.  
 <br>
 The End.  
