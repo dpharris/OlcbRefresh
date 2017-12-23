@@ -30,7 +30,7 @@ To describe this we need to write the following xml:
             <eventid></eventid>                       -- second eventID
         </group>
 ```
-This is pretty basic but it is not descriptive.  So additional descriptive text can be added in order to give names to, and describe, the variables. In addition, for each input and output, we can add a text node-variable that saves a description of the input/output inthe EEPROM.  This looks like:
+This xml is pretty basic, but it is not descriptive.  However, additional descriptive text can be added in order to make it more 'user-friendly' by giving names to and descriptions of the variables. These are visible in the GUI-Tool.  In addition, we can add a text node-variable that is saved in the node.  All these additions look  like:
 ```
     <group>
         <name>I/O Events</name>                                     -- header name
@@ -51,7 +51,7 @@ This is pretty basic but it is not descriptive.  So additional descriptive text 
         </group>
     </group>
 ```
-That is essentially the CDI/xml.  However, every node also has some system-variables stored in its EEPROM.  These are stored at a known location, so the system code can find them.  So, we need to add some preface-xml:
+That is the essentially the CDI/xml desription of the App.  However, every node also has some system-variables stored in its EEPROM, which are stored at a known memory location, so the system code can find them.  So, we need to add some preface-xml:
 ```
 <cdi>
     <identification>
@@ -70,7 +70,7 @@ That is essentially the CDI/xml.  However, every node also has some system-varia
 ```
 Note that you can edit the identification entries, and the description as you want.  
 
-And we also need some footer-xml.  This describes the system variables, and let's the user reset the node from the GUI-Tool.  At this point, just leave it alone and do not edit it. 
+And we also need some footer-xml.  This describes the system variables, and let's the user reset the node from the GUI-Tool.  At this point, just add it verbatim and do not edit it. 
 ```
     </segment>
     <segment origin='0' space='253'> <!-- stuff magic to trigger resets -->
@@ -308,7 +308,7 @@ This initializes the Producer-Consumer Event processing subsystem.
 // Set up Blue/Gold configuration
 BG bg(&pce, buttons, patterns, NUM_EVENT, &blue, &gold, &txBuffer);
 ```
-This line initializes the BlueGold subsystem, which handles the Blue and Gold LEDs and buttons.  The LEDs are used to indicate bus activity received and sent, whie the buttons are used to implement the Teach/Learn protocol and node resets.  
+This line initializes the BlueGold subsystem, which handles the Blue and Gold LEDs and buttons.  The LEDs are used to indicate bus activity received and sent, while the buttons are used to implement the Teach/Learn protocol and node resets.  
 ```C++
 bool states[] = {false, false, false, false}; // current input states; report when changed
 ```
