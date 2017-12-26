@@ -74,6 +74,7 @@ extern "C" {
 //#include "EventTable.h"
 //EventTableRow eventTable[NUM_EVENT];
 
+Event events[NUM_EVENT] = { Event() };   // repeated for all eight events.  
 
 /*
 #ifdef EE

@@ -20,11 +20,11 @@
 
 
 // next line for stand-alone compile
-#include <Arduino.h>
+//#include <Arduino.h>
 //#include <ctype.h>
 //#include <stdarg.h>
 //#include <stdio.h>
-#include <avr/pgmspace.h>
+//#include <avr/pgmspace.h>
 //#include "logging.h"
 #include "OlcbCommonVersion.h"
 
@@ -98,7 +98,7 @@ uint8_t protocolIdentValue[6] = {0xD7,0x58,0x00,0,0,0};
 #include "OlcbArduinoCAN.h"
 #include "OlcbInc1.h"
 
-Event events[NUM_EVENT] = { Event() };   // repeated for all eight events.  
+//Event events[NUM_EVENT] = { Event() };   // repeated for all eight events.  
 
 Nodal_t nodal = { &nodeid, events, eventsIndex, eventidOffset, NUM_EVENT };
 //Nodal_t nodal = { &NodeID(5,1,1,1,3,255), events, eventsIndex, eventidOffset, NUM_EVENT };  // alternate form.
