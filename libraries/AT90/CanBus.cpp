@@ -25,6 +25,7 @@
 #include "CanBus.h"
 #include "Arduino.h"
 
+#define SUPPORT_EXTENDED_CANID
 // -------------------------------------------------------------
 bool copy_mob_to_message(can_t *msg) {
 	// read status
@@ -224,11 +225,18 @@ bool can_buffer_full(can_buffer_t *buf)
 }
 
 // -----------------------------------------------------------------------------
-bool can_buffer_get_enqueue_ptr(can_buffer_t *buf, can_t * ptr) {
-	if(can_buffer_full( buf )) return NULL;
-	ptr = &buf->buf[buf->head];
-	return true;
+//bool can_buffer_get_enqueue_ptr(can_buffer_t *buf, can_t * ptr) {
+//	if(can_buffer_full( buf )) return NULL;
+//	ptr = &buf->buf[buf->head];
+//	return true;
+//}
+can_t *can_buffer_get_enqueue_ptr(can_buffer_t *buf) {
+    if (can_buffer_full( buf ))
+        return NULL;
+    
+    return &buf->buf[buf->head];
 }
+
 
 // -----------------------------------------------------------------------------
 void can_buffer_enqueue(can_buffer_t *buf) {
@@ -240,10 +248,17 @@ void can_buffer_enqueue(can_buffer_t *buf) {
 }
 
 // -----------------------------------------------------------------------------
-bool can_buffer_get_dequeue_ptr(can_buffer_t *buf, can_t *ptr) {
-	if(can_buffer_empty( buf )) return NULL;
-	ptr = &buf->buf[buf->tail];
-	return true;
+//bool can_buffer_get_dequeue_ptr(can_buffer_t *buf, can_t *ptr) {
+//    //Serial.print("\n In can_buffer_get_dequeue_ptr ");
+//	if(can_buffer_empty( buf )) return NULL;
+//	ptr = &buf->buf[buf->tail];
+//	return true;
+//}
+can_t* can_buffer_get_dequeue_ptr(can_buffer_t *buf) {
+    if (can_buffer_empty( buf ))
+        return NULL;
+    
+    return &buf->buf[buf->tail];
 }
 
 // -----------------------------------------------------------------------------
@@ -318,11 +333,19 @@ bool _check_free_buffer(void) {
 ISR(OVRIT_vect) {}
 #endif
 
+extern int VectorFlag1 = 0;
+extern int VectorFlag2 = 0;
+extern int VectorFlag3 = 0;
+extern int VectorFlag4 = 0;
+extern int VectorFlag5 = 0;
+
 #ifdef CANIT_vect
 ISR(CANIT_vect) {
 	uint8_t canpage;
 	uint8_t mob;
+    VectorFlag1++;
 	if((CANHPMOB & 0xF0) != 0xF0) {
+        VectorFlag2++;
 		// save MOb page register
 		canpage = CANPAGE;
 		// select MOb page with the highest priority
@@ -330,13 +353,17 @@ ISR(CANIT_vect) {
 		mob = (CANHPMOB >> 4);
 		// a interrupt is only generated if a message was transmitted or received
 		if(CANSTMOB & (1 << TXOK)) {
+            VectorFlag3++;
 			// clear MOb
 			CANSTMOB &= 0;
 			CANCDMOB = 0;
-			bool result = can_buffer_get_dequeue_ptr(&can_tx_buffer, &buf);
+			//bool result = can_buffer_get_dequeue_ptr(&can_tx_buffer, &buf);
+            can_t *buf = can_buffer_get_dequeue_ptr(&can_tx_buffer);
 			// check if there are any another messages waiting
-			if(result != NULL) {
-				copy_message_to_mob( &buf );
+			//if(result != NULL) {
+            if(buf != NULL) {
+				//copy_message_to_mob( &buf );
+                copy_message_to_mob( buf );
 				can_buffer_dequeue(&can_tx_buffer);
 
 				// enable transmission
@@ -347,12 +374,16 @@ ISR(CANIT_vect) {
 				_transmission_in_progress = 0;
 			}
 			CAN_INDICATE_TX_TRAFFIC_FUNCTION;
-		} else {
-			// a message was received successfully
-			bool result = can_buffer_get_enqueue_ptr(&can_rx_buffer, &buf);
-			if(result != NULL) {
+		//} else {
+        } else if (CANSTMOB & (1 << RXOK)) {
+            VectorFlag4++;
+			//bool result = can_buffer_get_enqueue_ptr(&can_rx_buffer, &buf);
+            can_t *buf = can_buffer_get_enqueue_ptr(&can_rx_buffer);
+            if(buf != NULL) {
+            //if(result != false) {
 				// read message
-				copy_mob_to_message( &buf );
+				//copy_mob_to_message( &buf );
+                copy_mob_to_message( buf );
 				// push it to the list
 				can_buffer_enqueue(&can_rx_buffer);
 			} else {
@@ -387,9 +418,9 @@ bool CanBus::check_message(void) {
     //return _check_message();
 }
 bool CanBus::check_free_buffer(void) {
-    Serial.print("\nIn CanBus::check_free_buffer:");
+    //Serial.print("\nIn CanBus::check_free_buffer:");
     bool r = _check_free_buffer();
-    Serial.print(r);
+    //Serial.print(r);
     return r;
     //return _check_free_buffer();
 }
@@ -441,9 +472,12 @@ bool CanBus::read_error_register(can_error_register_t error) {
 // ----------------------------------------------------------------------------
 uint8_t CanBus::get_buffered_message(can_t *msg) {
 	// get pointer to the first buffered message
-	bool result = can_buffer_get_dequeue_ptr(&can_rx_buffer, &buf);
-	if(result == NULL)
-		return 0;
+    //Serial.print("\n In get_buffered_message ");
+    //bool result = can_buffer_get_dequeue_ptr(&can_rx_buffer, &buf);
+    //if(result == NULL)
+    can_t *buf = can_buffer_get_dequeue_ptr(&can_tx_buffer);
+    if(buf==NULL)
+        return 0;
 	// copy the message
 	memcpy( msg, &buf, sizeof(can_t) );
 	// delete message from the queue
@@ -535,8 +569,10 @@ uint8_t CanBus::send_buffered_message(const can_t *msg) {
 	if (_find_free_mob() == 0xff)
   #endif
 	{
-		bool result = can_buffer_get_enqueue_ptr(&can_tx_buffer, &buf);
-		if (result == NULL) return 0;		// buffer full
+		//bool result = can_buffer_get_enqueue_ptr(&can_tx_buffer, &buf);
+        //if (result == NULL) return 0;		// buffer full
+        can_t *buf = can_buffer_get_dequeue_ptr(&can_tx_buffer);
+        if(buf == NULL) return 0;
 		// copy message to the buffer
 		memcpy( &buf, msg, sizeof(can_t) );
 		// In the interrupt it is checked if there are any waiting messages
@@ -639,6 +675,52 @@ bool CanBus::init(uint8_t bitrate) {
 	can_buffer_init( &can_tx_buffer, CAN_TX_BUFFER_SIZE, can_tx_list );
     //Serial.print("\nCAN_RX_BUFFER_SIZE=");    Serial.print(CAN_RX_BUFFER_SIZE);
     //Serial.print("  CAN_TX_BUFFER_SIZE=");    Serial.print(CAN_TX_BUFFER_SIZE);
+    
+    //Clear all mailboxes. DEG 22 May 2011
+    uint8_t i;
+    for(i = 0; i < 15; ++i)
+    {
+        CANPAGE = (i << 4);
+        //clear any interrupt flags
+        CANSTMOB = 0;
+        //DEG 23 May 2011. Configure each mailbox.
+        // From Datasheet, 19.5.2:
+        // "There is no default mode after RESET.
+        // "Every MOb has its own fields to control the operating mode.
+        // "Before enabling the CAN peripheral, each MOb must be
+        // "configured (ex: disabled mode - CONMOB=00)."
+        // Just going to configure them all as receive. Don't know that
+        // This is corect. Maybe they should be set to disable, but one?
+        // H/T http://www.avrfreaks.net/index.php?name=PNphpBB2&file=viewtopic&t=107164
+        //IDT, RTRTAG, RBnTAG
+        CANIDT1 = 0;                        //ID
+        CANIDT2 = 0;
+        CANIDT3 = 0;
+        CANIDT4 = 0;
+        //IDMSK, IDEMSK, RTRMSK
+        CANIDM1 = 0;                        //get all messages
+        CANIDM2 = 0;                        //1 = check bit
+        CANIDM3 = 0;                        //0 = ignore bit
+        CANIDM4 = 0; //(1<<IDEMSK); 		// do not ignore standard frames
+        //set to receive, DLC, IDE
+        //set MOBs 5-14 to receive. Is this anything like ideal?
+        if(i >= 5)
+            CANCDMOB = (1 << CONMOB1) | (1 << IDE);
+        else
+            CANCDMOB = 0; //(1 << IDE);
+    }
+    
+    // dph Added from OpenLcbCanInterface
+    // From Don Goodman-Wilson's libraries/OpenLCB/OLCB_CAN_Link.cpp
+    // Filter out standard can frames using hardware to avoid random crash
+    // upon receipt of large numbers of them.
+    // may need similar in MCP2515 code.
+    for(uint8_t i = 0; i < 15; ++i)    // not in Don's code
+    {
+        CANPAGE = (i << 4);
+        CANIDM4 |= (1<<IDEMSK);
+    }
+    
 	// activate CAN controller
 	CANGCON = (1 << ENASTB);
 	return true;

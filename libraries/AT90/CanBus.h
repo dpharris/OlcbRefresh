@@ -202,9 +202,11 @@ bool _check_free_buffer(void);
 void can_buffer_init(can_buffer_t *buf, uint8_t size, can_t *list);
 bool can_buffer_empty(can_buffer_t *buf);
 bool can_buffer_full(can_buffer_t *buf);
-bool can_buffer_get_enqueue_ptr(can_buffer_t *buf, can_t * ptr);
+//bool can_buffer_get_enqueue_ptr(can_buffer_t *buf, can_t * ptr);
+can_t *can_buffer_get_enqueue_ptr(can_buffer_t *buf);
 void can_buffer_enqueue(can_buffer_t *buf);
-bool can_buffer_get_dequeue_ptr(can_buffer_t *buf, can_t * ptr);
+//bool can_buffer_get_dequeue_ptr(can_buffer_t *buf, can_t * ptr);
+can_t *can_buffer_get_dequeue_ptr(can_buffer_t *buf);
 void can_buffer_dequeue(can_buffer_t *buf);
 
 class CanBus {
@@ -225,7 +227,7 @@ class CanBus {
 
 	bool read_error_register(can_error_register_t error);
 	void set_mode(can_mode_t mode);
-
+    
   private:
 	void _enter_standby_mode(void);
 	void _leave_standby_mode(void);
