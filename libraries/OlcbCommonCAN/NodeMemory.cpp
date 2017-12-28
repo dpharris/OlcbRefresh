@@ -42,9 +42,11 @@ void NodeMemory::setup(Nodal_t* nodal, uint8_t* data, uint16_t extraBytes, uint1
     const uint16_t* eventidOffset = nodal->eventidOffset;
     uint16_t nC = nodal->nevent;
     //userInitEventIDOffsets();
-
-    Serial.println();
-    for(int i=0;i<nC;i++) { Serial.print(eventidOffset[i],HEX); Serial.print(",");}
+    //Serial.print("\nnC(nevents)=");Serial.print(nC);
+    //for(int i=0;i<nC;i++) {
+    //    Serial.print("\n");Serial.print(i);
+    //    Serial.print(":");Serial.print(eventidOffset[i],HEX);
+    //}
     
     if (checkNidOK()) {
         Serial.print("\ncheckNidOK'd");
@@ -106,7 +108,7 @@ void NodeMemory::reset(NodeID* nid, Event* cE, const uint16_t* eventidOffset, ui
     // the total count to zero, this is not an "initial config" for factory use.
 
     // clear EEPROM
-    for (uint16_t i = 4; i<clearBytes; i++) writeByte(i, 0);
+    //for (uint16_t i = 4; i<clearBytes; i++) writeByte(i, 0);
     //store(nid, cE, nC, eOff);
     store(nid, cE, eventidOffset, nC);
     //Serial.print("\nnC="); Serial.print(nC);
@@ -173,25 +175,19 @@ void NodeMemory::storeToEEPROM(uint8_t *m, int n) {
 
 void NodeMemory::setToNewEventID(NodeID* nid, uint16_t offset) {
     Serial.print("\nIn setToNewEventID1");
-    Serial.print(" offset=");
-    Serial.print(offset,HEX);
+    Serial.print(" offset="); Serial.print(offset,HEX);
     // All write to eeprom, may need to do a restore to RAM --dph
-    uint8_t p = offset;  // this event's offset
-    uint8_t *n = (uint8_t*)nid;
-    for (uint8_t k=0; k<sizeof(*nid); k++) {
-      writeByte(p++, *n++);
-      //Serial.print("\nwriteByte(*p++, *n++)=");
-      //Serial.print(p++); Serial.print(",");
-      //Serial.print(*n++);
+    uint16_t p = offset;  // this event's offset
+    Serial.print(" ");Serial.print(p,HEX);Serial.print(":");
+    for (uint8_t i=0; i<sizeof(*nid); i++) {
+      writeByte(p++, nid->val[i]);
+        Serial.print(nid->val[i],HEX);Serial.print(",");
     }
-    writeByte(p++, (count++>>8)&0xFF);
-      //Serial.print("\ncount=");
-      //Serial.print(p++); Serial.print(",");
-      //Serial.print((count++>>8)&0xFF);
+    count++;
+    writeByte(p++, (count>>8)&0xFF);
+        Serial.print((count>>8)&0xFF);Serial.print(",");
     writeByte(p++, count&0xFF);
-      //Serial.print(", ");
-      //Serial.print(p++); Serial.print(",");
-      //Serial.print(count&0xFF);  }
+        Serial.print(count&0xFF);
 }
 
 bool NodeMemory::checkAllOK() {

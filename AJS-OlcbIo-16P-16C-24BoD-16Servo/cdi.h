@@ -80,6 +80,12 @@ const char configDefInfo[] PROGMEM = R"(<?xml version='1.0'?>
         <eventid>
             <name>Select Diverging Event</name>
         </eventid>
+        <int>
+            <name>Main position (0-180)</name>
+        </int>
+        <int>
+            <name>Diverging position (0-180)</name>
+        </int>
     </group>
 </segment>
 

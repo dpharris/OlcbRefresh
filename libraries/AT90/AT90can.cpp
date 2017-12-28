@@ -148,7 +148,7 @@ extern uint8_t can_buffers_status(void);
  */
 uint8_t can_send_message(const tCAN *msg) {
             Serial.print("\nIn AT90 can_send_message");
-            Serial.print("\n[");Serial.print(msg->id,HEX);
+            Serial.print(" [");Serial.print(msg->id,HEX);
             Serial.print("](");Serial.print(msg->length);
             Serial.print(")[");
             for(unsigned i=0;i<msg->length;i++) {

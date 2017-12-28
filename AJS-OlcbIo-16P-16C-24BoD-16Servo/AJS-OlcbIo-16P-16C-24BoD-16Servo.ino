@@ -11,6 +11,7 @@
 
 // Description of EEPROM memory structure, and the mirrored mem if in MEM_LARGE
 #include "MemStruct.h"
+extern MemStruct * pmem;
 
 // init for serial communications if used
 #define         BAUD_RATE       115200
@@ -118,7 +119,29 @@ void produceFromInputs() {
   }
 }
 
-//
+// initialize eeprom on factory reset
+#define EADDR(x) (uint16_t)&pmem->x
+void userInit() {
+  for(int i=0;i<NUM_OUTPUTS;i++) {
+    typedef struct { char t[16]="output"; } V;  V v;
+    EEPROM.put(EADDR(outputs[i].desc), v);
+  }
+  for(int i=0;i<NUM_INPUTS;i++) {
+    typedef struct { char t[16]="input"; } V;  V v;
+    EEPROM.put(EADDR(inputs[i].desc), v);
+  }
+  for(int i=0;i<NUM_BOD_INPUTS;i++) {
+    typedef struct { char t[16]="BoD"; } V;  V v;
+    EEPROM.put(EADDR(BoDinputs[i].desc), v);
+  }
+  for(int i=0;i<NUM_SERVOS;i++) {
+    typedef struct { char t[16]="servo"; } V;  V v;
+    EEPROM.put(EADDR(ServoOutputs[i].desc), v);
+    EEPROM.write(EADDR(ServoOutputs[i].divergingPos),90);
+    EEPROM.write(EADDR(ServoOutputs[i].mainPos),90);
+  }
+}
+
 // Callback from a Configuration write
 // Use this to detect changes in the ndde's configuration
 // This may be useful to take immediate action on a change.
@@ -157,14 +180,18 @@ void userConfigWrite(unsigned int address, unsigned int length){
 void setup()
 {
     // Force Magic Number to 0 to force reinit
-//  for(uint8_t i = 0; i < 4; i++)
-//    EEPROM.update(i,0);
-  
+    //  for(uint8_t i = 0; i < 4; i++)
+    //    EEPROM.update(i,0);
   // set up serial comm; may not be space for this!
   Serial.begin(BAUD_RATE);Serial.println(F("\nAJS OlcbIo 16P 16C 24BoD 16Servo"));
+  //Serial.print("\nNUM_EVENTS=");Serial.print(NUM_EVENTS);
+  //for(unsigned i=0;i<NUM_EVENTS;i++) {
+  //  Serial.print("\n");Serial.print(i);
+  //  Serial.print(":");Serial.print(eventidOffset[i],HEX);
+  //}
 
-  nm.setup(&nodal, (uint8_t*) 0, (uint16_t)0, (uint16_t)LAST_EEPROM); 
-//  nm.forceInitAll(); // uncomment if need to go back to initial EEPROM state
+  //nm.forceInitAll(); userInit(); // uncomment if need to go back to initial EEPROM state
+    nm.setup(&nodal, (uint8_t*) 0, (uint16_t)0, (uint16_t)LAST_EEPROM); 
 
     // Setup Output Pins
   for(uint8_t i = 0; i < NUM_OUTPUTS; i++)
@@ -195,6 +222,8 @@ void setup()
   Serial.print(F("\nP/C flags done"));
   printEventsIndex();
   printEvents();
+
+  //while(1==1){}
   
   Olcb_setup();
 

@@ -76,8 +76,10 @@ typedef struct //__attribute__ ((packed))
   } BoDinputs[NUM_BOD_INPUTS];
   struct {
     char desc[16];        // description of this Servo Turnout Driver
-    EventID divergingPos; // eventID which is Produced on Diverging 
-    EventID mainPos;    // eventID which is Produced on Normal
+    EventID diverging;    // consumer eventID which sets turnout to Diverging 
+    EventID main;       // consumer eventID which sets turnout to Main
+    int divergingPos;     // position of turount in Diverging
+    int mainPos;        // position of turnout in Normal
   } ServoOutputs[NUM_SERVOS];
 } MemStruct;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -103,6 +105,7 @@ extern EventID eventids[NUM_EVENTS];    // copy of eventids in RAM
   void restore();
   void printRawEEPROM();
   void initTables();
+  void userInit();
   void printEventsIndex();
   void printEvents();
 #endif

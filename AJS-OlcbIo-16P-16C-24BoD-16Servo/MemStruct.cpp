@@ -22,12 +22,12 @@ EventID blog(unsigned i) { return getEID(i); }
 
 // define eventsOffset array in flash      (Balaz's idea) Note: this negates the need for userInitEventIDOffsets()
 #define ADDR_EID(x)         ((unsigned int)&pmem->x)
-#define REG_OUTPUT(s)       (ADDR_EID(outputs[s].setEvent), ADDR_EID(outputs[s].resetEvent)) 
-#define REG_INPUT(s)        (ADDR_EID(inputs[s].activation), ADDR_EID(inputs[s].deactivation)) 
-#define REG_BOD_INPUT(s)    (ADDR_EID(BoDinputs[s].occupied), ADDR_EID(BoDinputs[s].empty)) 
-#define REG_SERVO_OUTPUT(s) (ADDR_EID(ServoOutputs[s].divergingPos), ADDR_EID(ServoOutputs[s].mainPos)) 
+#define REG_OUTPUT(s)       ADDR_EID(outputs[s].setEvent), ADDR_EID(outputs[s].resetEvent) 
+#define REG_INPUT(s)        ADDR_EID(inputs[s].activation), ADDR_EID(inputs[s].deactivation)  
+#define REG_BOD_INPUT(s)    ADDR_EID(BoDinputs[s].occupied), ADDR_EID(BoDinputs[s].empty) 
+#define REG_SERVO_OUTPUT(s) ADDR_EID(ServoOutputs[s].diverging), ADDR_EID(ServoOutputs[s].main) 
 
-const PROGMEM uint16_t eventidOffset[NUM_EVENTS] = {
+const PROGMEM uint16_t eventidOffset[NUM_EVENTS] = { 
    REG_OUTPUT(0), REG_OUTPUT(1), REG_OUTPUT(2), REG_OUTPUT(3), REG_OUTPUT(4), REG_OUTPUT(5), REG_OUTPUT(6), REG_OUTPUT(7),
    REG_INPUT(0), REG_INPUT(1), REG_INPUT(2), REG_INPUT(3), REG_INPUT(4), REG_INPUT(5), REG_INPUT(6), REG_INPUT(7),
    REG_BOD_INPUT(0), REG_BOD_INPUT(1), REG_BOD_INPUT(2), REG_BOD_INPUT(3), REG_BOD_INPUT(4), REG_BOD_INPUT(5), REG_BOD_INPUT(6), REG_BOD_INPUT(7),
@@ -35,13 +35,12 @@ const PROGMEM uint16_t eventidOffset[NUM_EVENTS] = {
    REG_BOD_INPUT(16), REG_BOD_INPUT(17), REG_BOD_INPUT(18), REG_BOD_INPUT(19), REG_BOD_INPUT(20), REG_BOD_INPUT(21), REG_BOD_INPUT(22), REG_BOD_INPUT(23),
    REG_SERVO_OUTPUT(0), REG_SERVO_OUTPUT(1), REG_SERVO_OUTPUT(2), REG_SERVO_OUTPUT(3), REG_SERVO_OUTPUT(4), REG_SERVO_OUTPUT(5), REG_SERVO_OUTPUT(6), REG_SERVO_OUTPUT(7), 
    REG_SERVO_OUTPUT(8), REG_SERVO_OUTPUT(9), REG_SERVO_OUTPUT(10), REG_SERVO_OUTPUT(11), REG_SERVO_OUTPUT(12), REG_SERVO_OUTPUT(13), REG_SERVO_OUTPUT(14), REG_SERVO_OUTPUT(15) 
-};
+}; 
 
 // zero-based pointer into the MemStruct structure
 MemStruct * pmem = 0;
 
-Event events[NUM_EVENTS] = { Event() };
-/*
+Event events[NUM_EVENTS] = { 
     // 8 x 2 Output Events
   Event(), Event(), Event(), Event(), Event(), Event(), Event(), Event(),
   Event(), Event(), Event(), Event(), Event(), Event(), Event(), Event(),
@@ -64,7 +63,7 @@ Event events[NUM_EVENTS] = { Event() };
   Event(), Event(), Event(), Event(), Event(), Event(), Event(), Event(),
   Event(), Event(), Event(), Event(), Event(), Event(), Event(), Event(),
   };
- */
+ 
    
 // Sorted index to eventids
 Index eventsIndex[NUM_EVENTS];  // Sorted index to eventids
@@ -151,14 +150,17 @@ MemStruct mem = EEPROM.get(0,mem);
   // Initialize the events[], eventsIndex[] tables
   //  - initializes the hash, index and flag fields 
   void initTables() {
-    Serial.print("\nIn initTables Meduim");
-    //userInitEventIDOffsets();
+    Serial.print("\nIn initTables Medium");
+    //printRawEEPROM();  while(1==1){}
+    userInit();
     for (int e=0; e<NUM_EVENTS; e++) {
       events[e].flags = 0;
       EEPROM.get(eventidOffset[e], eventids[e]);
       eventsIndex[e].hash = eventids[e].hash();
       eventsIndex[e].index = e;
     }
+    //printEventsIndex();
+    //printEvents();
     qsort( eventsIndex, NUM_EVENTS, sizeof(Index), Index::sortCompare);
     //printEventsIndex();
     //printEvents();
