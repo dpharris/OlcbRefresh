@@ -335,7 +335,7 @@ ISR(CANIT_vect) {
 			CANCDMOB = 0;
 			bool result = can_buffer_get_dequeue_ptr(&can_tx_buffer, &buf);
 			// check if there are any another messages waiting
-			if(result != NULL) {
+			if(result) {
 				copy_message_to_mob( &buf );
 				can_buffer_dequeue(&can_tx_buffer);
 
@@ -350,7 +350,7 @@ ISR(CANIT_vect) {
 		} else {
 			// a message was received successfully
 			bool result = can_buffer_get_enqueue_ptr(&can_rx_buffer, &buf);
-			if(result != NULL) {
+			if(result) {
 				// read message
 				copy_mob_to_message( &buf );
 				// push it to the list
@@ -442,7 +442,7 @@ bool CanBus::read_error_register(can_error_register_t error) {
 uint8_t CanBus::get_buffered_message(can_t *msg) {
 	// get pointer to the first buffered message
 	bool result = can_buffer_get_dequeue_ptr(&can_rx_buffer, &buf);
-	if(result == NULL)
+	if(!result)
 		return 0;
 	// copy the message
 	memcpy( msg, &buf, sizeof(can_t) );
@@ -536,7 +536,7 @@ uint8_t CanBus::send_buffered_message(const can_t *msg) {
   #endif
 	{
 		bool result = can_buffer_get_enqueue_ptr(&can_tx_buffer, &buf);
-		if (result == NULL) return 0;		// buffer full
+		if (!result) return 0;		// buffer full
 		// copy message to the buffer
 		memcpy( &buf, msg, sizeof(can_t) );
 		// In the interrupt it is checked if there are any waiting messages
