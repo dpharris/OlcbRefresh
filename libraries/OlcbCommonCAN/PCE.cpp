@@ -65,6 +65,14 @@ PCE::PCE(Nodal_t* nodal, OpenLcbCanBuffer* b, void (*cb)(uint16_t i), void (*res
          // ToDo: This only sends _either_ producer ID'd or consumer ID'd, not both
          //EventID ev = events[sendEvent].getEID();
          EventID ev = getEID(sendEvent);
+         
+         //Serial.print("\nPCE::check "); Serial.print(ev.val[7]);
+         //Serial.print(" I:"); Serial.print(0!=(events[sendEvent].flags & IDENT_FLAG));
+         //Serial.print(" cP:"); Serial.print(0!=(events[sendEvent].flags & Event::CAN_PRODUCE_FLAG));
+         //Serial.print(" cC:"); Serial.print(0!=(events[sendEvent].flags & Event::CAN_CONSUME_FLAG));
+         //Serial.print(" P:"); Serial.print(0!=(events[sendEvent].flags & PRODUCE_FLAG));
+         //Serial.print(" E:"); Serial.print(0!=(events[sendEvent].flags & EMPTY_FLAG));
+
          if ( (events[sendEvent].flags & (IDENT_FLAG | Event::CAN_PRODUCE_FLAG)) == (IDENT_FLAG | Event::CAN_PRODUCE_FLAG)) {
            events[sendEvent].flags &= ~IDENT_FLAG;    // reset flag
            //buffer->setProducerIdentified(&events[sendEvent]);
