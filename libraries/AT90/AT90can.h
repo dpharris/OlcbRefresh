@@ -1,7 +1,7 @@
 //#pragma message("!!! In tivacan.h ")
 
-#ifndef CAN_H
-#define CAN_H
+#ifndef AT90_CAN_H
+#define AT90_CAN_H
 
 //#pragma message("!!! compiling AT90can.h ")
 
@@ -9,9 +9,10 @@
 extern "C" {
 #endif
     
-#include <avr/pgmspace.h>
-#include <stdint.h>
-#include <stdbool.h>
+// #include <avr/pgmspace.h>
+// #include <stdint.h>
+// #include <stdbool.h>
+#include "CanBus.h"
     
 
 //#define	SUPPORT_TIMESTAMPS

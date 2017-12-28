@@ -29,16 +29,16 @@
     #error  !!!! Only AT90CAN128 supported !!!!
 #else
 
-#include "Arduino.h"
+// #include "Arduino.h"
 
 #include <avr/pgmspace.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <string.h>
-
-#include <avr/io.h>
-#include <avr/interrupt.h>
-#include <util/delay.h>
+// #include <stdint.h>
+// #include <stdbool.h>
+// #include <string.h>
+// 
+// #include <avr/io.h>
+// #include <avr/interrupt.h>
+// #include <util/delay.h>
 
 //#pragma message("AT90 CanBus.h");
 

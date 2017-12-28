@@ -31,6 +31,7 @@
  */
 //#include <can.h>
 //#include <CANlibrary.h>  // !!! DPH added for testing, needs to be permanently installed.
+#include "OpenLcbCanInterface.h"
 #include "processor.h"
 class OpenLcbCanBuffer;
 /**

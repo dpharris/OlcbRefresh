@@ -38,8 +38,8 @@
 
 // AT90CAN
 #elif defined(__AVR_AT90CAN32__) || defined(__AVR_AT90CAN64__) || defined(__AVR_AT90CAN128__)
+//     #define SUPPORT_AT90CAN 1
     #include <AT90can.h>
-    #define SUPPORT_AT90CAN 1
 
 // Teensies
 #elif defined(__AVR_ATmega32U4__)

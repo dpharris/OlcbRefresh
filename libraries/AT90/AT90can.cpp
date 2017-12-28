@@ -1,9 +1,9 @@
 // OpenLCB Adaptation of FlexCAN library
 // copyright DPH 2017
 
+#include "Arduino.h"
+
 #include "AT90can.h"
-#include "CanBus.h"
-//class CanBus;
 
 //tCAN CAN;              // Olcb buffer
 CanBus at90can;       // CanBus buffer
