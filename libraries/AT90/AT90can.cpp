@@ -30,11 +30,6 @@ CanBus at90can;       // CanBus buffer
 bool can_init(uint8_t bitrate) {
     Serial.print("\nIn AT90 can_init");
     at90can.init(BITRATE_125_KBPS);
-    for(uint8_t i = 0; i < 15; ++i)
-    {
-        CANPAGE = (i << 4);
-        CANIDM4 |= (1<<IDEMSK); //ignore standard frames
-    }
     return true;
 }
 
@@ -116,10 +111,10 @@ extern uint8_t can_get_filter(uint8_t number, tCANFilter *filter);
  */
 bool can_check_message(void) {
     //Serial.print("\nIn AT90 can_check_message:");
-    bool r = at90can.check_message();
+    //bool r = at90can.check_message();
     //Serial.print(r);
-    return r;
-    //return at90can.check_message();
+    //return r;
+    return at90can.check_message();
 }
 
 // ----------------------------------------------------------------------------
@@ -130,9 +125,9 @@ bool can_check_message(void) {
  * \return	true falls ein Sende-Puffer frei ist, false ansonsten.
  */
 bool can_check_free_buffer(void) {
-    //Serial.print("\nIn AT90CAN can_check_free_buffer:");
+    Serial.print("\nIn AT90CAN can_check_free_buffer:");
     bool r = at90can.check_free_buffer();
-    //Serial.print(r);
+    Serial.print(r);
     return r;
     //return at90can.check_free_buffer();
     //return tivaCAN.tx_idle();
@@ -150,14 +145,14 @@ extern uint8_t can_buffers_status(void);
  *           Returns buffer number or 0
  */
 uint8_t can_send_message(const tCAN *msg) {
-            //Serial.print("\nIn AT90 can_send_message");
-            //Serial.print("\n[");Serial.print(msg->id,HEX);
-            //Serial.print("](");Serial.print(msg->length);
-            //Serial.print(")[");
-            //for(unsigned i=0;i<msg->length;i++) {
-            //        Serial.print(msg->data[i],HEX); Serial.print(".");
-            //}
-            //Serial.print("]");
+            Serial.print("\nIn AT90 can_send_message");
+            Serial.print("\n[");Serial.print(msg->id,HEX);
+            Serial.print("](");Serial.print(msg->length);
+            Serial.print(")[");
+            for(unsigned i=0;i<msg->length;i++) {
+                    Serial.print(msg->data[i],HEX); Serial.print(".");
+            }
+            Serial.print("]");
     return at90can.send_buffered_message((can_t*) msg);
     /*
     CAN_message_t m;

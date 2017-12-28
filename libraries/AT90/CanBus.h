@@ -44,6 +44,7 @@
 
 #define	SUPPORT_EXTENDED_CANID	1
 #define	SUPPORT_TIMESTAMPS		0
+#define CAN_FORCE_TX_ORDER		1
 
 #if F_CPU != 16000000UL
     #error	!!!! only 16 MHz crystal supported !!!!
@@ -175,7 +176,6 @@ typedef struct {
 
 #define CAN_RX_BUFFER_SIZE		16
 #define CAN_TX_BUFFER_SIZE		8
-#define CAN_FORCE_TX_ORDER		1
 
 static can_buffer_t can_rx_buffer;
 static can_t can_rx_list[CAN_RX_BUFFER_SIZE];
@@ -202,11 +202,9 @@ bool _check_free_buffer(void);
 void can_buffer_init(can_buffer_t *buf, uint8_t size, can_t *list);
 bool can_buffer_empty(can_buffer_t *buf);
 bool can_buffer_full(can_buffer_t *buf);
-//bool can_buffer_get_enqueue_ptr(can_buffer_t *buf, can_t * ptr);
-can_t *can_buffer_get_enqueue_ptr(can_buffer_t *buf);
+bool can_buffer_get_enqueue_ptr(can_buffer_t *buf, can_t * ptr);
 void can_buffer_enqueue(can_buffer_t *buf);
-//bool can_buffer_get_dequeue_ptr(can_buffer_t *buf, can_t * ptr);
-can_t *can_buffer_get_dequeue_ptr(can_buffer_t *buf);
+bool can_buffer_get_dequeue_ptr(can_buffer_t *buf, can_t * ptr);
 void can_buffer_dequeue(can_buffer_t *buf);
 
 class CanBus {
@@ -227,7 +225,7 @@ class CanBus {
 
 	bool read_error_register(can_error_register_t error);
 	void set_mode(can_mode_t mode);
-    
+
   private:
 	void _enter_standby_mode(void);
 	void _leave_standby_mode(void);
