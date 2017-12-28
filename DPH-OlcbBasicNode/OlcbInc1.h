@@ -41,7 +41,11 @@ extern "C" {
       return *(((uint8_t*)&rxBuffer)+address);
     } else if (space == 0xFD) { //253
       // Configuration space is entire EEPROM
-      return EEPROM.read(address);
+      uint8_t r = EEPROM.read(address);
+      //Serial.print("\ngetRead "); Serial.print(space,HEX);
+      //Serial.print(":"); Serial.print(address,HEX);
+      //Serial.print("="); Serial.print(r,HEX);
+      return r;
     } else if (space == 0xFC) { // 252
       // used by ADCDI/SNII for constant data
       return pgm_read_byte(SNII_const_data+address);
@@ -55,10 +59,10 @@ extern "C" {
   }
   
   void getWrite(uint32_t address, int space, uint8_t val) {
-    Serial.print("\nolcbinc getWrite");
-    Serial.print(" space: "); Serial.print(space,HEX);
-    Serial.print(":"); Serial.print(address,HEX);
-    Serial.print("="); Serial.print(val,HEX);
+    //Serial.print("\nolcbinc getWrite");
+    //Serial.print(" space: "); Serial.print(space,HEX);
+    //Serial.print(":"); Serial.print(address,HEX);
+    //Serial.print("="); Serial.print(val,HEX);
     if (space == 0xFE) {
       // All memory
       *(((uint8_t*)&rxBuffer)+address) = val;

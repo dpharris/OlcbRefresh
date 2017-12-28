@@ -111,6 +111,7 @@ void produceFromInputs() {}
 // This may be useful to take immediate action on a change.
 // 
 void userConfigWrite(unsigned int address, unsigned int length){
+   Serial.print("\nuserConfigWrite "); Serial.print(address,HEX);
    uint8_t pl;  // pulse length
    for(unsigned s=0; s<NUM_CHANNEL; s++) {
      for(unsigned p=0; p<3; p++) {

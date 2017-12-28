@@ -47,7 +47,7 @@ void LinkControl::nextAlias() {
 }
 
 void LinkControl::reset() {
-    Serial.print("\nIn LinkControl::reset");
+    //Serial.print("\nIn LinkControl::reset");
   // initialize sequence from node ID
   lfsr1 = (((uint32_t)nid->val[0]) << 16) | (((uint32_t)nid->val[1]) << 8) | ((uint32_t)nid->val[2]);
   lfsr2 = (((uint32_t)nid->val[3]) << 16) | (((uint32_t)nid->val[4]) << 8) | ((uint32_t)nid->val[5]);
@@ -104,7 +104,7 @@ bool LinkControl::sendAMR() {
 }
 
 bool LinkControl::sendFrame() {
-    Serial.print("\nIn LinkControl::sendRIM");
+    Serial.print("\nIn LinkControl::sendFrame");
   if (!OpenLcb_can_xmt_ready(txBuffer)) return false;  // couldn't send just now
   OpenLcb_can_queue_xmt_wait(txBuffer);  // wait for queue, but earlier check says will succeed
   return true;

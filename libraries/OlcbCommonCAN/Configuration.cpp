@@ -17,17 +17,24 @@
 #define CFG_CMD_GET_CONFIG                  0x80
 #define CFG_CMD_GET_CONFIG_REPLY            0x82
 #define CFG_CMD_GET_ADD_SPACE_INFO          0x84
-#define CFG_CMD_GET_ADD_SPACE_INFO_REPLY    0x86
+#define CFG_CMD_GET_ADD_SPACE_NOT_PRESENT   0x86
+#define CFG_CMD_GET_ADD_SPACE_PRESENT       0x87
+
 #define CFG_CMD_LOCK                        0x88
 #define CFG_CMD_LOCK_REPLY                  0x8A
 #define CFG_CMD_GET_UNIQUEID                0x8C
-#define CFG_CMD_GET_UNIQUEID_REPLY          0x8E
+#define CFG_CMD_GET_UNIQUEID_REPLY          0x8D
 
-#define CFG_CMD_FREEZE                      0xA0
-#define CFG_CMD_INDICATE                    0xA4
-#define CFG_CMD_RESETS                      0xA8
+#define CFG_CMD_UNFREEZE                    0xA0
+#define CFG_CMD_FREEZE                      0xA1
+//#define CFG_CMD_INDICATE                    0xA4
+#define CFG_CMD_UPDATE_COMPLETE             0xA8
+#define CFG_CMD_RESETS                      0xA9
+#define CFG_CMD_REINIT_FACTORYRESET         0xAA
 
-/** 
+#define CFG_SPACE_EEPROM    0xFD
+
+/**
  * Structure: Requests come in via 
  * receiveDatagram.  Results (if any) are stored in a 
  * buffer, and check() then sends it when possible.
@@ -179,7 +186,7 @@ void Configuration::processCmd(uint8_t* data, int length) {
             // will handle, mark as done.
             request = false;
             // will reply, mark as done.
-            d[0]=CONFIGURATION_DATAGRAM_CODE; d[1]=CFG_CMD_GET_ADD_SPACE_INFO_REPLY;
+            d[0]=CONFIGURATION_DATAGRAM_CODE; d[1]=CFG_CMD_GET_ADD_SPACE_NOT_PRESENT;
             d[2]=data[2]; // return space number requested
             if (spaceUpperAddr) {
                 uint32_t a = spaceUpperAddr(data[2]);
@@ -195,6 +202,9 @@ void Configuration::processCmd(uint8_t* data, int length) {
             dg->sendTransmitBuffer(8, from);
             break;
           }
+        case CFG_CMD_UPDATE_COMPLETE:
+            userWriteCB(0, 0xFFFF);
+            break;
         case CFG_CMD_RESETS: {
             // will handle, mark as done.
             request = false;
@@ -213,6 +223,7 @@ void Configuration::processCmd(uint8_t* data, int length) {
         //case CFG_CMD_GET_UNIQUEID_REPLY:
         //case CFG_CMD_FREEZE:
         //case CFG_CMD_INDICATE:
+        //case CFG_CMD_REINIT_FACTORYRESET:
         default:
             // these do nothing in this implementation
             break;

@@ -188,6 +188,10 @@ void produceFromInputs() {
 // This may be useful to take immediate action on a change.
 // 
 void userConfigWrite(unsigned int address, unsigned int length){
+  //Serial.print("\nuserConfigWrite "); Serial.print(address,HEX);
+  //Serial.print(":"); Serial.print(length,HEX);
+  // resets the board:
+  //if( address==0 && length==0xFFFF ) setup();
   // example: if a servo's position changed, then update it immediately
   // uint8_t posn;
   // for(unsigned i=0; i<NCHANNEL; i++) {
@@ -216,6 +220,12 @@ void userConfigWrite(unsigned int address, unsigned int length){
 #endif
 
 //#include "streaming.h"
+
+extern int VectorFlag1;
+extern int VectorFlag2;
+extern int VectorFlag3;
+extern int VectorFlag4;
+extern int VectorFlag5;
 
 /**
  * Setup does initial configuration
@@ -273,28 +283,41 @@ void setup()
   #ifdef test
     test();
   #endif
+  //VectorFlag1=0;
+  //VectorFlag2=0;
+  //VectorFlag3=0;
+  //VectorFlag4=0;
+  //VectorFlag5=0;
 }
 
 void loop() {
     static unsigned long nxtdot = millis();
     if(millis()>nxtdot) {
       nxtdot+=1000;
-      Serial.println(".");
+      //Serial.println(".");
+      //Serial.print("\nVectorFlags:"); Serial.print(VectorFlag1); 
+      //Serial.print(","); Serial.print(VectorFlag2); 
+      //Serial.print(","); Serial.print(VectorFlag3); 
+      //Serial.print(","); Serial.print(VectorFlag4); 
+      //Serial.print(","); Serial.print(VectorFlag5); 
+      delay(100);
     }
     
     bool activity = Olcb_loop();
     if (activity) {
         // blink blue to show that the frame was received
+        Serial.print("\nrcv");
         blue.blink(0x1);
     }
     if (OpenLcb_can_active) { // set when a frame sent
         gold.blink(0x1);
+        Serial.print("\nsnd");
         OpenLcb_can_active = false;
     }
     // handle the status lights  
     blue.process();
     gold.process();
-    
+    }
 }
 
 

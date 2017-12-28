@@ -44,10 +44,10 @@ bool OpenLcb_can_xmt_ready(OpenLcbCanBuffer* b) {
 // Queue a CAN frame for sending, if possible
 // Returns true if queued, false if not currently possible
 bool OpenLcb_can_queue_xmt_immediate(OpenLcbCanBuffer* b) {
-                            Serial.print("\nOpenLcb_can_queue_xmt_immediate id=");
+                            //Serial.print("\nOpenLcb_can_queue_xmt_immediate id=");
                             //Serial.print(b->id,HEX);
     if (!OpenLcb_can_xmt_ready(b)) return false;
-    Serial.print("\nOpenLcb_can_queue_xmt_immediate 2");
+    //Serial.print("\nOpenLcb_can_queue_xmt_immediate 2");
   // buffer available, queue for send
     OpenLcb_can_active = true;
                             //Serial.print(" .. can_send_message");
@@ -92,6 +92,7 @@ bool OpenLcb_can_xmt_idle() {
 // in the process removing it from the CAN subsystem.
 // Return false (zero) if no frame available.
 bool OpenLcb_can_get_frame(OpenLcbCanBuffer* b) {
+    //Serial.print("\nIn OpenLcb_can_get_frame");
     int v = can_get_message(b);
                             //if(v>0) {
                             //  Serial.print("\nOpenLcb_can_get_frame  ");

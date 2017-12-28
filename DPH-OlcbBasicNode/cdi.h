@@ -3,6 +3,10 @@
 // <?xml version='1.0'?>
 // <?xml-stylesheet type='text/xsl' href='http://openlcb.org/trunk/prototypes/xml/xslt/cdi.xsl'?>
 
+// from Alex
+//<?xml version='1.0'?>
+//<?xml-stylesheet type='text/xsl' href='http://openlcb.org/trunk/prototypes/xml/xslt/cdi.xsl'?>
+
 const char configDefInfo[] PROGMEM = R"(
 <cdi xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='http://openlcb.org/trunk/prototypes/xml/schema/cdi.xsd'>
 

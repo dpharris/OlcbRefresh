@@ -388,7 +388,7 @@ extern uint8_t can_buffers_status(void);
 #include <util/delay.h>
 uint8_t can_send_message(const tCAN *msg)
 {
-    Serial.print("\nIn mcp2515 can_send_message:");
+    //Serial.print("\nIn mcp2515 can_send_message:");
     Serial.print(msg->id,HEX);
     // Status des MCP2515 auslesen
     uint8_t status = mcp2515_read_status(SPI_READ_STATUS);
@@ -465,7 +465,7 @@ uint8_t can_send_message(const tCAN *msg)
  *           Returns filter code or 0
  */
 uint8_t can_get_message(tCAN *msg) {
-    Serial.print("\nIn mcp2515 can_get_message");
+    //Serial.print("\nIn mcp2515 can_get_message");
     uint8_t lastRxBuf1Status = 0;
     uint8_t addr;
     #ifdef	RXnBF_FUNKTION
