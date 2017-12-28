@@ -635,12 +635,61 @@ bool CanBus::init(uint8_t bitrate) {
 	CANTCON = 199;
 	// disable all filters
 	disable_filter( 0xff );
+
+	#if CAN_RX_BUFFER_SIZE > 0
 	can_buffer_init( &can_rx_buffer, CAN_RX_BUFFER_SIZE, can_rx_list );
+	#endif
+	
+	#if CAN_TX_BUFFER_SIZE > 0
 	can_buffer_init( &can_tx_buffer, CAN_TX_BUFFER_SIZE, can_tx_list );
+	#endif
+	
+		//Clear all mailboxes. DEG 22 May 2011
+	uint8_t i;
+	for(i = 0; i < 15; ++i)
+	{
+		CANPAGE = (i << 4);
+		//clear any interrupt flags
+		CANSTMOB = 0;
+	//DEG 23 May 2011. Configure each mailbox.
+	// From Datasheet, 19.5.2:
+	// "There is no default mode after RESET.
+        // "Every MOb has its own fields to control the operating mode.
+        // "Before enabling the CAN peripheral, each MOb must be
+	// "configured (ex: disabled mode - CONMOB=00)."
+	// Just going to configure them all as receive. Don't know that
+	// This is corect. Maybe they should be set to disable, but one?
+	// H/T http://www.avrfreaks.net/index.php?name=PNphpBB2&file=viewtopic&t=107164
+		//IDT, RTRTAG, RBnTAG
+		CANIDT1 = 0;                        //ID 
+		CANIDT2 = 0; 
+		CANIDT3 = 0; 
+		CANIDT4 = 0; 
+		//IDMSK, IDEMSK, RTRMSK
+		CANIDM1 = 0;                        //get all messages 
+		CANIDM2 = 0;                        //1 = check bit 
+		CANIDM3 = 0;                        //0 = ignore bit 
+		CANIDM4 = 0; //(1<<IDEMSK); 		// do not ignore standard frames
+		//set to receive, DLC, IDE
+		//set MOBs 5-14 to receive. Is this anything like ideal?
+		if(i >= 5)
+			CANCDMOB = (1 << CONMOB1) | (1 << IDE);
+		else
+			CANCDMOB = 0; //(1 << IDE);
+	}
+	
     //Serial.print("\nCAN_RX_BUFFER_SIZE=");    Serial.print(CAN_RX_BUFFER_SIZE);
     //Serial.print("  CAN_TX_BUFFER_SIZE=");    Serial.print(CAN_TX_BUFFER_SIZE);
 	// activate CAN controller
 	CANGCON = (1 << ENASTB);
+	
+		//DEG 26 May 2011
+	//enable individual MOB interrupts!
+	//For whatever reason, this does not take effect when the 
+	//CAN bus is disabled!?
+	CANIE1 = 0x7F;
+	CANIE2 = 0xFF;
+
 	return true;
 }
 
