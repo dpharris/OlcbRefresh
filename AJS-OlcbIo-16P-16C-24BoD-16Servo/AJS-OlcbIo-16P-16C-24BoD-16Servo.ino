@@ -56,11 +56,10 @@ Nodal_t nodal = { &nodeid, events, eventsIndex, eventidOffset, NUM_EVENTS };
 const uint8_t outputPinNums[] = { 0,  1,  2,  3,  4,  5,  6,  7};
 
 const uint8_t inputPinNums [] = { 8,  9, 10, 11, 12, 13, 14, 15};
-bool inputStates[] = {false, false, false, false, false, false, false, false}; // current input states; report when changed
+uint8_t inputStates[] = {0, 0, 0, 0, 0, 0, 0, 0}; // current input states; report when changed
 
 const uint8_t bodPinNums   [] = {16, 17, 18, 19, 20, 21, 22, 23, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47};
-//bool BoDStates[]   = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
-bool BoDStates[]   = {false};
+uint8_t BoDStates[]   = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 ButtonLed blue(BLUE, LOW);
 ButtonLed gold(GOLD, LOW);
@@ -88,34 +87,49 @@ void produceFromInputs() {
   // 
   // To reduce latency, only MAX_INPUT_SCAN inputs are scanned on each loop
   //    (Should not exceed the total number of inputs, nor about 4)
-  static int inputsScanIndex = 0;
-  static int bodScanIndex = 0;
+  static uint8_t inputsScanIndex = 0;
+  static uint8_t bodScanIndex = 0;
+  
   #define MAX_INPUT_SCAN 4
   for (int i = 0; i<(MAX_INPUT_SCAN); i++)
   {
-      bool inputVal = digitalRead( inputPinNums[inputsScanIndex]);
+    Serial.print("produceFromInputs: "); Serial.print(inputsScanIndex); Serial.print(" - "); Serial.println(bodScanIndex);
+    
+    if(inputsScanIndex < NUM_INPUTS)
+    {
+      uint8_t inputVal = digitalRead( inputPinNums[inputsScanIndex]);
       if(inputStates[inputsScanIndex] != inputVal)
       {
         inputStates[inputsScanIndex] = inputVal;
+        Serial.print("produceFromInputs: Input: "); Serial.print(inputsScanIndex); Serial.print(" NewValue: "); Serial.println(inputVal);
+
         if(inputVal)
           pce.produce(FIRST_INPUT_EVENT_INDEX + (inputsScanIndex * 2));
         else
           pce.produce(FIRST_INPUT_EVENT_INDEX + (inputsScanIndex * 2) + 1);
       }
       inputsScanIndex++;
-      if(inputsScanIndex > NUM_INPUTS) inputsScanIndex = 0;
-
-      inputVal = digitalRead( bodPinNums[bodScanIndex]);
+    }
+    else if(bodScanIndex < NUM_BOD_INPUTS)
+    {
+      uint8_t inputVal = digitalRead( bodPinNums[bodScanIndex]);
       if(BoDStates[bodScanIndex] != inputVal)
       {
         BoDStates[bodScanIndex] = inputVal;
+        Serial.print("produceFromInputs: BODInput: "); Serial.print(bodScanIndex); Serial.print(" NewValue: "); Serial.println(inputVal);
+
         if(inputVal)
           pce.produce(FIRST_BOD_EVENT_INDEX + (bodScanIndex * 2));
         else
           pce.produce(FIRST_BOD_EVENT_INDEX + (bodScanIndex * 2) + 1);
       }
       bodScanIndex++;
-      if(bodScanIndex > NUM_BOD_INPUTS) bodScanIndex = 0;
+    }
+    else
+    {
+      inputsScanIndex = 0;
+      bodScanIndex = 0;
+    }
   }
 }
 
@@ -248,7 +262,7 @@ void loop() {
     static unsigned long nxtdot = millis();
     if(millis()>nxtdot) {
       nxtdot+=1000;
-      Serial.println(".");
+      Serial.print(".");
     }
     
     bool activity = Olcb_loop();
