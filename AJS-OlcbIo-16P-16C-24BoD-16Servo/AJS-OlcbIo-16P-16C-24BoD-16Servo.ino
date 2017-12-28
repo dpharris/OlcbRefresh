@@ -190,7 +190,7 @@ void setup()
   //  Serial.print(":");Serial.print(eventidOffset[i],HEX);
   //}
 
-  //nm.forceInitAll(); userInit(); // uncomment if need to go back to initial EEPROM state
+  //nm.forceInitAll(); userInit(); printRawEEPROM(); while(1==1){} // uncomment if need to go back to initial EEPROM state
     nm.setup(&nodal, (uint8_t*) 0, (uint16_t)0, (uint16_t)LAST_EEPROM); 
 
     // Setup Output Pins
