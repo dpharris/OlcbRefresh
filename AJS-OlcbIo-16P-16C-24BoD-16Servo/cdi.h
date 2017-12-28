@@ -1,4 +1,8 @@
 // CDI
+// NUM_OUTPUTS     8
+// NUM_INPUTS      8
+// NUM_BOD_INPUTS 24
+// NUM_SERVOS     16
 
 const char configDefInfo[] PROGMEM = R"(<?xml version='1.0'?>
 <?xml-stylesheet type='text/xsl' href='http://openlcb.org/trunk/prototypes/xml/xslt/cdi.xsl'?>
@@ -28,7 +32,7 @@ const char configDefInfo[] PROGMEM = R"(<?xml version='1.0'?>
     <group replication='8'>
         <name>Outputs</name>
         <repname>Output</repname>
-        <string size='18'>
+        <string size='16'>
             <name>Description</name>
         </string>
         <eventid>

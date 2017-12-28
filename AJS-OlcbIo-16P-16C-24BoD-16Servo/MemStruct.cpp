@@ -40,7 +40,8 @@ const PROGMEM uint16_t eventidOffset[NUM_EVENTS] = {
 // zero-based pointer into the MemStruct structure
 MemStruct * pmem = 0;
 
-Event events[NUM_EVENTS] = {
+Event events[NUM_EVENTS] = { Event() };
+/*
     // 8 x 2 Output Events
   Event(), Event(), Event(), Event(), Event(), Event(), Event(), Event(),
   Event(), Event(), Event(), Event(), Event(), Event(), Event(), Event(),
@@ -63,6 +64,7 @@ Event events[NUM_EVENTS] = {
   Event(), Event(), Event(), Event(), Event(), Event(), Event(), Event(),
   Event(), Event(), Event(), Event(), Event(), Event(), Event(), Event(),
   };
+ */
    
 // Sorted index to eventids
 Index eventsIndex[NUM_EVENTS];  // Sorted index to eventids

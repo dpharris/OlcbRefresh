@@ -58,7 +58,8 @@ const uint8_t inputPinNums [] = { 8,  9, 10, 11, 12, 13, 14, 15};
 bool inputStates[] = {false, false, false, false, false, false, false, false}; // current input states; report when changed
 
 const uint8_t bodPinNums   [] = {16, 17, 18, 19, 20, 21, 22, 23, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47};
-bool BoDStates[]   = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
+//bool BoDStates[]   = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
+bool BoDStates[]   = {false};
 
 ButtonLed blue(BLUE, LOW);
 ButtonLed gold(GOLD, LOW);
@@ -91,37 +92,29 @@ void produceFromInputs() {
   #define MAX_INPUT_SCAN 4
   for (int i = 0; i<(MAX_INPUT_SCAN); i++)
   {
-    if (inputsScanIndex < NUM_INPUTS)
-    {
       bool inputVal = digitalRead( inputPinNums[inputsScanIndex]);
       if(inputStates[inputsScanIndex] != inputVal)
       {
-        inputStates[inputsScanIndex] != inputVal;
+        inputStates[inputsScanIndex] = inputVal;
         if(inputVal)
           pce.produce(FIRST_INPUT_EVENT_INDEX + (inputsScanIndex * 2));
         else
           pce.produce(FIRST_INPUT_EVENT_INDEX + (inputsScanIndex * 2) + 1);
       }
-    }
+      inputsScanIndex++;
+      if(inputsScanIndex > NUM_INPUTS) inputsScanIndex = 0;
 
-    if (bodScanIndex < NUM_BOD_INPUTS)
-    {
-      bool inputVal = digitalRead( bodPinNums[bodScanIndex]);
+      inputVal = digitalRead( bodPinNums[bodScanIndex]);
       if(BoDStates[bodScanIndex] != inputVal)
       {
-        BoDStates[bodScanIndex] != inputVal;
+        BoDStates[bodScanIndex] = inputVal;
         if(inputVal)
           pce.produce(FIRST_BOD_EVENT_INDEX + (bodScanIndex * 2));
         else
           pce.produce(FIRST_BOD_EVENT_INDEX + (bodScanIndex * 2) + 1);
       }
-    }
-      // We only reset inputsScanIndex once we've also scanned all the BOD Inputs  
-    else
-    {
-      inputsScanIndex = 0;
-      bodScanIndex = 0;
-    }
+      bodScanIndex++;
+      if(bodScanIndex > NUM_BOD_INPUTS) bodScanIndex = 0;
   }
 }
 
