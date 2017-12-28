@@ -53,7 +53,8 @@ extern "C" {
     } tCANMode;
     
 
-    extern bool can_init(uint8_t bitrate);
+    //extern bool can_init(uint8_t bitrate);
+    extern bool can_init();
     extern bool can_set_filter(uint8_t number, const tCANFilter *filter);
     extern bool can_disable_filter(uint8_t number);
     extern void can_static_filter(const uint8_t *filter_array);

@@ -1,7 +1,7 @@
 //#pragma message("!!! In tivacan.h ")
 
-#ifndef CAN_H
-#define CAN_H
+#ifndef AT90_CAN_H
+#define AT90_CAN_H
 
 //#pragma message("!!! compiling AT90can.h ")
 
@@ -9,9 +9,10 @@
 extern "C" {
 #endif
     
-#include <avr/pgmspace.h>
-#include <stdint.h>
-#include <stdbool.h>
+// #include <avr/pgmspace.h>
+// #include <stdint.h>
+// #include <stdbool.h>
+#include "CanBus.h"
     
 
 //#define	SUPPORT_TIMESTAMPS
@@ -53,7 +54,8 @@ extern "C" {
     } tCANMode;
     
 
-    extern bool can_init(uint8_t bitrate);
+    //extern bool can_init(uint8_t bitrate);
+    extern bool can_init();
     extern bool can_set_filter(uint8_t number, const tCANFilter *filter);
     extern bool can_disable_filter(uint8_t number);
     extern void can_static_filter(const uint8_t *filter_array);

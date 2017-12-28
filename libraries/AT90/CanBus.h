@@ -29,16 +29,16 @@
     #error  !!!! Only AT90CAN128 supported !!!!
 #else
 
-#include "Arduino.h"
+// #include "Arduino.h"
 
 #include <avr/pgmspace.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <string.h>
-
-#include <avr/io.h>
-#include <avr/interrupt.h>
-#include <util/delay.h>
+// #include <stdint.h>
+// #include <stdbool.h>
+// #include <string.h>
+// 
+// #include <avr/io.h>
+// #include <avr/interrupt.h>
+// #include <util/delay.h>
 
 //#pragma message("AT90 CanBus.h");
 
@@ -210,7 +210,8 @@ void can_buffer_dequeue(can_buffer_t *buf);
 class CanBus {
   public:
 	CanBus();
-	bool init(uint8_t bitrate);
+	//bool init(uint8_t bitrate);
+    bool init();
     
     bool check_message(void);
     bool check_free_buffer(void);

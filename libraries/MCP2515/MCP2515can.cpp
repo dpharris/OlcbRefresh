@@ -158,8 +158,10 @@ uint8_t mcp2515_read_id(uint32_t *id) {
 
 
 // -------------------------------------------------------------------------
-bool mcp2515_init(uint8_t bitrate)
+//bool mcp2515_init(uint8_t bitrate)
+bool mcp2515_init()
 {
+    uint8_t bitrate = 4;
     if (bitrate >= 8)
         return false;
     SET(MCP2515_CS);
@@ -607,9 +609,11 @@ extern void can_set_mode(tCANMode mode);
  * \return	false falls das CAN Interface nicht initialisiert werden konnte,
  *			true ansonsten.
  */
-bool can_init(uint8_t bitrate) {
+//bool can_init(uint8_t bitrate) {
+bool can_init() {
     Serial.print("\nIn MCP2515 can_init");
-    mcp2515_init(BITRATE_125_KBPS);
+    //mcp2515_init(BITRATE_125_KBPS);
+    mcp2515_init();
     return true;
 }
 

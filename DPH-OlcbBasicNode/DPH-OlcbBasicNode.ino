@@ -221,12 +221,6 @@ void userConfigWrite(unsigned int address, unsigned int length) {
 
 //#include "streaming.h"
 
-extern int VectorFlag1;
-extern int VectorFlag2;
-extern int VectorFlag3;
-extern int VectorFlag4;
-extern int VectorFlag5;
-
 /**
  * Setup does initial configuration
  */
@@ -283,26 +277,10 @@ void setup()
   #ifdef test
     test();
   #endif
-  //VectorFlag1=0;
-  //VectorFlag2=0;
-  //VectorFlag3=0;
-  //VectorFlag4=0;
-  //VectorFlag5=0;
+
 }
 
 void loop() {
-    static unsigned long nxtdot = millis();
-    if(millis()>nxtdot) {
-      nxtdot+=1000;
-      //Serial.println(".");
-      //Serial.print("\nVectorFlags:"); Serial.print(VectorFlag1); 
-      //Serial.print(","); Serial.print(VectorFlag2); 
-      //Serial.print(","); Serial.print(VectorFlag3); 
-      //Serial.print(","); Serial.print(VectorFlag4); 
-      //Serial.print(","); Serial.print(VectorFlag5); 
-      delay(100);
-    }
-    
     bool activity = Olcb_loop();
     if (activity) {
         // blink blue to show that the frame was received

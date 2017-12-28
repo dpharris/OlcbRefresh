@@ -9,7 +9,8 @@
 #include <Arduino.h>
 
 void OpenLcb_can_init() {
-    uint8_t r = can_init(125000);
+    //uint8_t r = can_init(BITRATE_125_KBPS);
+    uint8_t r = can_init();
     Serial.print("\nOpenLcb_can_init return=");
     Serial.print(r);
     //logstr("OpenLcb_can_init");

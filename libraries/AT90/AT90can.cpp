@@ -1,9 +1,9 @@
 // OpenLCB Adaptation of FlexCAN library
 // copyright DPH 2017
 
+#include "Arduino.h"
+
 #include "AT90can.h"
-#include "CanBus.h"
-//class CanBus;
 
 //tCAN CAN;              // Olcb buffer
 CanBus at90can;       // CanBus buffer
@@ -27,9 +27,11 @@ CanBus at90can;       // CanBus buffer
  * \return	false falls das CAN Interface nicht initialisiert werden konnte,
  *			true ansonsten.
  */
-bool can_init(uint8_t bitrate) {
+//bool can_init(uint8_t bitrate) {
+bool can_init() {
     Serial.print("\nIn AT90 can_init");
-    at90can.init(BITRATE_125_KBPS);
+    //at90can.init(BITRATE_125_KBPS);
+    at90can.init();
     return true;
 }
 
@@ -125,9 +127,9 @@ bool can_check_message(void) {
  * \return	true falls ein Sende-Puffer frei ist, false ansonsten.
  */
 bool can_check_free_buffer(void) {
-    Serial.print("\nIn AT90CAN can_check_free_buffer:");
+    //Serial.print("\nIn AT90CAN can_check_free_buffer:");
     bool r = at90can.check_free_buffer();
-    Serial.print(r);
+    //Serial.print(r);
     return r;
     //return at90can.check_free_buffer();
     //return tivaCAN.tx_idle();

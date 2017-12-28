@@ -17,7 +17,8 @@ CANClass tivaCAN(0);   // Tiva buffer
  * \return	false falls das CAN Interface nicht initialisiert werden konnte,
  *			true ansonsten.
  */
-bool can_init(uint8_t bitrate) {
+//bool can_init(uint8_t bitrate) {
+bool can_init() {
     Serial.print("\nIn tivacan can_init");
     tivaCAN.begin();
     return true;
