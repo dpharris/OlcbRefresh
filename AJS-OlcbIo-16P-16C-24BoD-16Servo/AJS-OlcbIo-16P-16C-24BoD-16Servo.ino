@@ -60,7 +60,6 @@ bool inputStates[] = {false, false, false, false, false, false, false, false}; /
 const uint8_t bodPinNums   [] = {16, 17, 18, 19, 20, 21, 22, 23, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47};
 bool BoDStates[]   = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
 
-
 ButtonLed blue(BLUE, LOW);
 ButtonLed gold(GOLD, LOW);
 
@@ -165,8 +164,8 @@ void userConfigWrite(unsigned int address, unsigned int length){
 void setup()
 {
     // Force Magic Number to 0 to force reinit
-  for(uint8_t i = 0; i < 4; i++)
-    EEPROM.update(i,0);
+//  for(uint8_t i = 0; i < 4; i++)
+//    EEPROM.update(i,0);
   
   // set up serial comm; may not be space for this!
   Serial.begin(BAUD_RATE);Serial.println(F("\nAJS OlcbIo 16P 16C 24BoD 16Servo"));

@@ -25,7 +25,7 @@ EventID blog(unsigned i) { return getEID(i); }
 #define REG_OUTPUT(s)       (ADDR_EID(outputs[s].setEvent), ADDR_EID(outputs[s].resetEvent)) 
 #define REG_INPUT(s)        (ADDR_EID(inputs[s].activation), ADDR_EID(inputs[s].deactivation)) 
 #define REG_BOD_INPUT(s)    (ADDR_EID(BoDinputs[s].occupied), ADDR_EID(BoDinputs[s].empty)) 
-#define REG_SERVO_OUTPUT(s) (ADDR_EID(ServoOutputs[s].divergingPos), ADDR_EID(ServoOutputs[s].normalPos)) 
+#define REG_SERVO_OUTPUT(s) (ADDR_EID(ServoOutputs[s].divergingPos), ADDR_EID(ServoOutputs[s].mainPos)) 
 
 const PROGMEM uint16_t eventidOffset[NUM_EVENTS] = {
    REG_OUTPUT(0), REG_OUTPUT(1), REG_OUTPUT(2), REG_OUTPUT(3), REG_OUTPUT(4), REG_OUTPUT(5), REG_OUTPUT(6), REG_OUTPUT(7),
@@ -41,20 +41,23 @@ const PROGMEM uint16_t eventidOffset[NUM_EVENTS] = {
 MemStruct * pmem = 0;
 
 Event events[NUM_EVENTS] = {
-    // Output Events
+    // 8 x 2 Output Events
   Event(), Event(), Event(), Event(), Event(), Event(), Event(), Event(),
   Event(), Event(), Event(), Event(), Event(), Event(), Event(), Event(),
-    // Input Events
+
+    // 8 x 2 Input Events
   Event(), Event(), Event(), Event(), Event(), Event(), Event(), Event(),
   Event(), Event(), Event(), Event(), Event(), Event(), Event(), Event(),
-    // BOD Input Events
+
+    // 24 x 2 BOD Input Events
   Event(), Event(), Event(), Event(), Event(), Event(), Event(), Event(),
   Event(), Event(), Event(), Event(), Event(), Event(), Event(), Event(),
-//  Event(), Event(), Event(), Event(), Event(), Event(), Event(), Event(),
-//  Event(), Event(), Event(), Event(), Event(), Event(), Event(), Event(),
-//  Event(), Event(), Event(), Event(), Event(), Event(), Event(), Event(),
-//  Event(), Event(), Event(), Event(), Event(), Event(), Event(), Event(),
-    // Servo Output Events
+  Event(), Event(), Event(), Event(), Event(), Event(), Event(), Event(),
+  Event(), Event(), Event(), Event(), Event(), Event(), Event(), Event(),
+  Event(), Event(), Event(), Event(), Event(), Event(), Event(), Event(),
+  Event(), Event(), Event(), Event(), Event(), Event(), Event(), Event(),
+
+    // 16 x 2 Servo Output Events
   Event(), Event(), Event(), Event(), Event(), Event(), Event(), Event(),
   Event(), Event(), Event(), Event(), Event(), Event(), Event(), Event(),
   Event(), Event(), Event(), Event(), Event(), Event(), Event(), Event(),

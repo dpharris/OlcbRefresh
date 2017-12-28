@@ -77,7 +77,7 @@ typedef struct //__attribute__ ((packed))
   struct {
     char desc[16];        // description of this Servo Turnout Driver
     EventID divergingPos; // eventID which is Produced on Diverging 
-    EventID normalPos;    // eventID which is Produced on Normal
+    EventID mainPos;    // eventID which is Produced on Normal
   } ServoOutputs[NUM_SERVOS];
 } MemStruct;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
