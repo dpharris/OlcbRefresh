@@ -187,7 +187,7 @@ void produceFromInputs() {
 // Use this to detect changes in the ndde's configuration
 // This may be useful to take immediate action on a change.
 // 
-void userConfigWrite(unsigned int address, unsigned int length){
+void userConfigWrite(unsigned int address, unsigned int length) {
   //Serial.print("\nuserConfigWrite "); Serial.print(address,HEX);
   //Serial.print(":"); Serial.print(length,HEX);
   // resets the board:
@@ -317,7 +317,7 @@ void loop() {
     // handle the status lights  
     blue.process();
     gold.process();
-    }
+   
 }
 
 

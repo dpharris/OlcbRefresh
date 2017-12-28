@@ -60,7 +60,7 @@ This restated as a diagram:
 ```
  - In the Medium model *only*, eventIndex also indexes the eventIDs array:
 ```
-        **eventidIndex[]--(index)-->eventids[]
+        eventidIndex[]--(index)-->eventids[]
 ```
 
 ## More about OpenLCB/LCC - what is it?
