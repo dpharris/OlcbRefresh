@@ -87,7 +87,10 @@ unsigned int datagramCallback(uint8_t *rbuf, unsigned int length, unsigned int f
 #endif
 
 extern PCE pce;
+
+#ifndef OLCB_NO_BLUE_GOLD
 extern BG bg;
+#endif
 
 // invoke from setup()
 void Olcb_setup() {
@@ -162,7 +165,9 @@ bool Olcb_loop() {
 #ifndef OLCB_NO_MEMCONFIG
      cfg.check();
 #endif
+#ifndef OLCB_NO_BLUE_GOLD
      bg.check();
+#endif
      PIP_check();
      SNII_check();
      produceFromInputs();
