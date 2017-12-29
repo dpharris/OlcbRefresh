@@ -58,7 +58,7 @@ const uint8_t outputPinNums[] = { 0,  1,  2,  3,  4,  5,  6,  7};
 const uint8_t inputPinNums [] = { 8,  9, 10, 11, 12, 13, 14, 15};
 uint8_t inputStates[] = {0, 0, 0, 0, 0, 0, 0, 0}; // current input states; report when changed
 
-const uint8_t bodPinNums   [] = {16, 17, 18, 19, 20, 21, 22, 23, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47};
+const uint8_t bodPinNums   [] = {16, 17, 18, 19, 20, 21, 22, 23, 32, 16, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47};
 uint8_t BoDStates[]   = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 ButtonLed blue(BLUE, LOW);
@@ -93,7 +93,7 @@ void produceFromInputs() {
   #define MAX_INPUT_SCAN 4
   for (int i = 0; i<(MAX_INPUT_SCAN); i++)
   {
-    Serial.print("produceFromInputs: "); Serial.print(inputsScanIndex); Serial.print(" - "); Serial.println(bodScanIndex);
+    //Serial.print("produceFromInputs: "); Serial.print(inputsScanIndex); Serial.print(" - "); Serial.println(bodScanIndex);
     
     if(inputsScanIndex < NUM_INPUTS)
     {
@@ -113,6 +113,7 @@ void produceFromInputs() {
     else if(bodScanIndex < NUM_BOD_INPUTS)
     {
       uint8_t inputVal = digitalRead( bodPinNums[bodScanIndex]);
+      //Serial.print(" NewValue: "); Serial.println(inputVal);
       if(BoDStates[bodScanIndex] != inputVal)
       {
         BoDStates[bodScanIndex] = inputVal;
