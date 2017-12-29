@@ -63,27 +63,28 @@ typedef struct //__attribute__ ((packed))
     char desc[16];        // decription of this output
     EventID setEvent;     // Consumed eventID which sets this output-pin
     EventID resetEvent;   // Consumed eventID which resets this output-pin
-  } outputs[NUM_OUTPUTS];
+  } digitalOutputs[NUM_OUTPUTS];
   struct {
     char desc[16];        // description of this input-pin
     EventID activation;   // eventID which is Produced on activation of this input-pin 
     EventID deactivation; // eventID which is Produced on deactivation of this input-pin
-  } inputs[NUM_INPUTS];
+  } digitalInputs[NUM_INPUTS];
   struct {
     char desc[16];        // description of this BoD input-pin
     EventID occupied;     // eventID which is Produced on Block Occupied 
     EventID empty;        // eventID which is Produced on Block Empty
-  } BoDinputs[NUM_BOD_INPUTS];
+  } bodInputs[NUM_BOD_INPUTS];
   struct {
     char desc[16];        // description of this Servo Turnout Driver
     EventID diverging;    // consumer eventID which sets turnout to Diverging 
-    EventID main;       // consumer eventID which sets turnout to Main
-    int divergingPos;     // position of turount in Diverging
-    int mainPos;        // position of turnout in Normal
-  } ServoOutputs[NUM_SERVOS];
+    EventID main;         // consumer eventID which sets turnout to Main
+    uint8_t divergingPos; // position of turount in Diverging
+    uint8_t mainPos;      // position of turnout in Normal
+  } servoOutputs[NUM_SERVOS];
 } MemStruct;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+// Description of EEPROM memory structure, and the mirrored mem if in MEM_LARGE
 extern MemStruct * pmem;
 extern Event events[NUM_EVENTS] ;   // repeated for all eight events. 
 extern Index eventsIndex[NUM_EVENTS];  // Sorted index to eventids

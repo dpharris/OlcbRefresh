@@ -53,10 +53,10 @@ extern "C" {
   }
   
   void getWrite(uint32_t address, int space, uint8_t val) {
-    Serial.print("\nolcbinc getWrite");
-    Serial.print(" space: "); Serial.print(space,HEX);
-    Serial.print(":"); Serial.print(address,HEX);
-    Serial.print("="); Serial.print(val,HEX);
+    DEBUG("\nolcbinc getWrite");
+    DEBUG(" space: "); DEBUGHEX(space,HEX);
+    DEBUG(":"); DEBUGHEX(address,HEX);
+    DEBUG("="); DEBUGHEX(val,HEX);
     if (space == 0xFE) {
       // All memory
       *(((uint8_t*)&rxBuffer)+address) = val;
@@ -68,4 +68,5 @@ extern "C" {
   }
 
 } // end of extern
+
 
