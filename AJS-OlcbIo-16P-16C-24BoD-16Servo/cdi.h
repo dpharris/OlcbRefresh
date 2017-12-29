@@ -30,7 +30,7 @@ const char configDefInfo[] PROGMEM = R"(<?xml version='1.0'?>
 
 <segment origin='56' space='253'>
     <group replication='8'>
-        <name>Outputs</name>
+        <name>Digital Outputs</name>
         <repname>Output</repname>
         <string size='16'>
             <name>Description</name>
@@ -43,7 +43,7 @@ const char configDefInfo[] PROGMEM = R"(<?xml version='1.0'?>
         </eventid>
     </group>
     <group replication='8'>
-        <name>Inputs</name>
+        <name>Digital Inputs</name>
         <repname>Input</repname>
         <string size='16'>
             <name>Description</name>
@@ -56,7 +56,7 @@ const char configDefInfo[] PROGMEM = R"(<?xml version='1.0'?>
         </eventid>
     </group>
     <group replication='24'>
-        <name>Block Occupancy Detection</name>
+        <name>Block Occupancy Detector Inputs</name>
         <repname>Block</repname>
         <string size='16'>
             <name>Description</name>
@@ -69,8 +69,8 @@ const char configDefInfo[] PROGMEM = R"(<?xml version='1.0'?>
         </eventid>
     </group>
     <group replication='16'>
-        <name>Servo Turnout Control</name>
-        <repname>Turnout</repname>
+        <name>Turnout Servo Control</name>
+        <repname>Servo</repname>
         <string size='16'>
             <name>Description</name>
         </string>
@@ -80,11 +80,19 @@ const char configDefInfo[] PROGMEM = R"(<?xml version='1.0'?>
         <eventid>
             <name>Select Diverging Event</name>
         </eventid>
-        <int>
-            <name>Main position (0-180)</name>
+        <int size='1'>
+            <min>0</min>
+            <max>180</max>
+            <default>90</default>
+            <name>Main Servo Position</name>
+            <description>Position in Degrees (0-180) </description>
         </int>
-        <int>
-            <name>Diverging position (0-180)</name>
+        <int size='1'>
+            <min>0</min>
+            <max>180</max>
+            <default>90</default>
+            <name>Diverging Servo Position</name>
+            <description>Position in Degrees (0-180) </description>
         </int>
     </group>
 </segment>

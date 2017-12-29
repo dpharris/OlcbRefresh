@@ -8,15 +8,13 @@
 //==============================================================
 
 #include "OlcbCommonVersion.h"
-
-// Description of EEPROM memory structure, and the mirrored mem if in MEM_LARGE
 #include "MemStruct.h"
-extern MemStruct * pmem;
+#include "debug.h"
+#include "eeprom_utils.h"
 
-// init for serial communications if used
-#define         BAUD_RATE       115200
+#define DEBUG_BAUD_RATE 115200
 
-NodeID nodeid(5,2,1,2,2,24);    // This node's default ID; must be valid 
+NodeID nodeid(0x05,0x02,0x01,0x02,0x02,0x24);    // This node's default ID; must be valid 
 
 extern "C" {
   
@@ -58,7 +56,12 @@ const uint8_t outputPinNums[] = { 0,  1,  2,  3,  4,  5,  6,  7};
 const uint8_t inputPinNums [] = { 8,  9, 10, 11, 12, 13, 14, 15};
 uint8_t inputStates[] = {0, 0, 0, 0, 0, 0, 0, 0}; // current input states; report when changed
 
+<<<<<<< HEAD
 const uint8_t bodPinNums   [] = {16, 17, 18, 19, 20, 21, 22, 23, 32, 16, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47};
+=======
+const uint8_t bodPinNums   [] = {16, 17, 18, 19, 20, 21, 22, 23, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47};
+
+>>>>>>> e2d753c8b25629c02413b1300ca18517e5e4e69c
 uint8_t BoDStates[]   = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 ButtonLed blue(BLUE, LOW);
@@ -70,7 +73,7 @@ void pceCallback(uint16_t index){
   // Sample code uses inverse of low bit of pattern to drive pin all on or all off.  
   // The pattern is mostly one way, blinking the other, hence inverse.
   //
-  Serial.print(F("\npceCallback()")); Serial.print(index);
+  DEBUG(F("\npceCallback()")); DEBUGL(index);
 }
 
 NodeMemory nm(0);  // allocate from start of EEPROM
@@ -93,7 +96,11 @@ void produceFromInputs() {
   #define MAX_INPUT_SCAN 4
   for (int i = 0; i<(MAX_INPUT_SCAN); i++)
   {
+<<<<<<< HEAD
     //Serial.print("produceFromInputs: "); Serial.print(inputsScanIndex); Serial.print(" - "); Serial.println(bodScanIndex);
+=======
+//    DEBUG("produceFromInputs: "); DEBUG(inputsScanIndex); DEBUG(" - "); DEBUGL(bodScanIndex);
+>>>>>>> e2d753c8b25629c02413b1300ca18517e5e4e69c
     
     if(inputsScanIndex < NUM_INPUTS)
     {
@@ -101,7 +108,7 @@ void produceFromInputs() {
       if(inputStates[inputsScanIndex] != inputVal)
       {
         inputStates[inputsScanIndex] = inputVal;
-        Serial.print("produceFromInputs: Input: "); Serial.print(inputsScanIndex); Serial.print(" NewValue: "); Serial.println(inputVal);
+        DEBUG("produceFromInputs: Input: "); DEBUG(inputsScanIndex); DEBUG(" NewValue: "); DEBUGL(inputVal);
 
         if(inputVal)
           pce.produce(FIRST_INPUT_EVENT_INDEX + (inputsScanIndex * 2));
@@ -112,12 +119,16 @@ void produceFromInputs() {
     }
     else if(bodScanIndex < NUM_BOD_INPUTS)
     {
+      // The UART0 is on pins 32 & 33 so while the Serial object is being used we need to skip checking these pins
+#ifdef ENABLE_DEBUG_PRINT
+      if(bodPinNums[bodScanIndex] == 32) bodScanIndex+=2;
+#endif      
       uint8_t inputVal = digitalRead( bodPinNums[bodScanIndex]);
       //Serial.print(" NewValue: "); Serial.println(inputVal);
       if(BoDStates[bodScanIndex] != inputVal)
       {
         BoDStates[bodScanIndex] = inputVal;
-        Serial.print("produceFromInputs: BODInput: "); Serial.print(bodScanIndex); Serial.print(" NewValue: "); Serial.println(inputVal);
+        DEBUG("produceFromInputs: BODInput: "); DEBUG(bodScanIndex); DEBUG(" NewValue: "); DEBUGL(inputVal);
 
         if(inputVal)
           pce.produce(FIRST_BOD_EVENT_INDEX + (bodScanIndex * 2));
@@ -136,25 +147,46 @@ void produceFromInputs() {
 
 // initialize eeprom on factory reset
 #define EADDR(x) (uint16_t)&pmem->x
-void userInit() {
-  for(int i=0;i<NUM_OUTPUTS;i++) {
-    typedef struct { char t[16]="output"; } V;  V v;
-    EEPROM.put(EADDR(outputs[i].desc), v);
+
+void userInit(void) 
+{
+  DEBUGL(F("userInit: Begin"));
+  char strBuffer[16];
+  memset(strBuffer, 0, sizeof(strBuffer));
+  for(int i=0;i<NUM_OUTPUTS;i++) 
+  {
+    sprintf(strBuffer, "Output %d", i);
+    DEBUGL(strBuffer);
+    eeprom_update_string(EADDR(digitalOutputs[i].desc), strBuffer); 
   }
-  for(int i=0;i<NUM_INPUTS;i++) {
-    typedef struct { char t[16]="input"; } V;  V v;
-    EEPROM.put(EADDR(inputs[i].desc), v);
+
+  memset(strBuffer, 0, sizeof(strBuffer));
+  for(int i=0;i<NUM_INPUTS;i++)
+  {
+    sprintf(strBuffer, "Input %d", i);
+    DEBUGL(strBuffer);
+    eeprom_update_string(EADDR(digitalInputs[i].desc), strBuffer); 
   }
-  for(int i=0;i<NUM_BOD_INPUTS;i++) {
-    typedef struct { char t[16]="BoD"; } V;  V v;
-    EEPROM.put(EADDR(BoDinputs[i].desc), v);
+
+  memset(strBuffer, 0, sizeof(strBuffer));
+  for(int i=0;i<NUM_BOD_INPUTS;i++)
+  {
+    sprintf(strBuffer, "Block %d", i);
+    DEBUGL(strBuffer);
+    eeprom_update_string(EADDR(bodInputs[i].desc), strBuffer); 
   }
-  for(int i=0;i<NUM_SERVOS;i++) {
-    typedef struct { char t[16]="servo"; } V;  V v;
-    EEPROM.put(EADDR(ServoOutputs[i].desc), v);
-    EEPROM.write(EADDR(ServoOutputs[i].divergingPos),90);
-    EEPROM.write(EADDR(ServoOutputs[i].mainPos),90);
+
+  memset(strBuffer, 0, sizeof(strBuffer));
+  for(int i=0;i<NUM_SERVOS;i++)
+  {
+    sprintf(strBuffer, "Servo %d", i);
+    eeprom_update_string(EADDR(servoOutputs[i].desc), strBuffer); 
+    DEBUGL(strBuffer);
+
+    EEPROM.update(EADDR(servoOutputs[i].divergingPos),90);
+    EEPROM.update(EADDR(servoOutputs[i].mainPos),90);
   }
+  DEBUGL(F("userInit: Begin"));
 }
 
 // Callback from a Configuration write
@@ -194,6 +226,7 @@ void userConfigWrite(unsigned int address, unsigned int length){
  */
 void setup()
 {
+<<<<<<< HEAD
     // Force Magic Number to 0 to force reinit
     //  for(uint8_t i = 0; i < 4; i++)
     //    EEPROM.update(i,0);
@@ -207,6 +240,15 @@ void setup()
 
   //nm.forceInitAll(); userInit(); printRawEEPROM(); while(1==1){} // uncomment if need to go back to initial EEPROM state
     nm.setup(&nodal, (uint8_t*) 0, (uint16_t)0, (uint16_t)LAST_EEPROM); 
+=======
+#ifdef ENABLE_DEBUG_PRINT
+  Serial.begin(DEBUG_BAUD_RATE);DEBUGL(F("\nAJS OlcbIo 16P 16C 24BoD 16Servo"));
+#endif  
+
+//  nm.forceInitAll(); 
+//  userInit(); // uncomment if need to go back to initial EEPROM state
+  nm.setup(&nodal, (uint8_t*) 0, (uint16_t)0, (uint16_t)LAST_EEPROM); 
+>>>>>>> e2d753c8b25629c02413b1300ca18517e5e4e69c
 
     // Setup Output Pins
   for(uint8_t i = 0; i < NUM_OUTPUTS; i++)
@@ -234,15 +276,15 @@ void setup()
   for (int i = FIRST_SERVO_EVENT_INDEX; i < FIRST_SERVO_EVENT_INDEX + (NUM_SERVOS * 2); i++)
       pce.newEvent(i,true,false); // producer
   
-  Serial.print(F("\nP/C flags done"));
-  printEventsIndex();
-  printEvents();
+#ifdef DEBUG_BAUD_RATE
+  DEBUG(F("\nP/C flags done"));
+//  printEventsIndex();
+//  printEvents();
+#endif  
 
-  //while(1==1){}
-  
   Olcb_setup();
 
-  //Serial.print("\n\n===============================\n");
+  //DEBUG("\n\n===============================\n");
   // Unit testing
   //#define testEquals testEquals
   //#define testFindIndexInArray testEquals
@@ -260,25 +302,26 @@ void setup()
 }
 
 void loop() {
-    static unsigned long nxtdot = millis();
-    if(millis()>nxtdot) {
-      nxtdot+=1000;
-      Serial.print(".");
-    }
+//#ifdef ENABLE_DEBUG_PRINT
+//  static unsigned long nxtdot = millis();
+//  if(millis()>nxtdot) {
+//    nxtdot+=1000;
+//    DEBUG(".");
+//  }
+//#endif  
     
-    bool activity = Olcb_loop();
-    if (activity) {
-        // blink blue to show that the frame was received
-        blue.blink(0x1);
-    }
-    if (OpenLcb_can_active) { // set when a frame sent
-        gold.blink(0x1);
-        OpenLcb_can_active = false;
-    }
-    // handle the status lights  
-    blue.process();
-    gold.process();
-    
+  bool activity = Olcb_loop();
+  if (activity) {
+      // blink blue to show that the frame was received
+      blue.blink(0x1);
+  }
+  if (OpenLcb_can_active) { // set when a frame sent
+      gold.blink(0x1);
+      OpenLcb_can_active = false;
+  }
+  // handle the status lights  
+  blue.process();
+  gold.process();
 }
 
 

@@ -1,15 +1,13 @@
 //  Stuff that helps debugging
-
-#define debug
-
-#ifdef debug
-  #define P(x) Serial.print(x)
-  #define PL(x) Serial.println(x);
-  #define PH(x) Serial.print(x,HEX);
+#define ENABLE_DEBUG_PRINT
+#ifdef ENABLE_DEBUG_PRINT
+  #define DEBUG(x) Serial.print(x)
+  #define DEBUGL(x) Serial.println(x);
+  #define DEBUGHEX(x,y) Serial.print(x,y);
 #else
-  #define P(x)
-  #define PL(x)
-  #define PH(x)
+  #define DEBUG(x)
+  #define DEBUGL(x)
+  #define DEBUGHEX(x,y)
 #endif
 
 // Place messages reported at compile time
@@ -52,7 +50,3 @@
 //}
 //
 // Discussion about small print libs: http://www.stm32duino.com/viewtopic.php?f=18&t=1014&sid=5c5245c090173bb2c480248a537d973f
-
-
-
-

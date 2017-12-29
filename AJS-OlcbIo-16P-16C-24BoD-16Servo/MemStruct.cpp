@@ -1,6 +1,8 @@
 #include "MemStruct.h"
 #include "Event.h"
 #include "EventID.h"
+#include "debug.h"
+
 
 //#pragma message( "!!! compiling MemStruct.cpp")
 
@@ -11,7 +13,7 @@
   // All write to EEPROM, may have to restore to RAM.
 void EventID::writeEID(int index)
 {
-  Serial.print("\nwriteEID() "); Serial.print(index);
+  DEBUG("\nwriteEID() "); DEBUG(index);
   uint8_t offset = eventidOffset[index];
   for (int i=0; i < 8; i++) 
     EEPROM.update(offset + i, this->val[i]);
@@ -22,10 +24,10 @@ EventID blog(unsigned i) { return getEID(i); }
 
 // define eventsOffset array in flash      (Balaz's idea) Note: this negates the need for userInitEventIDOffsets()
 #define ADDR_EID(x)         ((unsigned int)&pmem->x)
-#define REG_OUTPUT(s)       ADDR_EID(outputs[s].setEvent), ADDR_EID(outputs[s].resetEvent) 
-#define REG_INPUT(s)        ADDR_EID(inputs[s].activation), ADDR_EID(inputs[s].deactivation)  
-#define REG_BOD_INPUT(s)    ADDR_EID(BoDinputs[s].occupied), ADDR_EID(BoDinputs[s].empty) 
-#define REG_SERVO_OUTPUT(s) ADDR_EID(ServoOutputs[s].diverging), ADDR_EID(ServoOutputs[s].main) 
+#define REG_OUTPUT(s)       ADDR_EID(digitalOutputs[s].setEvent), ADDR_EID(digitalOutputs[s].resetEvent) 
+#define REG_INPUT(s)        ADDR_EID(digitalInputs[s].activation), ADDR_EID(digitalInputs[s].deactivation)  
+#define REG_BOD_INPUT(s)    ADDR_EID(bodInputs[s].occupied), ADDR_EID(bodInputs[s].empty) 
+#define REG_SERVO_OUTPUT(s) ADDR_EID(servoOutputs[s].diverging), ADDR_EID(servoOutputs[s].main) 
 
 const PROGMEM uint16_t eventidOffset[NUM_EVENTS] = { 
    REG_OUTPUT(0), REG_OUTPUT(1), REG_OUTPUT(2), REG_OUTPUT(3), REG_OUTPUT(4), REG_OUTPUT(5), REG_OUTPUT(6), REG_OUTPUT(7),
@@ -78,22 +80,22 @@ MemStruct mem = EEPROM.get(0,mem);
   int rows = sizeof(MemStruct)/16 + 1;
   uint8_t c;
   //for(int r=0; r<64; r++) {
-    Serial.print("\nprintRawMem()");
+    DEBUG("\nprintRawMem()");
     for(int r=0; r<rows; r++) {
-    Serial.print("\n");
-    if(r==0) Serial.print(0);
-    Serial.print(r*16,HEX);
+    DEBUG("\n");
+    if(r==0) DEBUG(0);
+    DEBUGHEX(r*16,HEX);
     for(int i=0;i<16;i++) {
       c = m[r*16+i];
-      Serial.print(" ");
-      if(c<16) Serial.print(0);
-      Serial.print(c,HEX);
+      DEBUG(" ");
+      if(c<16) DEBUG(0);
+      DEBUGHEX(c,HEX);
     }
-    Serial.print("->");
+    DEBUG("->");
     for(int i=0;i<16;i++) {
       char c = m[r*16+i];
-      if(c>' '&&c<'~') Serial.print(c);
-      else Serial.print(".");
+      if(c>' '&&c<'~') DEBUG(c);
+      else DEBUG(".");
     }
   }
  }
@@ -116,7 +118,7 @@ MemStruct mem = EEPROM.get(0,mem);
     qsort( eventsIndex, NUM_EVENTS, sizeof(Index), Index::sortCompare);
     //printEventsIndex();
     //printEvents();
-    //Serial.print(F("\nOut initTables Large"));
+    //DEBUG(F("\nOut initTables Large"));
   }
  
  EventID getEID(unsigned index) {
@@ -129,7 +131,7 @@ MemStruct mem = EEPROM.get(0,mem);
  
  /*
  void initEventOffsets() {
-        Serial.print("\ninitEventOffsets - Large");
+        DEBUG("\ninitEventOffsets - Large");
     //for (int i=0;i<sizeof(MemStruct;i++) 
     EEPROM.get(0,mem);
     printRawMem();
@@ -137,7 +139,7 @@ MemStruct mem = EEPROM.get(0,mem);
  }
  */
  void restore() {
-   Serial.print("\nIn restore() Large");
+   DEBUG("\nIn restore() Large");
    EEPROM.get(0,mem);  // reload all of eeprom
  }
 #endif
@@ -150,7 +152,7 @@ MemStruct mem = EEPROM.get(0,mem);
   // Initialize the events[], eventsIndex[] tables
   //  - initializes the hash, index and flag fields 
   void initTables() {
-    Serial.print("\nIn initTables Medium");
+    DEBUG("\nIn initTables Medium");
     //printRawEEPROM();  while(1==1){}
     userInit();
     for (int e=0; e<NUM_EVENTS; e++) {
@@ -164,11 +166,11 @@ MemStruct mem = EEPROM.get(0,mem);
     qsort( eventsIndex, NUM_EVENTS, sizeof(Index), Index::sortCompare);
     //printEventsIndex();
     //printEvents();
-    Serial.print("\nOut initTables M");
+    DEBUG("\nOut initTables M");
   }
    
  EventID getEID(unsigned i) {
-           //Serial.print("\ngetEID Medium index="); Serial.print(i);
+           //DEBUG("\ngetEID Medium index="); DEBUG(i);
     return eventids[i];
  }
 
@@ -180,7 +182,7 @@ MemStruct mem = EEPROM.get(0,mem);
 #ifdef MEM_MODEL_SMALL
 
   void initTables() {
-    Serial.print("\ninitTables");
+    DEBUG("\ninitTables");
     //userInitEventIDOffsets();        //  ?????  trial
     for (int e=0; e < NUM_EVENTS; e++) {
       EventID eid;
@@ -193,10 +195,10 @@ MemStruct mem = EEPROM.get(0,mem);
     //qsort( eventsIndex, NUM_EVENT, sizeof(Index), Index::sortCompare);
     //printEventsIndex();
     //printEvents();
-    Serial.print(F("\nOut initTables S"));
+    DEBUG(F("\nOut initTables S"));
   }
  EventID getEID(unsigned i) {
-             //Serial.print(F("\ngetEID small"));
+             //DEBUG(F("\ngetEID small"));
     int offset = eventidOffset[i];
     EventID r;
     for (int i=0; i < 8; i++)
@@ -205,7 +207,7 @@ MemStruct mem = EEPROM.get(0,mem);
  }
 
  void restore() {
-   Serial.print(F("\nIn restore() Small"));
+   DEBUG(F("\nIn restore() Small"));
    // restore EEPROM -- nil to do, they remain in EEPROM
  }
 #endif
@@ -214,46 +216,46 @@ MemStruct mem = EEPROM.get(0,mem);
 // Extras
 
 void printRawEEPROM() {
-  Serial.print(F("\nprintRawEEPROM"));
+  DEBUG(F("\nprintRawEEPROM"));
   uint8_t c;
   int rows = sizeof(MemStruct)/16 + 1;
   //for(int r=0; r<64; r++) {
   for(int r=0; r<rows; r++) {
-    Serial.print("\n");
-    if(r==0) Serial.print(0);
-    Serial.print(r*16,HEX);
+    DEBUG("\n");
+    if(r==0) DEBUG(0);
+    DEBUGHEX(r*16,HEX);
     for(int i=0;i<16;i++) {
       c = EEPROM.read(r*16+i);
-      Serial.print(" ");
-      if(c<16) Serial.print(0);
-      Serial.print(c,HEX);
+      DEBUG(" ");
+      if(c<16) DEBUG(0);
+      DEBUGHEX(c,HEX);
     }
-    Serial.print(F("->"));
+    DEBUG(F("->"));
     for(int i=0;i<16;i++) {
       char c = EEPROM.read(r*16+i);
-      if(c>' '&&c<'~') Serial.print(c);
-      else Serial.print(".");
+      if(c>' '&&c<'~') DEBUG(c);
+      else DEBUG(".");
     }
   }
 }
 
 void printEventsIndex() {
-  Serial.print(F("\nprintEventsIndex"));
+  DEBUG(F("\nprintEventsIndex"));
   for(int i=0; i < NUM_EVENTS; i++) {
-    Serial.print("\n");
+    DEBUG("\n");
     eventsIndex[i].print();
-    //Serial.print(F("\n hash: ")); Serial.print(eventsIndex[i].hash,HEX);
-    //Serial.print(F("  index: ")); Serial.print(eventsIndex[i].index,HEX);
+    //DEBUG(F("\n hash: ")); DEBUGHEX(eventsIndex[i].hash,HEX);
+    //DEBUG(F("  index: ")); DEBUGHEX(eventsIndex[i].index,HEX);
   }
 }
 void printEvents() {
-  Serial.print(F("\nprintEvents "));
-  //Serial.print(MEM_MODEL);
+  DEBUG(F("\nprintEvents "));
+  //DEBUG(MEM_MODEL);
   for(int i=0; i < NUM_EVENTS; i++) {
-//    Serial.print(F("\n  offset: ")); Serial.print(events[i].offset,HEX);
-    Serial.print(F("\n flags: ")); Serial.print(events[i].flags,HEX);
+//    DEBUG(F("\n  offset: ")); DEBUGHEX(events[i].offset,HEX);
+    DEBUG(F("\n flags: ")); DEBUGHEX(events[i].flags,HEX);
 #ifdef MEM_MODEL_MEDIUM
-    Serial.print(F(" eventID: ")); eventids[i].print();
+    DEBUG(F(" eventID: ")); eventids[i].print();
 #endif
   }
 }
