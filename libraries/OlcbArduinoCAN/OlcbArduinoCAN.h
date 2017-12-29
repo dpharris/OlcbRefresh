@@ -96,17 +96,17 @@ extern BG bg;
 void Olcb_setup() {
   // Init protocol blocks
   PIP_setup(&txBuffer, &link);
-    Serial.print("\nPIP_setup");
+  //ADEBUG("\nPIP_setup");
   SNII_setup((uint8_t)sizeof(SNII_const_data), SNII_var_offset, &txBuffer, &link);
-    Serial.print("\nSNII_setup");
+  //ADEBUG("\nSNII_setup");
 
   // Initialize OpenLCB CAN connection
   OpenLcb_can_init();
-    Serial.print("\nOpenLcb_can_init");
+  //ADEBUG("\nOpenLcb_can_init");
   
   // Initialize OpenLCB CAN link controller
   link.reset();
-    Serial.print("\nlink.reset");
+  //ADEBUG("\nlink.reset");
     
 }
 

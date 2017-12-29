@@ -29,8 +29,6 @@
  * needed library in the top level file.  In the case of
  * this implementation, this is the can.h file in the CAN library.
  */
-//#include <can.h>
-//#include <CANlibrary.h>  // !!! DPH added for testing, needs to be permanently installed.
 #include "OpenLcbCanInterface.h"
 #include "processor.h"
 class OpenLcbCanBuffer;
