@@ -2,8 +2,7 @@
 #include "Datagram.h"
 #include "OlcbStream.h"
 
-#include "logging.h"
-
+#include "lib_debug_print_common.h"
 
 #define CONFIGURATION_DATAGRAM_CODE 0x20
 
@@ -77,10 +76,10 @@ void Configuration::check() {
 }
 
 int Configuration::receivedDatagram(uint8_t* data, int ln, unsigned int f) {
-    //Serial.print("\nIn Configuration::receivedDatagram");
-    //Serial.print("\ndata: ");
-    //for(signed i=0;i<ln;i++) { Serial.print(data[i],HEX); Serial.print(", "); }
-    //Serial.print("\n");
+    //LDEBUG("\nIn Configuration::receivedDatagram");
+    //LDEBUG("\ndata: ");
+    //for(signed i=0;i<ln;i++) { LDEBUG2(data[i],HEX); LDEBUG(", "); }
+    //LDEBUG("\n");
     // decode whether this is a configuration request
     if (data[0] != CONFIGURATION_DATAGRAM_CODE) return 1;  // 1 is error
     // yes, copy to our buffer

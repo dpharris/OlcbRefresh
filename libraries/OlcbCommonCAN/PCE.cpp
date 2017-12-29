@@ -8,7 +8,7 @@
 #include "LinkControl.h"
 #include "OpenLcbCanBuffer.h"
 
-#include "logging.h"
+#include "lib_debug_print_common.h"
 
 // Mark as waiting to have Identify sent
 #define IDENT_FLAG 0x01
@@ -66,12 +66,12 @@ PCE::PCE(Nodal_t* nodal, OpenLcbCanBuffer* b, void (*cb)(uint16_t i), void (*res
          //EventID ev = events[sendEvent].getEID();
          EventID ev = getEID(sendEvent);
          
-         //Serial.print("\nPCE::check "); Serial.print(ev.val[7]);
-         //Serial.print(" I:"); Serial.print(0!=(events[sendEvent].flags & IDENT_FLAG));
-         //Serial.print(" cP:"); Serial.print(0!=(events[sendEvent].flags & Event::CAN_PRODUCE_FLAG));
-         //Serial.print(" cC:"); Serial.print(0!=(events[sendEvent].flags & Event::CAN_CONSUME_FLAG));
-         //Serial.print(" P:"); Serial.print(0!=(events[sendEvent].flags & PRODUCE_FLAG));
-         //Serial.print(" E:"); Serial.print(0!=(events[sendEvent].flags & EMPTY_FLAG));
+         //LDEBUG("\nPCE::check "); LDEBUG(ev.val[7]);
+         //LDEBUG(" I:"); LDEBUG(0!=(events[sendEvent].flags & IDENT_FLAG));
+         //LDEBUG(" cP:"); LDEBUG(0!=(events[sendEvent].flags & Event::CAN_PRODUCE_FLAG));
+         //LDEBUG(" cC:"); LDEBUG(0!=(events[sendEvent].flags & Event::CAN_CONSUME_FLAG));
+         //LDEBUG(" P:"); LDEBUG(0!=(events[sendEvent].flags & PRODUCE_FLAG));
+         //LDEBUG(" E:"); LDEBUG(0!=(events[sendEvent].flags & EMPTY_FLAG));
 
          if ( (events[sendEvent].flags & (IDENT_FLAG | Event::CAN_PRODUCE_FLAG)) == (IDENT_FLAG | Event::CAN_PRODUCE_FLAG)) {
            events[sendEvent].flags &= ~IDENT_FLAG;    // reset flag
@@ -104,12 +104,12 @@ PCE::PCE(Nodal_t* nodal, OpenLcbCanBuffer* b, void (*cb)(uint16_t i), void (*res
   }
   
   void PCE::newEvent(int index, bool p, bool c) {
-      //Serial.print("\nnewEvent i=");
+      //LDEBUG("\nnewEvent i=");
     events[index].flags |= IDENT_FLAG;
     sendEvent = sendEvent < index ? sendEvent : index;
     if (p) events[index].flags |= Event::CAN_PRODUCE_FLAG;
     if (c) events[index].flags |= Event::CAN_CONSUME_FLAG;
-      //Serial.print(index); Serial.print(" ");Serial.print(events[index].flags,HEX);
+      //LDEBUG(index); LDEBUG(" ");LDEBUG2(events[index].flags,HEX);
   }
   
   void PCE::markToLearn(int index, bool mark) {
@@ -137,7 +137,7 @@ void PCE::sendTeach(EventID e) {   /// DPH added for Clock
   }
   
   bool PCE::receivedFrame(OpenLcbCanBuffer* rcv) {
-    //Serial.print("\nIn receivedFrame");
+    //LDEBUG("\nIn receivedFrame");
     EventID eventid;
     if (rcv->isIdentifyConsumers()) {
         // see if we consume the listed event
@@ -180,7 +180,7 @@ void PCE::sendTeach(EventID e) {   /// DPH added for Clock
         sendEvent = 0;  
     } else if (rcv->isPCEventReport()) {
         // found a PC Event Report, see if we consume it
-        //Serial.print("\nrcv->isPCEventReport!");
+        //LDEBUG("\nrcv->isPCEventReport!");
         handlePCEventReport(rcv);
     } else if (rcv->isLearnEvent()) {
         // found a teaching frame, apply to selected
@@ -190,7 +190,7 @@ void PCE::sendTeach(EventID e) {   /// DPH added for Clock
   }
 
   void PCE::handlePCEventReport(OpenLcbCanBuffer* rcv) {
-                //Serial.print("\nIn handlePCEventReport");
+                //LDEBUG("\nIn handlePCEventReport");
       EventID eventid;
       rcv->getEventID(&eventid);
                 //eventid.print();
@@ -198,9 +198,9 @@ void PCE::sendTeach(EventID e) {   /// DPH added for Clock
       int ind = 0;
       while ( -1 != (ind = eventid.findIndexInArray(eventsIndex, nEvents, ind))) {
           uint16_t index = eventsIndex[ind].index;
-                //Serial.print("\nhandlePCRep ind: "); Serial.print(ind);
-                //Serial.print("\nhandlePCRep Index: "); Serial.print(index);
-                //Serial.print("\nevents[index].flags: "); Serial.print(events[index].flags,HEX);
+                //LDEBUG("\nhandlePCRep ind: "); LDEBUG(ind);
+                //LDEBUG("\nhandlePCRep Index: "); LDEBUG(index);
+                //LDEBUG("\nevents[index].flags: "); LDEBUG2(events[index].flags,HEX);
           if (events[index].flags & Event::CAN_CONSUME_FLAG) (*callback)(index);
           ind++;
           if(ind>=nEvents) break;
@@ -208,22 +208,22 @@ void PCE::sendTeach(EventID e) {   /// DPH added for Clock
   }
   
   void PCE::handleLearnEvent(OpenLcbCanBuffer* rcv) {
-             //Serial.print("\nIn PCE::handleLearnEvent");
-             //Serial.print("\n rcv=");
-      for(int i=0;i<14;i++) { Serial.print( ((uint8_t*)rcv)[i],HEX ); Serial.print(" "); }
+             //LDEBUG("\nIn PCE::handleLearnEvent");
+             //LDEBUG("\n rcv=");
+      //for(int i=0;i<14;i++) { LDEBUG2( ((uint8_t*)rcv)[i],HEX ); LDEBUG(" "); }
         bool save = false;
         EventID eid;
         rcv->getEventID(&eid);
-             //Serial.print("\neid:"); eid.print();
-             //Serial.print("\nLEARN_FLAG:"); Serial.print(LEARN_FLAG,HEX);
+             //LDEBUG("\neid:"); eid.print();
+             //LDEBUG("\nLEARN_FLAG:"); LDEBUG2(LEARN_FLAG,HEX);
         for (int i=0; i<nEvents; i++) {
-            //Serial.print("\ni:"); Serial.print(i);
-            //Serial.print("\nevents[i].flags:"); Serial.print(events[i].flags,HEX);
+            //LDEBUG("\ni:"); LDEBUG(i);
+            //LDEBUG("\nevents[i].flags:"); LDEBUG(events[i].flags,HEX);
             if ( (events[i].flags & LEARN_FLAG ) != 0 ) {
                 //rcv->getEventID(events+i);
-                //Serial.print("\ni:"); Serial.print(i);
-                Serial.print("\neid.writeEID(i):");
-                Serial.print(i,HEX);
+                //LDEBUG("\ni:"); LDEBUG(i);
+                //LDEBUG("\neid.writeEID(i):");
+                //LDEBUG2(i,HEX);
                 eid.writeEID(i);
                 events[i].flags |= IDENT_FLAG; // notify new eventID
                 events[i].flags &= ~LEARN_FLAG; // enough learning

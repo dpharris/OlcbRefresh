@@ -7,6 +7,7 @@
 //
 
 #include "Index.h"
+#include "lib_debug_print_common.h"
 
 uint16_t Index::hashcalc(void* m, uint16_t s) {
     uint16_t hash = 0;
@@ -18,61 +19,61 @@ void Index::set(uint16_t i, void* m, uint16_t s) {
     hash = hashcalc(m,s);
 }
 int Index::sortCompare(const void* aa, const void* bb) {
-            //Serial.print(F("\nIn hashCompare:"));
+            //LDEBUG(F("\nIn hashCompare:"));
     Index* a = (Index*)aa;
     Index* b = (Index*)bb;
-            //Serial.print(F(" a=")); Serial.print(a->hash,HEX);
-            //Serial.print(F(" b=")); Serial.print(b->hash,HEX);
+            //LDEBUG(F(" a=")); LDEBUG2(a->hash,HEX);
+            //LDEBUG(F(" b=")); LDEBUG2(b->hash,HEX);
     if(a->hash>b->hash) return 1;
     if(a->hash<b->hash) return -1;
     return 0;
 }
 int Index::findCompare(const void* aa, const void* bb) {
-            //Serial.print(F("\nIn indexCompare:"));
+            //LDEBUG(F("\nIn indexCompare:"));
     int a = *(int*)aa;
     Index* b = (Index*)bb;
-            //Serial.print(F(" a=")); Serial.print(a,HEX);
-            //Serial.print(F(" b=")); Serial.print(b->hash,HEX);
+            //LDEBUG(F(" a=")); LDEBUG2(a,HEX);
+            //LDEBUG(F(" b=")); LDEBUG2(b->hash,HEX);
     if(a>b->hash) return 1;
     if(a<b->hash) return -1;
     return 0;
 }
 
 Index* Index::findIndex(void* ms, uint16_t s, uint16_t is, Index* start) {
-                //Serial.print(F("\nIn Index::findIndex"));
-                //Serial.print(F("\nis=")); Serial.print(is);
+                //LDEBUG(F("\nIn Index::findIndex"));
+                //LDEBUG(F("\nis=")); LDEBUG(is);
     Index* p = start;
     if(start>(this+is)) return nullptr;
     Index hh;
     hh.hash = hashcalc(ms,s);
-                //Serial.print(F("\nms=")); Serial.print(ms);
-                //Serial.print(F("\nhh=")); Serial.print(hh,HEX);
+                //LDEBUG(F("\nms=")); LDEBUG(ms);
+                //LDEBUG(F("\nhh=")); LDEBUG2(hh,HEX);
     if(start==0) {
         p = (Index*)bsearch(&hh, this, is, sizeof(Index), findCompare);
         if(!p) return nullptr;
-                //Serial.print(F("\ni=")); Serial.print(p->index);
-                //Serial.print(F("\nBackup"));
+                //LDEBUG(F("\ni=")); LDEBUG(p->index);
+                //LDEBUG(F("\nBackup"));
         while((p-1)>=this && (p-1)->hash==hh.hash) {p--;}
-                //Serial.print(F("\np=")); Serial.print(p->index);
+                //LDEBUG(F("\np=")); LDEBUG(p->index);
     } else {
-                //Serial.print(F("\nnext:"));
+                //LDEBUG(F("\nnext:"));
         p++;
         if(start>(this+is)) return nullptr;
-                //Serial.print(F("\np=")); Serial.print(p->index);
+                //LDEBUG(F("\np=")); LDEBUG(p->index);
         if(p->hash==hh.hash) return p;
         else return nullptr;
     }
-                //Serial.print(F("\np->hash=")); Serial.print(p->hash);
+                //LDEBUG(F("\np->hash=")); LDEBUG(p->hash);
     if(hh.hash==p->hash) return p;
     return nullptr;
 }
 /*
  Index* Index::findIndexOfMsg(Msg* ms, uint16_t s, uint16_t is, Index* start) {
- Serial.print(F("\nIn findIndexOfMsg:"));
- Serial.print(F("\nms=")); Serial.print(ms);
- Serial.print(F("\ns=")); Serial.print(s);
- Serial.print(F("\nis=")); Serial.print(is);
- Serial.print(F("\nstart.hash=")); Serial.print(start->hash);
+ LDEBUG(F("\nIn findIndexOfMsg:"));
+ LDEBUG(F("\nms=")); LDEBUG(ms);
+ LDEBUG(F("\ns=")); LDEBUG(s);
+ LDEBUG(F("\nis=")); LDEBUG(is);
+ LDEBUG(F("\nstart.hash=")); LDEBUG(start->hash);
  Index* i = this->findIndex(ms, s, is, start);
  if(i!=nullptr) return i;
  return nullptr;
@@ -91,20 +92,20 @@ Index* Index::findIndex(void* ms, uint16_t s, uint16_t is, Index* start) {
  */
 
 void Index::print() {
-    Serial.print(F("["));Serial.print(hash,HEX);
-    Serial.print(F(","));Serial.print(index,HEX);
-    Serial.print(F("]"));
+    LDEBUG(F("["));LDEBUG2(hash,HEX);
+    LDEBUG(F(","));LDEBUG2(index,HEX);
+    LDEBUG(F("]"));
 }
 
 void Index::print(uint16_t n) {
-    Serial.print(F("\nIndex::"));
+    LDEBUG(F("\nIndex::"));
     for(int i=0;i<n;i++) {
-        Serial.print("\n");Serial.print(i);Serial.print(" ");
+        LDEBUG("\n");LDEBUG(i);LDEBUG(" ");
         (this+i)->print();
     }
 }
 void Index::sort(uint16_t n) {
-    Serial.print(F("\nsize="));Serial.print(sizeof(this));
+    //LDEBUG(F("\nsize="));LDEBUG(sizeof(this));
     qsort(this, n, sizeof(*this), Index::sortCompare);
 }
 
@@ -112,21 +113,21 @@ void Index::sort(uint16_t n) {
 
 /*  continuation of subclassing
  void Index2::print() {
- Serial.print(F("["));Serial.print(hash);
- Serial.print(F(","));Serial.print(index);
- Serial.print(F(","));Serial.print(index2);
- Serial.print(F("]"));
+ LDEBUG(F("["));LDEBUG(hash);
+ LDEBUG(F(","));LDEBUG(index);
+ LDEBUG(F(","));LDEBUG(index2);
+ LDEBUG(F("]"));
  }
  
  void Index2::print(uint16_t n) {
- Serial.print(F("\nIndex2::"));
+ LDEBUG(F("\nIndex2::"));
  for(int i=0;i<n;i++) {
- Serial.print("\n");Serial.print(i);Serial.print(" ");
+ LDEBUG("\n");LDEBUG(i);LDEBUG(" ");
  (this+i)->print();
  }
  }
  void Index2::sort(uint16_t n) {
- Serial.print(F("\nsize="));Serial.print(sizeof(this));
+ LDEBUG(F("\nsize="));LDEBUG(sizeof(this));
  qsort(this, n, sizeof(*this), Index::hashCompare);
  }
  */
