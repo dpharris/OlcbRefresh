@@ -77,17 +77,18 @@ void EventID::print() {
 //}
 
 int EventID::findIndexInArray(Index* eventsIndex, int len, int start) {
-          //Serial.print(F("\nIn EventID::findIndexInArray"));
-          //Serial.print(F("\nstart:")); Serial.print(start);
-          //Serial.print(F("\nthis:")); this->print();
+            //Serial.print(F("\nIn EventID::findIndexInArray"));
+            //Serial.print(F("\nstart:")); Serial.print(start);
+            //Serial.print(F("\nthis:")); this->print();
     Index hh;
     hh.hash = this->hash();
-          //Serial.print(F("\nhash:")); Serial.print(hh,HEX);
+            //Serial.print(F("\nhash:")); Serial.print(hh.hash,HEX);
     Index* ei = &eventsIndex[start];
-          //Serial.print(F("\nei->index=")); Serial.print(ei->index);
-          //Serial.print(F(", hash=")); Serial.print(ei->hash,HEX);
+            //Serial.print(F("\nei->index=")); Serial.print(ei->index);
+            //Serial.print(F(", hash=")); Serial.print(ei->hash);
     if (start==0) {
-        ei = (Index*)bsearch( (const void*)&hh, (const void*)eventsIndex, len, sizeof(Index), Index::findCompare);
+        ei = (Index*)bsearch( (const void*)&hh.hash, (const void*)eventsIndex, len, sizeof(Index), Index::findCompare);
+            //if(!ei) Serial.print("\nNot Found");
         if(!ei) return -1;
             //Serial.print(F("\nSearch result:")); ei->print();
         while((ei-1)>=eventsIndex && (ei-1)->hash==hh.hash) {ei--;}
@@ -98,7 +99,7 @@ int EventID::findIndexInArray(Index* eventsIndex, int len, int start) {
     if(hh.hash!=ei->hash) return -1;
     //EventID eid = ei->getEID();
     EventID eid = blog(ei->index);
-          //Serial.print(F("\nfound:")); eid.print();
+            Serial.print(F("\nfound:")); eid.print();
     if( 0 == memcmp(this,&eid,8) ) return ei->index;
     return -1;
 }

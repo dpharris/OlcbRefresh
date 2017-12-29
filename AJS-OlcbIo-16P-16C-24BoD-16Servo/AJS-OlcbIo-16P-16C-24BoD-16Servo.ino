@@ -56,12 +56,8 @@ const uint8_t outputPinNums[] = { 0,  1,  2,  3,  4,  5,  6,  7};
 const uint8_t inputPinNums [] = { 8,  9, 10, 11, 12, 13, 14, 15};
 uint8_t inputStates[] = {0, 0, 0, 0, 0, 0, 0, 0}; // current input states; report when changed
 
-<<<<<<< HEAD
 const uint8_t bodPinNums   [] = {16, 17, 18, 19, 20, 21, 22, 23, 32, 16, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47};
-=======
-const uint8_t bodPinNums   [] = {16, 17, 18, 19, 20, 21, 22, 23, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47};
 
->>>>>>> e2d753c8b25629c02413b1300ca18517e5e4e69c
 uint8_t BoDStates[]   = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 ButtonLed blue(BLUE, LOW);
@@ -90,17 +86,15 @@ void produceFromInputs() {
   // 
   // To reduce latency, only MAX_INPUT_SCAN inputs are scanned on each loop
   //    (Should not exceed the total number of inputs, nor about 4)
+  /*
   static uint8_t inputsScanIndex = 0;
   static uint8_t bodScanIndex = 0;
   
   #define MAX_INPUT_SCAN 4
   for (int i = 0; i<(MAX_INPUT_SCAN); i++)
   {
-<<<<<<< HEAD
-    //Serial.print("produceFromInputs: "); Serial.print(inputsScanIndex); Serial.print(" - "); Serial.println(bodScanIndex);
-=======
+
 //    DEBUG("produceFromInputs: "); DEBUG(inputsScanIndex); DEBUG(" - "); DEBUGL(bodScanIndex);
->>>>>>> e2d753c8b25629c02413b1300ca18517e5e4e69c
     
     if(inputsScanIndex < NUM_INPUTS)
     {
@@ -143,6 +137,7 @@ void produceFromInputs() {
       bodScanIndex = 0;
     }
   }
+  */
 }
 
 // initialize eeprom on factory reset
@@ -226,29 +221,13 @@ void userConfigWrite(unsigned int address, unsigned int length){
  */
 void setup()
 {
-<<<<<<< HEAD
-    // Force Magic Number to 0 to force reinit
-    //  for(uint8_t i = 0; i < 4; i++)
-    //    EEPROM.update(i,0);
-  // set up serial comm; may not be space for this!
-  Serial.begin(BAUD_RATE);Serial.println(F("\nAJS OlcbIo 16P 16C 24BoD 16Servo"));
-  //Serial.print("\nNUM_EVENTS=");Serial.print(NUM_EVENTS);
-  //for(unsigned i=0;i<NUM_EVENTS;i++) {
-  //  Serial.print("\n");Serial.print(i);
-  //  Serial.print(":");Serial.print(eventidOffset[i],HEX);
-  //}
 
-  //nm.forceInitAll(); userInit(); printRawEEPROM(); while(1==1){} // uncomment if need to go back to initial EEPROM state
-    nm.setup(&nodal, (uint8_t*) 0, (uint16_t)0, (uint16_t)LAST_EEPROM); 
-=======
-#ifdef ENABLE_DEBUG_PRINT
+#ifdef DEBUG_BAUD_RATE
   Serial.begin(DEBUG_BAUD_RATE);DEBUGL(F("\nAJS OlcbIo 16P 16C 24BoD 16Servo"));
 #endif  
 
-//  nm.forceInitAll(); 
-//  userInit(); // uncomment if need to go back to initial EEPROM state
+  nm.forceInitAll(); userInit(); // uncomment if need to go back to initial EEPROM state
   nm.setup(&nodal, (uint8_t*) 0, (uint16_t)0, (uint16_t)LAST_EEPROM); 
->>>>>>> e2d753c8b25629c02413b1300ca18517e5e4e69c
 
     // Setup Output Pins
   for(uint8_t i = 0; i < NUM_OUTPUTS; i++)

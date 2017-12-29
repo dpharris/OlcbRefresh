@@ -198,6 +198,7 @@ void PCE::sendTeach(EventID e) {   /// DPH added for Clock
       int ind = 0;
       while ( -1 != (ind = eventid.findIndexInArray(eventsIndex, nEvents, ind))) {
           uint16_t index = eventsIndex[ind].index;
+                //Serial.print("\nhandlePCRep ind: "); Serial.print(ind);
                 //Serial.print("\nhandlePCRep Index: "); Serial.print(index);
                 //Serial.print("\nevents[index].flags: "); Serial.print(events[index].flags,HEX);
           if (events[index].flags & Event::CAN_CONSUME_FLAG) (*callback)(index);
