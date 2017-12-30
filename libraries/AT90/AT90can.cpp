@@ -29,7 +29,7 @@ CanBus at90can;       // CanBus buffer
  */
 //bool can_init(uint8_t bitrate) {
 bool can_init() {
-    Serial.print("\nIn AT90 can_init");
+    //CAN_DEBUG("\nIn AT90 can_init");
     //at90can.init(BITRATE_125_KBPS);
     at90can.init();
     return true;
@@ -112,9 +112,9 @@ extern uint8_t can_get_filter(uint8_t number, tCANFilter *filter);
  * \return	true falls neue Nachrichten verfuegbar sind, false ansonsten.
  */
 bool can_check_message(void) {
-    //Serial.print("\nIn AT90 can_check_message:");
+    //CAN_DEBUG("\nIn AT90 can_check_message:");
     //bool r = at90can.check_message();
-    //Serial.print(r);
+    //CAN_DEBUG(r);
     //return r;
     return at90can.check_message();
 }
@@ -127,9 +127,9 @@ bool can_check_message(void) {
  * \return	true falls ein Sende-Puffer frei ist, false ansonsten.
  */
 bool can_check_free_buffer(void) {
-    //Serial.print("\nIn AT90CAN can_check_free_buffer:");
+    //CAN_DEBUG("\nIn AT90CAN can_check_free_buffer:");
     bool r = at90can.check_free_buffer();
-    //Serial.print(r);
+    //CAN_DEBUG(r);
     return r;
     //return at90can.check_free_buffer();
     //return tivaCAN.tx_idle();
@@ -147,14 +147,14 @@ extern uint8_t can_buffers_status(void);
  *           Returns buffer number or 0
  */
 uint8_t can_send_message(const tCAN *msg) {
-            Serial.print("\nIn AT90 can_send_message");
-            Serial.print(" [");Serial.print(msg->id,HEX);
-            Serial.print("](");Serial.print(msg->length);
-            Serial.print(")[");
-            for(unsigned i=0;i<msg->length;i++) {
-                    Serial.print(msg->data[i],HEX); Serial.print(".");
-            }
-            Serial.print("]");
+//             CAN_DEBUG("\nIn AT90 can_send_message");
+//             CAN_DEBUG2(" [");CAN_DEBUG(msg->id,HEX);
+//             CAN_DEBUG("](");CAN_DEBUG(msg->length);
+//             CAN_DEBUG(")[");
+//             for(unsigned i=0;i<msg->length;i++) {
+//                     CAN_DEBUG2(msg->data[i],HEX); CAN_DEBUG(".");
+//             }
+//             CAN_DEBUG("]");
     return at90can.send_buffered_message((can_t*) msg);
     /*
     CAN_message_t m;
@@ -182,7 +182,7 @@ uint8_t can_send_message(const tCAN *msg) {
  *           Returns filter code or 0
  */
 uint8_t can_get_message(tCAN *msg) {
-    //Serial.print("\nIn AT90 can_get_message");
+    //CAN_DEBUG("\nIn AT90 can_get_message");
     ////// if(at90can.check_message) return 0;
     return at90can.get_buffered_message((can_t*)msg);
     /*

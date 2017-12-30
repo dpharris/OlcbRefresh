@@ -29,6 +29,18 @@
     #error  !!!! Only AT90CAN128 supported !!!!
 #else
 
+// Uncomment the line below to enable Debug Printing
+//#define CAN_DEBUG_PRINT_ENABLE
+#ifdef CAN_DEBUG_PRINT_ENABLE
+  #define CAN_DEBUG(x) (x)
+  #define CAN_DEBUGL(x) ln(x);
+  #define CAN_DEBUG2(x,y) (x,y);
+#else
+  #define CAN_DEBUG(x)
+  #define CAN_DEBUGL(x)
+  #define CAN_DEBUG2(x,y)
+#endif
+
 // #include "Arduino.h"
 
 #include <avr/pgmspace.h>
