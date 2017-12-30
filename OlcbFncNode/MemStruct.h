@@ -69,6 +69,7 @@ typedef void(*Action_t)(uint16_t, uint16_t, uint16_t);
 Action_t action[] {
     blink, dstrobe, fade, servo, input, sample
 };
+bool consumerFnc[] = { true, true, true, true, false, false };
 
 typedef struct //__attribute__ ((packed)) 
 { 

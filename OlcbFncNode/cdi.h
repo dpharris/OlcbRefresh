@@ -32,12 +32,13 @@ const char configDefInfo[] PROGMEM = R"(
     <eventid><name>Associated Event</name></eventid>
     <int size=2><name>Action</name></eventid>
       <map>
-        <relation><property>0</property><value>Blink(period,duty)</value></relation>
-        <relation><property>1</property><value>DStrobe(period,duty)</value></relation>
-        <relation><property>2</property><value>Fade(target,rate)</value></relation>
-        <relation><property>3</property><value>Servo(target,rate)</value></relation>
-        <relation><property>4</property><value>Input(index1,index2)</value></relation>
-        <relation><property>5</property><value>Sample(index1,index2)</value></relation>
+        <relation><property>0</property><value>None</value></relation>
+        <relation><property>1</property><value>Blink(period,duty)</value></relation>
+        <relation><property>2</property><value>DStrobe(period,duty)</value></relation>
+        <relation><property>3</property><value>Fade(target,rate)</value></relation>
+        <relation><property>4</property><value>Servo(target,rate)</value></relation>
+        <relation><property>5</property><value>Input(index1,index2)</value></relation>
+        <relation><property>6</property><value>Sample(index1,index2)</value></relation>
       </map>
     </int>
     <int size=2><name>Pin</name></eventid>

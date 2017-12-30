@@ -9,23 +9,7 @@
 //      based on examples by Alex Shepherd and David Harris
 //==============================================================
 //#include "debug.h"
-//#include <Arduino.h>
-
-
-
-// next line for stand-alone compile
-//#include <Arduino.h>
-//#include <ctype.h>
-//#include <stdarg.h>
-//#include <stdio.h>
-//#include <avr/pgmspace.h>
-//#include "logging.h"
 #include "OlcbCommonVersion.h"
-
-//#include "processor.h" // selects by processor and supplies EEPROM and CAN libs -- see OpenLcbCanInterface.h
-
-//#include CANlibrary.h"
-//#include <can.h>
 
 // Description of EEPROM memory structure, and the mirrored mem if in MEM_LARGE
 #include "MemStruct.h"
@@ -317,6 +301,15 @@ void sample(uint16_t pin, uint16_t index, uint16_t secondEventID) {
   next += PERIOD;
 }
 
+Channel channel[NUM_EVENT];
+void fncProcess() {
+  static uint8_t i = 0;
+  Channel c = channel[i];
+  if(c.action!=0) action[c.action](c.pin, c.parm0, c.parm1);
+  i++;
+  if(i>NUM_CHANNEL) i=0;        
+}
+
 /////////////////////////////////////////////////////////////////
 
 
@@ -397,6 +390,7 @@ void setup()
     test();
   #endif
 
+  EEPROM.get(ADDR_EID(channel), channel);
 }
 
 void loop() {
@@ -414,6 +408,8 @@ void loop() {
     // handle the status lights  
     blue.process();
     gold.process();
+
+    fncProcess();
    
 }
 
