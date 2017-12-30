@@ -8,30 +8,8 @@
 //   Bob Jacobsen 2010, 2012
 //      based on examples by Alex Shepherd and David Harris
 //==============================================================
-//#include "debug.h"
-//#include <Arduino.h>
 
-#define MEM_SMALL 1
-#define MEM_MEDIUM 2
-#define MEM_LARGE 3
-#define MEM_MODEL MEM_SMALL    // small but slow, works out of EEPROM
-//#define MEM_MODEL MEM_MEDIUM   // faster, eventIDs are copied to RAM
-//#define MEM_MODEL MEM_LARGE    // fastest but large, EEPROM is mirrored to RAM 
-
-
-// next line for stand-alone compile
-//#include <Arduino.h>
-//#include <ctype.h>
-//#include <stdarg.h>
-//#include <stdio.h>
-//#include <avr/pgmspace.h>
-//#include "logging.h"
 #include "OlcbCommonVersion.h"
-
-//#include "processor.h" // selects by processor and supplies EEPROM and CAN libs -- see OpenLcbCanInterface.h
-
-//#include CANlibrary.h"
-//#include <can.h>
 
 // Number of channels implemented. Each corresonds 
 // to an input or output pin.
@@ -42,19 +20,6 @@
 
 // Description of EEPROM memory structure, and the mirrored mem if in MEM_LARGE
 #include "MemStruct.h"
-
-// The following lines are needed because the Arduino environment 
-// won't search a library directory unless the library is included 
-// from the top level file (this file) [[ this may have changed with more recent IDEs ]]
-//#include <EEPROM.h>
-
-//#include <can.h>
-//#include <ButtonLed.h>
-
-//#include "NodeID.h"
-
-// init for serial communications if used
-#define         BAUD_RATE       115200
 
 NodeID nodeid(5,1,1,1,3,255);    // This node's default ID; must be valid 
 
@@ -201,7 +166,16 @@ void userConfigWrite(unsigned int address, unsigned int length) {
   // }
 }
 
-
+void userInitEventTypes() {
+  // Set event types, now that IDs have been loaded from configuration
+  // newEvent arguments are (event index, producer?, consumer?)
+    for (int i=2*(FIRST_PRODUCER_CHANNEL_INDEX); i<2*(LAST_PRODUCER_CHANNEL_INDEX+1); i++) {
+      pce.newEvent(i,true,false); // producer
+    }
+    for (int i=2*(FIRST_CONSUMER_CHANNEL_INDEX); i<2*(LAST_CONSUMER_CHANNEL_INDEX+1); i++) {
+      pce.newEvent(i,false,true); // consumer
+    }
+}
 // Unit testing
 //  Uncomment a test
 //#define test testEquals()
@@ -227,35 +201,9 @@ void userConfigWrite(unsigned int address, unsigned int length) {
 void setup()
 {
   // set up serial comm; may not be space for this!
-  delay(250);Serial.begin(BAUD_RATE);Serial.print(F("\nOlcbBasicNode\n"));
-  Serial.print(F("\nMemModel=")); Serial.print(MEM_MODEL);
-  //nm.forceInitAll(); // uncomment if need to go back to initial EEPROM state
-  //nm.setup(&nodeid, events, eventidOffset, NUM_EVENT, (uint8_t*) 0, (uint16_t)0, (uint16_t)LAST_EEPROM); 
+  delay(250);Serial.begin(115200);Serial.print(F("\nOlcbBasicNode\n"));
   nm.setup(&nodal, (uint8_t*) 0, (uint16_t)0, (uint16_t)LAST_EEPROM); 
-//  Serial << F("Hi there") << _HEX(1234) << "\n";
-
-#ifdef DUMMY    
-    char s0[10] = "Test Node";
-    for(int j=0; j<sizeof(s0); j++) writeByte((uint16_t)&pmem->nodeName+j, s0[j]);
-    char s1[20] = "Just the facts Mam";
-    for(int j=0; j<sizeof(s1); j++) writeByte((uint16_t)&pmem->nodeDesc+j, s1[j]);
-    char s3[8] = "input";
-    char s4[8] = "output";
-    
-    for(int i=0;i<2;i++) {
-      for(int j=0; j<sizeof(s3); j++) writeByte((uint16_t)&pmem->inputs[i].desc+j, s3[j]);
-      for(int j=0; j<sizeof(s4); j++) writeByte((uint16_t)&pmem->outputs[i].desc+j, s4[j]);
-    }
-#endif   
-  
-  // set event types, now that IDs have been loaded from configuration
-  // newEvent arguments are (event index, producer?, consumer?)
-  for (int i=2*(FIRST_PRODUCER_CHANNEL_INDEX); i<2*(LAST_PRODUCER_CHANNEL_INDEX+1); i++) {
-      pce.newEvent(i,true,false); // producer
-  }
-  for (int i=2*(FIRST_CONSUMER_CHANNEL_INDEX); i<2*(LAST_CONSUMER_CHANNEL_INDEX+1); i++) {
-      pce.newEvent(i,false,true); // consumer
-  }
+  userInitEventTypes();
   Serial.print(F("\nP/C flags done"));
   printEventsIndex();
   printEvents();

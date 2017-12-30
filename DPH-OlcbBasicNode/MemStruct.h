@@ -1,3 +1,6 @@
+/*
+ * MemStruct.h  defines the memory structure of EEPROM and RAM-mirror, if Medium-Model
+ */
 
 #ifndef MemStruct_h
 #define MemStruct_h
@@ -7,12 +10,15 @@
 
 #include "EventID.h"
 #include "Event.h"
-//#include "EventsIndex.h"
 #include "NodeMemory.h"
-void userFillEventOffsets();
 #include "NodeID.h"
 #include "Index.h"
 #include <EEPROM.h>
+
+// Memory Model -- Choose one only.
+//#define MEM_MODEL_SMALL    // small but slow, works out of EEPROM
+#define MEM_MODEL_MEDIUM   // faster, eventIDs are copied to RAM
+//#define MEM_MODEL_LARGE    // fastest but large, EEPROM is mirrored to RAM 
 
 /*
  *  Definition of the memory structure of the node's non-volatile memory, usually EEPROM.   
@@ -63,9 +69,6 @@ MemStruct * pmem = 0;
 // Sorted index to eventids
 Index eventsIndex[NUM_EVENT];  // Sorted index to eventids
 
-//Event events[NUM_EVENT];      // array of offsets of the node's eventIDs in mem/EEPROM -- this is never sorted
-                              // this allows the Olcb code to process these eventiDs in natural order
-
 // define eventsOffset array in flash      (Balaz's idea) Note: this negates the need for userInitEventIDOffsets()
 #define ADDR_EID(x) ((unsigned int)&pmem->x)
 const PROGMEM uint16_t eventidOffset[] = {
@@ -79,23 +82,17 @@ const PROGMEM uint16_t eventidOffset[] = {
    ADDR_EID( outputs[1].resetEvent  )
 };
 
-#if MEM_MODEL == MEM_MEDIUM
+#ifdef MEM_MODEL_MEDIUM
    EventID eventids[NUM_EVENT];    // copy of eventids in RAM
 #endif
 
-/*typedef struct {
-  NodeID* nid;
-  Event* events;
-  Index* eventsIndex;
-  const uint16_t* eventidOffset;
-  uint16_t nevent;
-} Nodal_t;
-*/
-  void writeEEPROM(int addr, uint8_t b);
-  void initTables();
-  void restore();
-  void printRawEEPROM();
-  void initTables();
-  void printEventsIndex();
-  void printEvents();
-#endif
+extern void userFillEventOffsets();
+extern  void writeEEPROM(int addr, uint8_t b);
+extern  void initTables();
+extern  void restore();
+extern  void printRawEEPROM();
+extern  void initTables();
+extern  void printEventsIndex();
+extern  void printEvents();
+
+#endif // MemStruct_h
