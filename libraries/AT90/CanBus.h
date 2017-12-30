@@ -30,11 +30,11 @@
 #else
 
 // Uncomment the line below to enable Debug Printing
-//#define CAN_DEBUG_PRINT_ENABLE
+#define CAN_DEBUG_PRINT_ENABLE
 #ifdef CAN_DEBUG_PRINT_ENABLE
-  #define CAN_DEBUG(x) (x)
-  #define CAN_DEBUGL(x) ln(x);
-  #define CAN_DEBUG2(x,y) (x,y);
+  #define CAN_DEBUG(x)    Serial.print(x)
+  #define CAN_DEBUGL(x)   Serial.println(x);
+  #define CAN_DEBUG2(x,y) Serial.print(x,y);
 #else
   #define CAN_DEBUG(x)
   #define CAN_DEBUGL(x)

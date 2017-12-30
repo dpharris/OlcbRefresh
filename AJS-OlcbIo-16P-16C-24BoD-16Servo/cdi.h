@@ -7,7 +7,6 @@
 const char configDefInfo[] PROGMEM = R"(<?xml version='1.0'?>
 <?xml-stylesheet type='text/xsl' href='http://openlcb.org/trunk/prototypes/xml/xslt/cdi.xsl'?>
 <cdi xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='http://openlcb.org/trunk/prototypes/xml/schema/cdi.xsd'>
-
 <identification>
     <manufacturer>OpenLCB</manufacturer>
     <model>OlcbIo</model>
@@ -36,10 +35,10 @@ const char configDefInfo[] PROGMEM = R"(<?xml version='1.0'?>
             <name>Description</name>
         </string>
         <eventid>
-            <name>Set Event</name>
+            <name>Set Output Low Event</name>
         </eventid>
         <eventid>
-            <name>Reset Event</name>
+            <name>Set Output High Event</name>
         </eventid>
     </group>
     <group replication='8'>
@@ -49,10 +48,10 @@ const char configDefInfo[] PROGMEM = R"(<?xml version='1.0'?>
             <name>Description</name>
         </string>
         <eventid>
-            <name>Activation Event</name>
+            <name>Input Low Event</name>
         </eventid>
         <eventid>
-            <name>Inactivation Event</name>
+            <name>Input High Event</name>
         </eventid>
     </group>
     <group replication='24'>
@@ -62,10 +61,10 @@ const char configDefInfo[] PROGMEM = R"(<?xml version='1.0'?>
             <name>Description</name>
         </string>
         <eventid>
-            <name>Occupied Event</name>
+            <name>Block Empty Event</name>
         </eventid>
         <eventid>
-            <name>Empty Event</name>
+            <name>Block Occupied Event</name>
         </eventid>
     </group>
     <group replication='16'>
@@ -75,24 +74,24 @@ const char configDefInfo[] PROGMEM = R"(<?xml version='1.0'?>
             <name>Description</name>
         </string>
         <eventid>
-            <name>Select Main Event</name>
-        </eventid>
-        <eventid>
-            <name>Select Diverging Event</name>
+            <name>Servo Thrown Event</name>
         </eventid>
         <int size='1'>
             <min>0</min>
             <max>180</max>
             <default>90</default>
-            <name>Main Servo Position</name>
-            <description>Position in Degrees (0-180) </description>
+            <name>Servo Thrown Position</name>
+            <description>Position in Degrees (0-180)</description>
         </int>
+        <eventid>
+            <name>Servo Closed Event</name>
+        </eventid>
         <int size='1'>
             <min>0</min>
             <max>180</max>
             <default>90</default>
-            <name>Diverging Servo Position</name>
-            <description>Position in Degrees (0-180) </description>
+            <name>Servo Closed Position</name>
+            <description>Position in Degrees (0-180)</description>
         </int>
     </group>
 </segment>

@@ -53,12 +53,12 @@ Nodal_t nodal = { &nodeid, events, eventsIndex, eventidOffset, NUM_EVENTS };
 
 const uint8_t outputPinNums[] = { 0,  1,  2,  3,  4,  5,  6,  7};
 
-const uint8_t inputPinNums [] = { 8,  9, 10, 11, 12, 13, 14, 15};
-uint8_t inputStates[] = {0, 0, 0, 0, 0, 0, 0, 0}; // current input states; report when changed
+const uint8_t inputPinNums[]  = { 8,  9, 10, 11, 12, 13, 14, 15};
+uint8_t inputStates[]         = { 0,  0,  0,  0,  0,  0,  0,  0}; // current input states; report when changed
 
-const uint8_t bodPinNums   [] = {16, 17, 18, 19, 20, 21, 22, 23, 32, 16, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47};
+const uint8_t bodPinNums[]    = {16, 17, 18, 19, 20, 21, 22, 23, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47};
 
-uint8_t BoDStates[]   = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+uint8_t BoDStates[]           = { 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 
 ButtonLed blue(BLUE, LOW);
 ButtonLed gold(GOLD, LOW);
@@ -69,7 +69,20 @@ void pceCallback(uint16_t index){
   // Sample code uses inverse of low bit of pattern to drive pin all on or all off.  
   // The pattern is mostly one way, blinking the other, hence inverse.
   //
-  DEBUG(F("\npceCallback()")); DEBUGL(index);
+  DEBUG(F("\npceCallback: Index: ")); DEBUGL(index);
+
+  uint8_t outputIndex = index / 2;
+  uint8_t outputState = index % 2;
+   
+  if(index < FIRST_INPUT_EVENT_INDEX)
+    digitalWrite(outputPinNums[outputIndex], outputState);
+    
+  else if (index >= FIRST_SERVO_EVENT_INDEX)
+  {
+    uint8_t servoPos = outputState ? EEPROM.read(EADDR(servoOutputs[outputIndex].thrownPos)) : EEPROM.read(EADDR(servoOutputs[outputIndex].closedPos)); 
+    DEBUG(F("\npceCallback: Servo Pos: ")); DEBUGL(servoPos);
+  }
+     
 }
 
 NodeMemory nm(0);  // allocate from start of EEPROM
@@ -86,7 +99,7 @@ void produceFromInputs() {
   // 
   // To reduce latency, only MAX_INPUT_SCAN inputs are scanned on each loop
   //    (Should not exceed the total number of inputs, nor about 4)
-  /*
+
   static uint8_t inputsScanIndex = 0;
   static uint8_t bodScanIndex = 0;
   
@@ -137,12 +150,9 @@ void produceFromInputs() {
       bodScanIndex = 0;
     }
   }
-  */
 }
 
 // initialize eeprom on factory reset
-#define EADDR(x) (uint16_t)&pmem->x
-
 void userInit(void) 
 {
   DEBUGL(F("userInit: Begin"));
@@ -178,8 +188,8 @@ void userInit(void)
     eeprom_update_string(EADDR(servoOutputs[i].desc), strBuffer); 
     DEBUGL(strBuffer);
 
-    EEPROM.update(EADDR(servoOutputs[i].divergingPos),90);
-    EEPROM.update(EADDR(servoOutputs[i].mainPos),90);
+    EEPROM.update(EADDR(servoOutputs[i].thrownPos),90);
+    EEPROM.update(EADDR(servoOutputs[i].closedPos),90);
   }
   DEBUGL(F("userInit: Begin"));
 }
@@ -226,7 +236,7 @@ void setup()
   Serial.begin(DEBUG_BAUD_RATE);DEBUGL(F("\nAJS OlcbIo 16P 16C 24BoD 16Servo"));
 #endif  
 
-  nm.forceInitAll(); userInit(); // uncomment if need to go back to initial EEPROM state
+//  nm.forceInitAll(); userInit(); // uncomment if need to go back to initial EEPROM state
   nm.setup(&nodal, (uint8_t*) 0, (uint16_t)0, (uint16_t)LAST_EEPROM); 
 
     // Setup Output Pins
@@ -253,7 +263,7 @@ void setup()
       pce.newEvent(i,true,false); // producer
   
   for (int i = FIRST_SERVO_EVENT_INDEX; i < FIRST_SERVO_EVENT_INDEX + (NUM_SERVOS * 2); i++)
-      pce.newEvent(i,true,false); // producer
+      pce.newEvent(i,false,true); // consumer
   
 #ifdef DEBUG_BAUD_RATE
   DEBUG(F("\nP/C flags done"));

@@ -147,14 +147,14 @@ extern uint8_t can_buffers_status(void);
  *           Returns buffer number or 0
  */
 uint8_t can_send_message(const tCAN *msg) {
-//             CAN_DEBUG("\nIn AT90 can_send_message");
-//             CAN_DEBUG2(" [");CAN_DEBUG(msg->id,HEX);
-//             CAN_DEBUG("](");CAN_DEBUG(msg->length);
-//             CAN_DEBUG(")[");
-//             for(unsigned i=0;i<msg->length;i++) {
-//                     CAN_DEBUG2(msg->data[i],HEX); CAN_DEBUG(".");
-//             }
-//             CAN_DEBUG("]");
+            CAN_DEBUG("\nIn AT90 can_send_message");
+            CAN_DEBUG(" [");CAN_DEBUG2(msg->id,HEX);
+            CAN_DEBUG("](");CAN_DEBUG(msg->length);
+            CAN_DEBUG(")[");
+            for(unsigned i=0;i<msg->length;i++) {
+                    CAN_DEBUG2(msg->data[i],HEX); CAN_DEBUG(".");
+            }
+            CAN_DEBUG("]");
     return at90can.send_buffered_message((can_t*) msg);
     /*
     CAN_message_t m;
