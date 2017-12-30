@@ -1,12 +1,11 @@
 #include <string.h>
 
 #include "SNII.h"
-
 #include "LinkControl.h"
 #include "OpenLcbCanBuffer.h"
 #include "OpenLcbCan.h"
 
-#include "logging.h"
+#include "lib_debug_print_common.h"
 
 static OpenLcbCanBuffer* buffer;
 static uint8_t const_count;
@@ -95,7 +94,7 @@ void SNII_check() {
 
 bool SNII_receivedFrame(OpenLcbCanBuffer* rcv) {
     if ( rcv->isOpenLcbMTI(MTI_SNII_REQUEST) )  {
-        Serial.print("\nIn SNII_receivedFrame");
+        //LDEBUG("\nIn SNII_receivedFrame");
         // check if available to send
         if (state == STATE_DONE) {
             // OK, start process

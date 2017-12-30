@@ -11,9 +11,8 @@
 void OpenLcb_can_init() {
     //uint8_t r = can_init(BITRATE_125_KBPS);
     uint8_t r = can_init();
-    Serial.print("\nOpenLcb_can_init return=");
-    Serial.print(r);
-    //logstr("OpenLcb_can_init");
+    //ADEBUG("\nOpenLcb_can_init return=");
+    //ADEBUG(r);
 }
 
 // Can a (the) CAN buffer be used?  
@@ -22,8 +21,8 @@ void OpenLcb_can_init() {
 bool OpenLcb_can_xmt_ready(OpenLcbCanBuffer* b) {
   // use only MP2515 buffer 0 and 1 to ensure that
   // tranmissions take place in order
-                                //Serial.print("\nOpenLcb_can_xmt_ready");
-                                //Serial.print(SUPPORT_AT90CAN);
+                                //ADEBUG("\nOpenLcb_can_xmt_ready");
+                                //ADEBUG(SUPPORT_AT90CAN);
 ///#if defined(SUPPORT_MCP2515) && (SUPPORT_MCP2515 == 1)
 //  uint8_t status = can_buffers_status();
 //  // Check to see if Tx Buffer 0 or 1 is free
@@ -32,9 +31,9 @@ bool OpenLcb_can_xmt_ready(OpenLcbCanBuffer* b) {
 //  else
 //    return true;   // at least one has space
 //#elif defined(SUPPORT_AT90CAN) && (SUPPORT_AT90CAN == 1)
-//                                //Serial.print("\ncan_check_free_buffer1: ");
+//                                //ADEBUG("\ncan_check_free_buffer1: ");
 //    bool r = can_check_free_buffer();  //  Both at full
-//    Serial.print(r);
+//    ADEBUG(r);
 //    return r;
 //    //return can_check_free_buffer();  //  Both at full
 //#else
@@ -45,26 +44,26 @@ bool OpenLcb_can_xmt_ready(OpenLcbCanBuffer* b) {
 // Queue a CAN frame for sending, if possible
 // Returns true if queued, false if not currently possible
 bool OpenLcb_can_queue_xmt_immediate(OpenLcbCanBuffer* b) {
-                            //Serial.print("\nOpenLcb_can_queue_xmt_immediate id=");
-                            //Serial.print(b->id,HEX);
+                            //ADEBUG("\nOpenLcb_can_queue_xmt_immediate id=");
+                            //ADEBUG(b->id,HEX);
     if (!OpenLcb_can_xmt_ready(b)) return false;
-    //Serial.print("\nOpenLcb_can_queue_xmt_immediate 2");
+    //ADEBUG("\nOpenLcb_can_queue_xmt_immediate 2");
   // buffer available, queue for send
     OpenLcb_can_active = true;
-                            //Serial.print(" .. can_send_message");
+                            //ADEBUG(" .. can_send_message");
     can_send_message(b);
     return true;
 }
 
 // Queue a CAN frame for sending; spins until it can queue
 void OpenLcb_can_queue_xmt_wait(OpenLcbCanBuffer* b) {
-                            //Serial.print("\nIn OpenLcb_can_queue_xmt_wait");
+                            //ADEBUG("\nIn OpenLcb_can_queue_xmt_wait");
   while (!OpenLcb_can_queue_xmt_immediate(b)) {};
 }
 
 // Send a CAN frame, waiting until it has been sent
 void OpenLcb_can_send_xmt(OpenLcbCanBuffer* b) {
-                            //Serial.print("\nOpenLcb_can_send_xmt  ");
+                            //ADEBUG("\nOpenLcb_can_send_xmt  ");
   OpenLcb_can_queue_xmt_wait(b);
   // wait for sent
   while (!OpenLcb_can_xmt_idle()) {}
@@ -73,7 +72,7 @@ void OpenLcb_can_send_xmt(OpenLcbCanBuffer* b) {
 // Check whether all frames have been sent,
 // a proxy for the link having gone idle
 bool OpenLcb_can_xmt_idle() {
-                            //Serial.print("\nOpenLcb_can_send_xmt  ");
+                            //ADEBUG("\nOpenLcb_can_send_xmt  ");
 //#if defined(SUPPORT_MCP2515) && (SUPPORT_MCP2515 == 1)
 //    uint8_t status = can_buffers_status();
 //    //  Check to see if Tx Buffer 0,1 and 2 are all free
@@ -82,7 +81,7 @@ bool OpenLcb_can_xmt_idle() {
 //    else
 //        return false;  // Any full
 //#elif defined(SUPPORT_AT90CAN) && (SUPPORT_AT90CAN == 1)
-//                            //Serial.print("\ncan_check_free_buffer2  ");
+//                            //ADEBUG("\ncan_check_free_buffer2  ");
 //    return can_check_free_buffer();  //  Both at full
 //#else
     return can_check_free_buffer();
@@ -93,11 +92,11 @@ bool OpenLcb_can_xmt_idle() {
 // in the process removing it from the CAN subsystem.
 // Return false (zero) if no frame available.
 bool OpenLcb_can_get_frame(OpenLcbCanBuffer* b) {
-    //Serial.print("\nIn OpenLcb_can_get_frame");
+    //ADEBUG("\nIn OpenLcb_can_get_frame");
     int v = can_get_message(b);
                             //if(v>0) {
-                            //  Serial.print("\nOpenLcb_can_get_frame  ");
-                            //  Serial.println(b->id,HEX);
+                            //  ADEBUG("\nOpenLcb_can_get_frame  ");
+                            //  ADEBUGL(b->id,HEX);
                             //}
     return v!=0;
 }

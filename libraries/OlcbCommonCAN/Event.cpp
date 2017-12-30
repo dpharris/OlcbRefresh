@@ -1,9 +1,5 @@
-
-#include "logging.h"
 #include "Event.h"
-//#include "EventID.h"
-//extern EventID getEID(uint16_t i);
-
+#include "lib_debug_print_common.h"
 
 Event::Event() {
 }
@@ -45,45 +41,45 @@ int Event::findIndexInArray(Event* array, int len, int start) {
 }
 */
 void Event::print() {
-    //Serial.print("offset:"); Serial.print(offset,HEX);
-    Serial.print("flags:"); Serial.print(flags,HEX);
+    //LDEBUG("offset:"); LDEBUG2(offset,HEX);
+    //LDEBUG("flags:"); LDEBUG2(flags,HEX);
 }
 
 
 /*
 Event* Event::findEventInArray(Event* events, int len) {
-           //Serial.print("\nIn findEventInArray");
+           //LDEBUG("\nIn findEventInArray");
     this->print();
-           //Serial.print("\nindex="); Serial.print(this->index);
+           //LDEBUG("\nindex="); LDEBUG(this->index);
     EventID a = this->getEID();
-           //Serial.print("\nEventID a="); a.print();
+           //LDEBUG("\nEventID a="); a.print();
     Event* e = bsearch(this, events, len, sizeof(events[0]), events[0].evCompare);
            //e->print();
     EventID b = e->getEID();
-           //Serial.print(" e eid=");
+           //LDEBUG(" e eid=");
            //b.print();
     if (a.equals(&b)) return e;
     return 0;
 }
 
 int findIndexInArray(Event* events, int len, int start) {
-            //Serial.print("\nIn Event::findIndexInArray");
-            //Serial.print("\nstart:"); Serial.print(start);
-            //Serial.print("\nthis:"); this->print();
+            //LDEBUG("\nIn Event::findIndexInArray");
+            //LDEBUG("\nstart:"); LDEBUG(start);
+            //LDEBUG("\nthis:"); this->print();
     int hh = this->hash;
-            //Serial.print("\nhash:"); Serial.print(hh);
+            //LDEBUG("\nhash:"); LDEBUG(hh);
     Event* e = &events[start];
     if (start==0) {
         e = bsearch( (const void*)&hh, (const void*)events, len, sizeof(Event), e->hashCompare);
         if(!e) return -1;
-            //Serial.print("\nSearch result:"); e->print();
+            //LDEBUG("\nSearch result:"); e->print();
         while((e-1)>=events && (e-1)->hash==hh) {e--;}
-            //Serial.print("\nbackup:"); e->print();
+            //LDEBUG("\nbackup:"); e->print();
     }
     if(hh!=e->hash) return -1;
-            //Serial.print("\ne:"); e->print();
+            //LDEBUG("\ne:"); e->print();
             //EventID eid = getEID(e->index);
-            //Serial.print("\nfound:"); eid.print();
+            //LDEBUG("\nfound:"); eid.print();
     if(this->equals(e)) return e->index;
     return -1;
 }

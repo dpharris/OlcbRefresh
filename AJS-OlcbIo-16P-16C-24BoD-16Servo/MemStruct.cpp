@@ -24,10 +24,10 @@ EventID blog(unsigned i) { return getEID(i); }
 
 // define eventsOffset array in flash      (Balaz's idea) Note: this negates the need for userInitEventIDOffsets()
 #define ADDR_EID(x)         ((unsigned int)&pmem->x)
-#define REG_OUTPUT(s)       ADDR_EID(digitalOutputs[s].setEvent), ADDR_EID(digitalOutputs[s].resetEvent) 
-#define REG_INPUT(s)        ADDR_EID(digitalInputs[s].activation), ADDR_EID(digitalInputs[s].deactivation)  
-#define REG_BOD_INPUT(s)    ADDR_EID(bodInputs[s].occupied), ADDR_EID(bodInputs[s].empty) 
-#define REG_SERVO_OUTPUT(s) ADDR_EID(servoOutputs[s].diverging), ADDR_EID(servoOutputs[s].main) 
+#define REG_OUTPUT(s)       ADDR_EID(digitalOutputs[s].setLow), ADDR_EID(digitalOutputs[s].setHigh) 
+#define REG_INPUT(s)        ADDR_EID(digitalInputs[s].inputLow), ADDR_EID(digitalInputs[s].inputHigh)  
+#define REG_BOD_INPUT(s)    ADDR_EID(bodInputs[s].empty), ADDR_EID(bodInputs[s].occupied) 
+#define REG_SERVO_OUTPUT(s) ADDR_EID(servoOutputs[s].thrown), ADDR_EID(servoOutputs[s].closed) 
 
 const PROGMEM uint16_t eventidOffset[NUM_EVENTS] = { 
    REG_OUTPUT(0), REG_OUTPUT(1), REG_OUTPUT(2), REG_OUTPUT(3), REG_OUTPUT(4), REG_OUTPUT(5), REG_OUTPUT(6), REG_OUTPUT(7),

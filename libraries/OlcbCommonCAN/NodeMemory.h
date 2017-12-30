@@ -112,7 +112,6 @@ class NodeMemory {
   private:
   bool checkNidOK(); // check if memory tag says NID OK
   bool checkAllOK(); // check if memory tag says all OK
-  void writeByte(int address, uint8_t value); // write only if needed
   
   int startAddress; // address of 1st byte in EEPROM
   uint16_t count; // count of EventIDs provided to date

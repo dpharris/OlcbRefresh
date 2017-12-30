@@ -7,9 +7,6 @@
 
 #include <stdio.h>
 
-#include "logging.h"
-
-
 Datagram::Datagram(OpenLcbCanBuffer* b, unsigned int (*cb)(uint8_t tbuf[DATAGRAM_LENGTH], unsigned int length,  unsigned int from), LinkControl* ln) {
       buffer = b;
       link = ln;

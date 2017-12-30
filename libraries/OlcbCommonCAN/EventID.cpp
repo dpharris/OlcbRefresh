@@ -10,6 +10,8 @@
 #include "Event.h"
 #include "Index.h"
 #include <Arduino.h>
+#include "lib_debug_print_common.h"
+
 
 EventID::EventID() {
     val[0] = 0;
@@ -51,11 +53,11 @@ bool EventID::equals(EventID* n) {
 }
 
 void EventID::print() {
-    Serial.print(" ");
-    Serial.print(val[0],HEX);
+    LDEBUG(" ");
+    LDEBUG2(val[0],HEX);
     for (int i=1;i<8;i++) {
-        Serial.print(",");
-        Serial.print(val[i],HEX);
+        LDEBUG(",");
+        LDEBUG2(val[i],HEX);
     }
 }
 
@@ -77,29 +79,29 @@ void EventID::print() {
 //}
 
 int EventID::findIndexInArray(Index* eventsIndex, int len, int start) {
-            //Serial.print(F("\nIn EventID::findIndexInArray"));
-            //Serial.print(F("\nstart:")); Serial.print(start);
-            //Serial.print(F("\nthis:")); this->print();
+            //LDEBUG(F("\nIn EventID::findIndexInArray"));
+            //LDEBUG(F("\nstart:")); LDEBUG(start);
+            //LDEBUG(F("\nthis:")); this->print();
     Index hh;
     hh.hash = this->hash();
-            //Serial.print(F("\nhash:")); Serial.print(hh.hash,HEX);
+            //LDEBUG(F("\nhash:")); LDEBUG2(hh.hash,HEX);
     Index* ei = &eventsIndex[start];
-            //Serial.print(F("\nei->index=")); Serial.print(ei->index);
-            //Serial.print(F(", hash=")); Serial.print(ei->hash);
+            //LDEBUG(F("\nei->index=")); LDEBUG(ei->index);
+            //LDEBUG(F(", hash=")); LDEBUG(ei->hash);
     if (start==0) {
         ei = (Index*)bsearch( (const void*)&hh.hash, (const void*)eventsIndex, len, sizeof(Index), Index::findCompare);
-            //if(!ei) Serial.print("\nNot Found");
+            //if(!ei) LDEBUG("\nNot Found");
         if(!ei) return -1;
-            //Serial.print(F("\nSearch result:")); ei->print();
+            //LDEBUG(F("\nSearch result:")); ei->print();
         while((ei-1)>=eventsIndex && (ei-1)->hash==hh.hash) {ei--;}
-            //Serial.print(F("\nbackup:")); ei->print();
+            //LDEBUG(F("\nbackup:")); ei->print();
     }
     if(ei>=(eventsIndex+len)) return -1;
            //ei->print();
     if(hh.hash!=ei->hash) return -1;
     //EventID eid = ei->getEID();
     EventID eid = blog(ei->index);
-            Serial.print(F("\nfound:")); eid.print();
+            //LDEBUG(F("\nfound:")); eid.print();
     if( 0 == memcmp(this,&eid,8) ) return ei->index;
     return -1;
 }

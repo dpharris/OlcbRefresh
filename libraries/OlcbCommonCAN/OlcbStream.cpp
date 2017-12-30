@@ -3,8 +3,6 @@
 #include "LinkControl.h"
 #include "OlcbStream.h"
 
-#include "logging.h"
-
 // ToDo: Implementation incomplete
 
 OlcbStream::OlcbStream(OpenLcbCanBuffer* b, unsigned int (*cb)(uint8_t *tbuf, unsigned int length), LinkControl* ln) {

@@ -9,6 +9,8 @@
 #include "OpenLcbCanInterface.h"
 #include "NodeID.h"
 
+#include "lib_debug_print_common.h"
+
 // state machine definitions
 #define STATE_INITIAL 0
 #define STATE_WAIT_CONFIRM 10
@@ -18,10 +20,6 @@
 
 // time to wait between last CIM and RIM
 #define CONFIRM_WAIT_TIME 200
-
-#include "logging.h"
-
-
 
 LinkControl::LinkControl(OpenLcbCanBuffer* b, NodeID* n) {
   txBuffer = b;
@@ -47,7 +45,7 @@ void LinkControl::nextAlias() {
 }
 
 void LinkControl::reset() {
-    //Serial.print("\nIn LinkControl::reset");
+    //LDEBUG("\nIn LinkControl::reset");
   // initialize sequence from node ID
   lfsr1 = (((uint32_t)nid->val[0]) << 16) | (((uint32_t)nid->val[1]) << 8) | ((uint32_t)nid->val[2]);
   lfsr2 = (((uint32_t)nid->val[3]) << 16) | (((uint32_t)nid->val[4]) << 8) | ((uint32_t)nid->val[5]);
@@ -64,7 +62,7 @@ void LinkControl::restart() {
 // send the next CIM message.  "i" is the 0-3 ordinal number of the message, which
 // becomes F-C in the CIM itself. Returns true if successfully sent.
 bool LinkControl::sendCIM(uint8_t i) {
-    Serial.print("\nIn LinkControl::sendCIM");
+    //LDEBUG("\nIn LinkControl::sendCIM");
   uint16_t fragment;
   switch (i) {
     case 0:  fragment = ( (nid->val[0]<<4)&0xFF0) | ( (nid->val[1] >> 4) &0xF);
@@ -82,7 +80,7 @@ bool LinkControl::sendCIM(uint8_t i) {
 }
 
 bool LinkControl::sendRIM() {
-    Serial.print("\nIn LinkControl::sendRIM");
+   //LDEBUG("\nIn LinkControl::sendRIM");
   txBuffer->setRIM(getAlias());
   return sendFrame();
 }
@@ -104,14 +102,14 @@ bool LinkControl::sendAMR() {
 }
 
 bool LinkControl::sendFrame() {
-    Serial.print("\nIn LinkControl::sendFrame");
+    //LDEBUG("\nIn LinkControl::sendFrame");
   if (!OpenLcb_can_xmt_ready(txBuffer)) return false;  // couldn't send just now
   OpenLcb_can_queue_xmt_wait(txBuffer);  // wait for queue, but earlier check says will succeed
   return true;
 }
 
 void LinkControl::check() {
-    //Serial.print("\nIn LinkControl::check");
+    //LDEBUG("\nIn LinkControl::check");
   // find current state and act
   if (state == STATE_INITIALIZED) return;
   switch (state) {
@@ -151,7 +149,7 @@ void LinkControl::check() {
 }
 
 bool LinkControl::linkInitialized() {
-    //Serial.print("\nIn LinkControl::reset");
+    //LDEBUG("\nIn LinkControl::reset");
   return state == STATE_INITIALIZED;
 }
 
@@ -166,7 +164,7 @@ void LinkControl::rejectMessage(OpenLcbCanBuffer* rcv, uint16_t code) {
 }
 
 bool LinkControl::receivedFrame(OpenLcbCanBuffer* rcv) {
-    //Serial.print("\nIn LinkControl::receivedFrame");
+    //LDEBUG("\nIn LinkControl::receivedFrame");
     uint16_t alias = getAlias();
    // check received message
    // see if this is a frame with our alias
