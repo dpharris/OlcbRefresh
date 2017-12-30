@@ -79,7 +79,7 @@ const char configDefInfo[] PROGMEM = R"(<?xml version='1.0'?>
         <int size='1'>
             <min>0</min>
             <max>180</max>
-            <default>90</default>
+            <default>60</default>
             <name>Servo Thrown Position</name>
             <description>Position in Degrees (0-180)</description>
         </int>
@@ -89,7 +89,7 @@ const char configDefInfo[] PROGMEM = R"(<?xml version='1.0'?>
         <int size='1'>
             <min>0</min>
             <max>180</max>
-            <default>90</default>
+            <default>115</default>
             <name>Servo Closed Position</name>
             <description>Position in Degrees (0-180)</description>
         </int>

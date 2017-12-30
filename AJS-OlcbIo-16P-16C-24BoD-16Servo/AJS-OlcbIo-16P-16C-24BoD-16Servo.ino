@@ -1,3 +1,6 @@
+#include <Wire.h>
+#include <Adafruit_PWMServoDriver.h>
+
 //==============================================================
 // Olcb 16P 16C 24BOD 16 Servo 
 // 
@@ -13,6 +16,9 @@
 #include "eeprom_utils.h"
 
 #define DEBUG_BAUD_RATE 115200
+
+#define SERVO_POS_DEG_THROWN  60
+#define SERVO_POS_DEG_CLOSED  115
 
 NodeID nodeid(0x05,0x02,0x01,0x02,0x02,0x24);    // This node's default ID; must be valid 
 
@@ -63,26 +69,38 @@ uint8_t BoDStates[]           = { 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 //ButtonLed blue(BLUE, LOW);
 //ButtonLed gold(GOLD, LOW);
 
+Adafruit_PWMServoDriver servoPWM = Adafruit_PWMServoDriver();
+#define SERVO_PWM_DEG_0    150 // this is the 'minimum' pulse length count (out of 4096)
+#define SERVO_PWM_DEG_180  600 // this is the 'maximum' pulse length count (out of 4096)
+
+
 void pceCallback(uint16_t index){
   // Invoked when an event is consumed; drive pins as needed
   // from index of all events.  
   // Sample code uses inverse of low bit of pattern to drive pin all on or all off.  
   // The pattern is mostly one way, blinking the other, hence inverse.
   //
-  DEBUG(F("\npceCallback: Index: ")); DEBUGL(index);
-
-  uint8_t outputIndex = index / 2;
-  uint8_t outputState = index % 2;
+  DEBUG(F("\npceCallback: Event Index: ")); DEBUGL(index);
    
   if(index < FIRST_INPUT_EVENT_INDEX)
-    digitalWrite(outputPinNums[outputIndex], outputState);
-    
-  else if (index >= FIRST_SERVO_EVENT_INDEX)
   {
-    uint8_t servoPos = outputState ? EEPROM.read(EADDR(servoOutputs[outputIndex].thrownPos)) : EEPROM.read(EADDR(servoOutputs[outputIndex].closedPos)); 
-    DEBUG(F("\npceCallback: Servo Pos: ")); DEBUGL(servoPos);
+    uint8_t outputIndex = index / 2;
+    uint8_t outputState = index % 2;
+    DEBUG(F("Write Output: ")); DEBUG(outputIndex); DEBUG(F(" State: ")); DEBUGL(outputState);
+    digitalWrite(outputPinNums[outputIndex], outputState);
   }
-     
+    
+  else if ( (index >= FIRST_SERVO_EVENT_INDEX) && (index < (FIRST_SERVO_EVENT_INDEX + (NUM_SERVOS * 2) ) ) )
+  {
+    uint8_t outputIndex = (index - FIRST_SERVO_EVENT_INDEX) / 2;
+    uint8_t outputState = (index - FIRST_SERVO_EVENT_INDEX) % 2;
+
+    uint8_t servoPosDegrees = outputState ? EEPROM.read(EADDR(servoOutputs[outputIndex].closedPos)) : EEPROM.read(EADDR(servoOutputs[outputIndex].thrownPos)); 
+    uint16_t servoPosPWM = map(servoPosDegrees, 0, 180, SERVO_PWM_DEG_0, SERVO_PWM_DEG_180);
+
+    DEBUG(F("Write Servo: ")); DEBUG(outputIndex); DEBUG(F(" Pos: ")); DEBUG(servoPosDegrees); DEBUG(F(" PWM: ")); DEBUGL(servoPosPWM);
+    servoPWM.setPWM(outputIndex, 0, servoPosPWM);
+  }
 }
 
 NodeMemory nm(0);  // allocate from start of EEPROM
@@ -188,8 +206,8 @@ void userInit(void)
     eeprom_update_string(EADDR(servoOutputs[i].desc), strBuffer); 
     DEBUGL(strBuffer);
 
-    EEPROM.update(EADDR(servoOutputs[i].thrownPos),90);
-    EEPROM.update(EADDR(servoOutputs[i].closedPos),90);
+    EEPROM.update(EADDR(servoOutputs[i].thrownPos),SERVO_POS_DEG_THROWN);
+    EEPROM.update(EADDR(servoOutputs[i].closedPos),SERVO_POS_DEG_CLOSED);
   }
   DEBUGL(F("userInit: Begin"));
 }
@@ -288,6 +306,9 @@ void setup()
   #ifdef test
     test();
   #endif
+
+  servoPWM.begin();
+  servoPWM.setPWMFreq(60);
 }
 
 void loop() {

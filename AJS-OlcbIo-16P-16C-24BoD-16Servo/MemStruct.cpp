@@ -154,7 +154,7 @@ MemStruct mem = EEPROM.get(0,mem);
   void initTables() {
     DEBUG("\nIn initTables Medium");
     //printRawEEPROM();  while(1==1){}
-    userInit();
+    //userInit(); AJS Why is this called from here?
     for (int e=0; e<NUM_EVENTS; e++) {
       events[e].flags = 0;
       EEPROM.get(eventidOffset[e], eventids[e]);
@@ -242,18 +242,15 @@ void printRawEEPROM() {
 void printEventsIndex() {
   DEBUG(F("\nprintEventsIndex"));
   for(int i=0; i < NUM_EVENTS; i++) {
-    DEBUG("\n");
+    DEBUG("\n eventsIndex["); DEBUG(i); DEBUG("] ");
     eventsIndex[i].print();
-    //DEBUG(F("\n hash: ")); DEBUGHEX(eventsIndex[i].hash,HEX);
-    //DEBUG(F("  index: ")); DEBUGHEX(eventsIndex[i].index,HEX);
   }
 }
 void printEvents() {
   DEBUG(F("\nprintEvents "));
-  //DEBUG(MEM_MODEL);
   for(int i=0; i < NUM_EVENTS; i++) {
-//    DEBUG(F("\n  offset: ")); DEBUGHEX(events[i].offset,HEX);
-    DEBUG(F("\n flags: ")); DEBUGHEX(events[i].flags,HEX);
+    DEBUG(F("\nIndex: ")); DEBUG(i);
+    DEBUG(F(" flags: ")); DEBUGHEX(events[i].flags,HEX);
 #ifdef MEM_MODEL_MEDIUM
     DEBUG(F(" eventID: ")); eventids[i].print();
 #endif

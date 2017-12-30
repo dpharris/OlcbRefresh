@@ -96,20 +96,10 @@ extern const PROGMEM uint16_t eventidOffset[];
 extern EventID eventids[NUM_EVENTS];    // copy of eventids in RAM
 #endif
 
-/*typedef struct {
-  NodeID* nid;
-  Event* events;
-  Index* eventsIndex;
-  const uint16_t* eventidOffset;
-  uint16_t nevent;
-} Nodal_t;
-*/
-  void writeEEPROM(int addr, uint8_t b);
-  void initTables();
-  void restore();
-  void printRawEEPROM();
-  void initTables();
-  void userInit();
-  void printEventsIndex();
-  void printEvents();
+void initTables();
+void restore();
+void printRawEEPROM();
+void initTables();
+void printEventsIndex();
+void printEvents();
 #endif
