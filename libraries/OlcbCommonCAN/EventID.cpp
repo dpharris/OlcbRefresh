@@ -90,19 +90,30 @@ int EventID::findIndexInArray(Index* eventsIndex, int len, int start) {
             //LDEBUG(F(", hash=")); LDEBUG(ei->hash);
     if (start==0) {
         ei = (Index*)bsearch( (const void*)&hh.hash, (const void*)eventsIndex, len, sizeof(Index), Index::findCompare);
-            //if(!ei) LDEBUG("\nNot Found");
-        if(!ei) return -1;
+        if(!ei){
+        	//LDEBUG("\nNot Found");
+        	return -1;
+        }
             //LDEBUG(F("\nSearch result:")); ei->print();
         while((ei-1)>=eventsIndex && (ei-1)->hash==hh.hash) {ei--;}
             //LDEBUG(F("\nbackup:")); ei->print();
     }
-    if(ei>=(eventsIndex+len)) return -1;
-           //ei->print();
-    if(hh.hash!=ei->hash) return -1;
-    //EventID eid = ei->getEID();
+    if(ei>=(eventsIndex+len))
+    	return -1;
+    	ei->print();
+    if(hh.hash!=ei->hash)
+    	return -1;
+
     EventID eid = blog(ei->index);
             //LDEBUG(F("\nfound:")); eid.print();
-    if( 0 == memcmp(this,&eid,8) ) return ei->index;
+
+    if( 0 == memcmp(this,&eid,8) )
+    {
+    		// Now figure out the index into the eventsIndex array that is pointed to by ei
+	    int foundIndex = ei - eventsIndex;
+    		//LDEBUG("\nMatching Index: "); LDEBUG(foundIndex);
+		return foundIndex;
+    }
     return -1;
 }
 

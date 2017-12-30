@@ -93,7 +93,7 @@ Index* Index::findIndex(void* ms, uint16_t s, uint16_t is, Index* start) {
 
 void Index::print() {
     LDEBUG(F("["));LDEBUG2(hash,HEX);
-    LDEBUG(F(","));LDEBUG2(index,HEX);
+    LDEBUG(F(","));LDEBUG(index);
     LDEBUG(F("]"));
 }
 

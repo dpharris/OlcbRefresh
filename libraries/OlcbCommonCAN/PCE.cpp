@@ -190,18 +190,22 @@ void PCE::sendTeach(EventID e) {   /// DPH added for Clock
   }
 
   void PCE::handlePCEventReport(OpenLcbCanBuffer* rcv) {
-                //LDEBUG("\nIn handlePCEventReport");
+                LDEBUG("\nIn handlePCEventReport");
       EventID eventid;
       rcv->getEventID(&eventid);
-                //eventid.print();
+                eventid.print();
       // find matching eventID
       int ind = 0;
       while ( -1 != (ind = eventid.findIndexInArray(eventsIndex, nEvents, ind))) {
           uint16_t index = eventsIndex[ind].index;
-                //LDEBUG("\nhandlePCRep ind: "); LDEBUG(ind);
-                //LDEBUG("\nhandlePCRep Index: "); LDEBUG(index);
-                //LDEBUG("\nevents[index].flags: "); LDEBUG2(events[index].flags,HEX);
-          if (events[index].flags & Event::CAN_CONSUME_FLAG) (*callback)(index);
+            //LDEBUG("\nhandlePCRep ind: "); LDEBUG(ind);
+            //LDEBUG("\nhandlePCRep Index: "); LDEBUG(index);
+            //LDEBUG("\nevents[index].flags: "); LDEBUG2(events[index].flags,HEX);
+          if (events[index].flags & Event::CAN_CONSUME_FLAG)
+          {
+          	//LDEBUG(F("Found Consumer: Index: ")); LDEBUG(index);
+           	(*callback)(index);
+          }
           ind++;
           if(ind>=nEvents) break;
       }
