@@ -60,8 +60,8 @@ const uint8_t bodPinNums[]    = {16, 17, 18, 19, 20, 21, 22, 23, 32, 33, 34, 35,
 
 uint8_t BoDStates[]           = { 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 
-ButtonLed blue(BLUE, LOW);
-ButtonLed gold(GOLD, LOW);
+//ButtonLed blue(BLUE, LOW);
+//ButtonLed gold(GOLD, LOW);
 
 void pceCallback(uint16_t index){
   // Invoked when an event is consumed; drive pins as needed
@@ -302,15 +302,15 @@ void loop() {
   bool activity = Olcb_loop();
   if (activity) {
       // blink blue to show that the frame was received
-      blue.blink(0x1);
+     // blue.blink(0x1);
   }
   if (OpenLcb_can_active) { // set when a frame sent
-      gold.blink(0x1);
+     // gold.blink(0x1);
       OpenLcb_can_active = false;
   }
   // handle the status lights  
-  blue.process();
-  gold.process();
+ // blue.process();
+ // gold.process();
 }
 
 

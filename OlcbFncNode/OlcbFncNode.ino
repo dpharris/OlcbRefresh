@@ -1,6 +1,20 @@
 //==============================================================
 // OlcbFncNode
-//   A prototype of a basic 4-channel OpenLCB board
+//   A prototype of a Function OpenLCB board
+//
+//   This node has: 
+//     NUM_CHANNEL channels, and each has: 
+//        eventid, and a 
+//        actionFnc( pin, firstParameter, secondParameter)
+//
+//   The actions include: 
+//     None
+//     blink(pin, period, dutyCycle)
+//     dstrobe(pin, period, dutyCycle)
+//     fade( pin, targetLevel, rate)
+//     servo( servo, targetPosition, rate)
+//     input( pin, sense, secondEidindex)
+//     sample( pin, sense, secondEidindex)        
 // 
 //   setup() determines which are consumers and
 //   which are producers
@@ -269,7 +283,7 @@ void sendEvent(uint16_t index) {
   Serial.print("\nsendEvent: ");
   Serial.print(index,HEX);
 }
-void input(uint16_t pin, uint16_t index, uint16_t secondEventID) {
+void input(uint16_t pin, uint16_t sense, uint16_t secondEventID) {
   #define PERIOD 200
   static long next = 0;
   bool pinState = false;
@@ -279,13 +293,13 @@ void input(uint16_t pin, uint16_t index, uint16_t secondEventID) {
   }
   bool r = digitalRead(pin);
   if(r!=pinState) {
-    if(r) sendEvent(index);
-    else sendEvent(secondEventID);
+    if(r) sendEvent(sense?pin:secondEventID);
+    else  sendEvent(sense?secondEventID:pin);
     pinState = r;
   }
   next += PERIOD;
 }
-void sample(uint16_t pin, uint16_t index, uint16_t secondEventID) {
+void sample(uint16_t pin, uint16_t sense, uint16_t secondEventID) {
   #define PERIOD 200
   static long next = 0;
   bool pinState = false;
@@ -294,8 +308,8 @@ void sample(uint16_t pin, uint16_t index, uint16_t secondEventID) {
   delay(1); // settling time
   bool r = digitalRead(pin);
   if(r!=pinState) {
-    if(r) sendEvent(index);
-    else sendEvent(secondEventID);
+    if(r) sendEvent(sense?pin:secondEventID);
+    else  sendEvent(sense?secondEventID:pin);
     pinState = r;
   }
   next += PERIOD;
@@ -359,15 +373,16 @@ void setup()
       for(int j=0; j<sizeof(s4); j++) writeByte((uint16_t)&pmem->outputs[i].desc+j, s4[j]);
     }
 #endif   
+
+  EEPROM.get(ADDR_EID(channel), channel);
   
   // set event types, now that IDs have been loaded from configuration
   // newEvent arguments are (event index, producer?, consumer?)
-  for (int i=2*(FIRST_PRODUCER_CHANNEL_INDEX); i<2*(LAST_PRODUCER_CHANNEL_INDEX+1); i++) {
-      pce.newEvent(i,true,false); // producer
+  for (int i=0; i<NUM_CHANNEL; i++) {
+      if(consumerFnc[channel[i].action]) pce.newEvent(i,false,true); // consumer
+      else pce.newEvent(i,true,false); // producer
   }
-  for (int i=2*(FIRST_CONSUMER_CHANNEL_INDEX); i<2*(LAST_CONSUMER_CHANNEL_INDEX+1); i++) {
-      pce.newEvent(i,false,true); // consumer
-  }
+
   Serial.print(F("\nP/C flags done"));
   printEventsIndex();
   printEvents();
@@ -390,7 +405,6 @@ void setup()
     test();
   #endif
 
-  EEPROM.get(ADDR_EID(channel), channel);
 }
 
 void loop() {
