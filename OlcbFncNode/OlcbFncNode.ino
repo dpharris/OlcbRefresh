@@ -315,6 +315,12 @@ void sample(uint16_t pin, uint16_t sense, uint16_t secondEventID) {
   next += PERIOD;
 }
 
+void randm(uint16_t pin, uint16_t max, uint16_t period) {
+  static long next = 0;
+  setPin(pin, random(max));
+  next += period;
+}
+
 Channel channel[NUM_EVENT];
 void fncProcess() {
   static uint8_t i = 0;
@@ -323,6 +329,41 @@ void fncProcess() {
   i++;
   if(i>NUM_CHANNEL) i=0;        
 }
+
+uint16_t channelState[NUM_CHANNEL];
+void f_set(uint16_t pin, uint16_t index, uint16_t value) {
+  channelState[index] = value;
+}
+void f_and(uint16_t pin, uint16_t index, uint16_t value) {
+  channelState[index] &= value;
+}
+void f_or(uint16_t pin, uint16_t index, uint16_t value) {
+  channelState[index] |= value;
+}
+void f_if(uint16_t pin, uint16_t index, uint16_t eidIndex) {
+  if(channelState[index]) sendEvent(eidIndex);
+}
+
+//  1 eid0 set 1 1
+//  2 eid1 and 1 1
+//  3 eid2 if  1 4
+//  4 eid3 none
+//
+
+// when pin-event consumed, delay period^2 and then send another eventID
+void f_delay(uint16_t pin, uint16_t period, uint16_t eidi) {
+  static long next = 0;
+  if(next==0) {
+    //next += period;
+    next += period * (unsigned long)period;
+    //next += scaledResult = fscale( 0, 66000.0, 0, 1E9, period, 0);
+  } else if(millis>next) {
+    sendEvent(eidi);
+    next = 0;
+  }
+}
+
+// is it possible to chain the fncs?
 
 /////////////////////////////////////////////////////////////////
 
