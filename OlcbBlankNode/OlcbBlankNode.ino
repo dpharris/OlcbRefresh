@@ -6,8 +6,12 @@
 //==============================================================
 
 #define NUM_EVENT 3
+//#define USE_BG
 
 #include "OpenLCB.h"
+#include "Can.h"
+Can *can;
+
 
 NodeID nodeid(5,1,1,1,3,255);    // This node's default ID; must be valid 
 
@@ -40,7 +44,7 @@ typedef struct {
         EventID pceid;             // example prodcuder/consumer eventID
       } io;
     // ===== Enter User definitions above =====
-  } MemStruct;                 // type definition
+} MemStruct;                 // type definition
 MemStruct *pmem = 0;   
 
 // ===== eventidOffset =====
@@ -66,6 +70,7 @@ extern "C" {
     };
 }; // end extern "C"
 
+#ifdef USE_BG
 // Optional definition of Status indicators and/or buttons
 #define BLUE 18    // LEDuino:18; Io:48; Ioduino:14
 #define GOLD 19    //
@@ -91,10 +96,12 @@ uint32_t patterns[] = { // two per cchannel, one per event
 ButtonLed* buttons[] = {  
   &pA,&pA,&pB,&pB,&pC,&pC  // One for each event; in this case, each channel is a pair
 };
+BG bg(&pce, buttons, patterns, NUM_EVENT, &blue, &gold, &txBuffer);
+#endif
 
 // ===== Process Consumer-eventIDs =====
-void pceCallback(uint16_t index){ 
-  buttons[index]->on( patterns[index]&0x1 ? 0x0L : ~0x0L );
+extern void pceCallback(uint16_t index){ 
+  //EG:  buttons[index]->on( patterns[index]&0x1 ? 0x0L : ~0x0L );
 }
 
 // ===== Process Producers-eventIDs =====
@@ -105,7 +112,7 @@ void produceFromInputs() { }
 void configWritten(unsigned int address, unsigned int length) { }
 
 // Define OpenLCB instantiation
-OpenLCB olcb( &nodeid, eventidOffset, sizeof(MemStruct), pceCallback, configWritten);
+OpenLCB olcb( &nodeid, NUM_EVENT, eventidOffset, sizeof(MemStruct), can, pceCallback, configWritten);
 
 void setup() {
     olcb.setup();  // setup system
@@ -114,13 +121,16 @@ void setup() {
 
 void loop() {
     bool activity = olcb.loop();    // Process system
-    if (activity) blue.blink(0x1);  // blink blue when a frame was received
-    if (olcb.can_active) { 
-        gold.blink(0x1);            // blink gold when a frame sent
-        olcb.can_active = false;
-    }
-    blue.process();      // handle the status lights  
-    gold.process();
+    #ifdef USE_BG
+        if (activity) blue.blink(0x1);  // blink blue when a frame was received
+        if (olcb.can_active) { 
+            gold.blink(0x1);            // blink gold when a frame sent
+            olcb.can_active = false;
+        }
+        blue.process();      // handle the status lights  
+        gold.process();
+    #endif
+    //produceFromInputs();
 }
 
 

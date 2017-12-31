@@ -1,4 +1,5 @@
 #include <EEPROM.h>
+#include "Can.h"
 
 #define CDIheader R"( \
  <cdi xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='http://openlcb.org/trunk/prototypes/xml/schema/cdi.xsd'> \
@@ -102,31 +103,76 @@ uint16_t eventsIndex[NUM_EVENT];  // Sorted index to eventids
 NodeVar* pnv = 0;
 #define NV(x) ((unsigned int)&pnv->x)
 
+class Nodal;
+class NodeMemory { public: NodeMemory(int a){} };
+class Link { public: Link(){} reset(){} check(){} bool receivedFrame(Can_t* rxBuffer){} 
+      bool linkInitialized(){} uint16_t getAlias(){} bool rejectMessage(Can_t* rxBuffer, uint16_t errorcode){} };
+class PCE { public: PCE(){} PCE(void* nodal, Can_t* txBuffer, void(*pceCallback)(uint16_t i), void(*restore)(), Link* link){}  
+            check(){} bool receivedFrame(Can_t* rxBuffer){} };
+
+class DG { public: check(){} bool receivedFrame(Can_t* rxBuffer){} };
+class Str { public: check(){} bool receivedFrame(Can_t* rxBuffer){} };
+//class SNII { public: check(){} };
+//class PIP { public: check(); };
+class BG { public: check(); };
+class Config { public: check(); };
+
+void PIP_setup(Can_t* txBuffer, Link* link){}
+void PIP_check(){}
+bool PIP_receivedFrame(Can_t* rxBuffer){}
+SNII_setup(uint8_t n, uint16_t SNII_var_offset, Can_t* txBuffer, Link* link){}
+void SNII_check(){}
+bool SNII_receivedFrame(Can_t* rxBuffer){}
+bool OpenLcb_can_get_frame(Can_t* rxBuffer){}
+
+//NodeMemory nm(0);  // allocate from start of EEPROM
+//void store() { nm.store(&nodeid, events, eventidOffset, NUM_EVENT); }
+extern void pceCallback(uint16_t i);
+extern void restore();
+Can_t txBuffer;
+Config cfg;
+BG bg;
+DG dg;
+Str str;
+Link link;
+Nodal* nodal;
+//PCE pce(nodal, &txBuffer, pceCallback, restore, link);
+PCE pce;
+
+// Establish location of node Name and Node Decsription in memory
+//#define SNII_var_data &pmem->nodeName           // location of SNII_var_data EEPROM, and address of nodeName
+//#define SNII_var_offset sizeof(pmem->nodeName)  // location of nodeDesc
+#define SNII_var_data 12           // location of SNII_var_data EEPROM, and address of nodeName
+#define SNII_var_offset 20          // location of nodeDesc
+
 class OpenLCB {
   public:
     NodeID* nid;
     uint16_t nextEID = 0;
-    uint16_t nevent = NUM_EVENT;
+    uint16_t nevent;
     EventID eventid[NUM_EVENT];
     Event event[NUM_EVENT];
     uint16_t index[NUM_EVENT];
     EIDTab* eidOffset;
     uint16_t sMemStruct;
     bool can_active;
+    Can* can;
+    Can_t rxBuffer;
     void (*pceCb)(unsigned int index);
     void (*configW)(unsigned int adress, unsigned int length);
     
-    OpenLCB( NodeID* _nodeid, const EIDTab* eventidOffset, uint16_t _sMemStruct,
+    OpenLCB( NodeID* _nodeid, uint16_t _nevent, const EIDTab* eventidOffset, uint16_t _sMemStruct,
+             Can* _can,
              void (*_pceCb)(unsigned int i), 
              void (*_configW)(unsigned int a, unsigned int l) ) {
         nid = _nodeid;
+        nevent = _nevent;
         eidOffset = eventidOffset;
         sMemStruct = _sMemStruct;
+        can = _can;
         pceCb = _pceCb;
         configW = _configW;
     }
-    void setup(){}
-    void loop(){}
     void newSetEventID(uint16_t nextEID) {
       for(int e=0;e<nevent;e++) {
         EEPROM.put(eidOffset[e].offset,    nid);
@@ -154,7 +200,6 @@ class OpenLCB {
       EEPROM.update(3,0xCC);
     }
 
-    
     static int findCompare(const void* a, const void* b){
        uint16_t ia = (uint16_t) a;
        uint16_t ib = (uint16_t) b;
@@ -185,9 +230,58 @@ class OpenLCB {
       for(int e=0; e<nevent; e++) 
       qsort( index, NUM_EVENT, sizeof(index[0]), sortCompare);
     }
+    void setup(){
+      initTables();  
+      PIP_setup(&txBuffer, &link);
+      //SNII_setup((uint8_t)sizeof(SNII_const_data), SNII_var_offset, &txBuffer, &link);
+      SNII_setup((uint8_t)32, SNII_var_offset, &txBuffer, &link);
+      can->init();
+      link.reset();
+    }
+    bool loop(){
+      bool rcvFramePresent = OpenLcb_can_get_frame(&rxBuffer);
+      link.check();
+      bool handled = false;  // start accumulating whether it was processed or skipped
+      if (rcvFramePresent) {
+        handled = link.receivedFrame(&rxBuffer);
+      }
+      if (link.linkInitialized()) {
+        if (rcvFramePresent && rxBuffer.isForHere(link.getAlias()) ) {
+          #ifndef OLCB_NO_DATAGRAM
+          handled |= dg.receivedFrame(&rxBuffer);  // has to process frame level
+          #endif
+          if(rxBuffer.isFrameTypeOpenLcb()) {  // skip if not OpenLCB message (already for here)
+            handled |= pce.receivedFrame(&rxBuffer);
+            #ifndef OLCB_NO_STREAM
+            handled |= str.receivedFrame(&rxBuffer); // suppress stream for space
+            #endif
+            handled |= PIP_receivedFrame(&rxBuffer);
+            handled |= SNII_receivedFrame(&rxBuffer);
+            if (!handled && rxBuffer.isAddressedMessage()) link.rejectMessage(&rxBuffer, 0x2000);
+          }
+        }
+        pce.check();
+        #ifndef OLCB_NO_DATAGRAM
+        dg.check();
+        #endif
+        #ifndef OLCB_NO_STREAM
+        str.check();
+        #endif
+        #ifndef OLCB_NO_MEMCONFIG
+        cfg.check();
+        #endif
+        #ifndef OLCB_NO_BLUE_GOLD
+        bg.check();
+        #endif
+        PIP_check();
+        SNII_check();
+        //produceFromInputs();
+      }
+      return rcvFramePresent;
+    }
+
+
 };
 
-// Establish location of node Name and Node Decsription in memory
-#define SNII_var_data &pmem->nodeName           // location of SNII_var_data EEPROM, and address of nodeName
-#define SNII_var_offset sizeof(pmem->nodeName)  // location of nodeDesc
+
 
