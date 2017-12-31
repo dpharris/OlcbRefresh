@@ -125,20 +125,36 @@ class OpenLCB {
         pceCb = _pceCb;
         configW = _configW;
     }
-    setup(){}
-    loop(){}
-    reset(){           // reset to factory
-      for(int i=0;i<sMemStruct;i++) EEPROM.write(i,0);  // clear EEPROM
-      EEPROM.put(NV(nid),nid);
+    void setup(){}
+    void loop(){}
+    void newSetEventID(uint16_t nextEID) {
       for(int e=0;e<nevent;e++) {
         EEPROM.put(eidOffset[e].offset,    nid);
         EEPROM.write(eidOffset[e].offset,  nextEID>>8);
         EEPROM.write(eidOffset[e].offset+1,nextEID);
         nextEID++;
       }
+    }
+    const uint8_t magicOK[4] = { 0xEE, 0x55, 0x5E, 0xE5 };
+    const uint8_t magicNAK[4] = { 0xF5, 0x5A, 0xA5, 0x5A };
+    void reset(uint16_t nextEID){           // reset system variables and write EIDs
+      EEPROM.put(0,magicOK);
+      EEPROM.put(NV(nid),nid);
+      newSetEventID(nextEID);
       EEPROM.write(NV(nextEID),nextEID>>8);
       EEPROM.write(NV(nextEID)+1,nextEID);
     }
+    void factoryReset(){     // reset to factory
+      for(int i=0;i<sMemStruct;i++) EEPROM.write(i,0);  // clear EEPROM
+      reset(nextEID);      
+    }
+    void forceInitEIDs() {
+      //LDEBUG("\nforceInitEvents");
+      EEPROM.update(2,0x33);
+      EEPROM.update(3,0xCC);
+    }
+
+    
     static int findCompare(const void* a, const void* b){
        uint16_t ia = (uint16_t) a;
        uint16_t ib = (uint16_t) b;
