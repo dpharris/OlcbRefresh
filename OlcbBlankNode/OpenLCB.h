@@ -1,6 +1,7 @@
 #include <EEPROM.h>
 #include "Can.h"
 
+// ===== CDI System Portions =======================================
 #define CDIheader R"( \
  <cdi xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='http://openlcb.org/trunk/prototypes/xml/schema/cdi.xsd'> \
     <identification> \
@@ -31,6 +32,7 @@
     </segment>\
   </cdi>)"
 
+// ===== MemStruct System Portions =================================
 typedef struct {
   uint32_t magic;         // used to check eeprom status
   uint16_t nextEID;       // the next available eventID for use from this node's set
@@ -39,6 +41,9 @@ typedef struct {
   char     nodeDesc[24];  // optional node-description, used by ACDI
 }  NodeVar;
 
+// ===== eventidOffset Support =====================================
+//   Note: this allows system routines to initialize event[]
+//         since eventOffsets are constant in flash.  
 typedef struct {
   uint16_t offset;
   uint8_t flags;
@@ -48,6 +53,7 @@ typedef struct {
 #define PEID(x) ((unsigned int)&pmem->x,Event::CAN_PRODUCE_FLAG)
 #define PCEID(x) ((unsigned int)&pmem->x,Event::CAN_CONSUME_FLAG|Event::CAN_PRODUCE_FLAG)
 
+// ===== PIP Support ===============================================
 #define pSimple       0x80
 #define pDatagram     0x40
 #define pStream       0x20
@@ -72,6 +78,8 @@ typedef struct {
 #define pFirwareUpdateActive 0x10
 
 #define OlcbCommonVersion "0.0.1"
+
+// ===== Mock System Classes =======================================
 class NodeID {
   public:
     uint8_t val[6];
@@ -98,7 +106,8 @@ class ButtonLed {
     void on(uint32_t p){}
     void blink(uint32_t p){}
 };
-//Event event[NUM_EVENT] = { Event() };
+
+// ===== Mock Initializations ======================================
 uint16_t eventsIndex[NUM_EVENT];  // Sorted index to eventids
 NodeVar* pnv = 0;
 #define NV(x) ((unsigned int)&pnv->x)
@@ -148,6 +157,7 @@ PCE pce;
 class OpenLCB {
   public:
     NodeID* nid;
+    uint32_t magic;
     uint16_t nextEID = 0;
     uint16_t nevent;
     EventID eventid[NUM_EVENT];
@@ -173,7 +183,7 @@ class OpenLCB {
         pceCb = _pceCb;
         configW = _configW;
     }
-    void newSetEventID(uint16_t nextEID) {
+    void newSetEventIDs(uint16_t nextEID) {
       for(int e=0;e<nevent;e++) {
         EEPROM.put(eidOffset[e].offset,    nid);
         EEPROM.write(eidOffset[e].offset,  nextEID>>8);
@@ -181,12 +191,13 @@ class OpenLCB {
         nextEID++;
       }
     }
+    // ===== Reset Routines ======================
     const uint8_t magicOK[4] = { 0xEE, 0x55, 0x5E, 0xE5 };
     const uint8_t magicNAK[4] = { 0xF5, 0x5A, 0xA5, 0x5A };
     void reset(uint16_t nextEID){           // reset system variables and write EIDs
       EEPROM.put(0,magicOK);
       EEPROM.put(NV(nid),nid);
-      newSetEventID(nextEID);
+      newSetEventIDs(nextEID);
       EEPROM.write(NV(nextEID),nextEID>>8);
       EEPROM.write(NV(nextEID)+1,nextEID);
     }
@@ -230,7 +241,11 @@ class OpenLCB {
       for(int e=0; e<nevent; e++) 
       qsort( index, NUM_EVENT, sizeof(index[0]), sortCompare);
     }
-    void setup(){
+    // ===== System Interface
+    void init() {       // was setup()
+      EEPROM.get(0, magic);
+      if((magic&0xFFFF)==0x33CC) reset(0);
+      if(magic==0x5AA55AF5) reset(nextEID);  // new set of EIDs 0xF5, 0x5A, 0xA5, 0x5A
       initTables();  
       PIP_setup(&txBuffer, &link);
       //SNII_setup((uint8_t)sizeof(SNII_const_data), SNII_var_offset, &txBuffer, &link);
@@ -238,7 +253,7 @@ class OpenLCB {
       can->init();
       link.reset();
     }
-    bool loop(){
+    bool process() {   // was loop()
       bool rcvFramePresent = OpenLcb_can_get_frame(&rxBuffer);
       link.check();
       bool handled = false;  // start accumulating whether it was processed or skipped

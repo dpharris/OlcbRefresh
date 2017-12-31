@@ -49,7 +49,7 @@ MemStruct *pmem = 0;
 
 // ===== eventidOffset =====
 // Array of offsets of every eventID in MemStruct/EEPROM/mem, and P/C flags
-const PROGMEM EIDTab eventidOffset[] = {
+const EIDTab eventidOffset[] PROGMEM = {
       CEID(io.ceid),    // installs offset to a consumer-eventID with its flags
       PEID(io.peid),    // installs offset to a producer-eventID with its flags 
       PCEID(io.pceid)   // installs offset to an eventID that is both a producer and a consumer, with its flags
@@ -115,12 +115,12 @@ void configWritten(unsigned int address, unsigned int length) { }
 OpenLCB olcb( &nodeid, NUM_EVENT, eventidOffset, sizeof(MemStruct), can, pceCallback, configWritten);
 
 void setup() {
-    olcb.setup();  // setup system
-    // olcb.reset(); // uncomment to restore factory settings
+    olcb.init();      // Initiate system
+    // olcb.reset();  // Uncomment this line to restore factory settings
 }
 
 void loop() {
-    bool activity = olcb.loop();    // Process system
+    bool activity = olcb.process();    // Process system
     #ifdef USE_BG
         if (activity) blue.blink(0x1);  // blink blue when a frame was received
         if (olcb.can_active) { 
