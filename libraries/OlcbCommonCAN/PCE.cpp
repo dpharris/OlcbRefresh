@@ -21,22 +21,21 @@
 // Mark entry to send a learn message
 #define TEACH_FLAG 0x10
 
-//extern int *eventOffsets;
+extern "C" {
+    extern EventID getEID(unsigned i);
+    extern void writeEID(int index);
+}
 
-//PCE::PCE(Event* evts, int nEvt, Index* eIndex, OpenLcbCanBuffer* b, NodeID* node, void (*cb)(uint16_t i), void (*rest)(), LinkControl* li) {
-PCE::PCE(Nodal_t* nodal, OpenLcbCanBuffer* b, void (*cb)(uint16_t i), void (*rest)(), LinkControl* li) {
+PCE::PCE(Event* evts, int nEvt, uint16_t* eIndex, OpenLcbCanBuffer* b, void (*cb)(unsigned int i), void (*rest)(), LinkControl* li)
+{
       //events = evts;
-    events = nodal->events;
-      //eventsIndex = eIndex;
-    eventsIndex = nodal->eventsIndex;
-      //nEvents = nEvt;
-    nEvents = nodal->nevent;
-      buffer = b;
-      //nid = node;
-    nid = nodal->nid;
-      callback = cb;
-      restore = rest;
-      link = li;
+    events = evts;
+    eventsIndex = eIndex;
+    nEvents = nEvt;
+    buffer = b;
+    callback = cb;
+    restore = rest;
+    link = li;
        
       // mark as needing transmit of IDs, otherwise not interesting
       // ToDo: Is this needed if requiring newEvent?
@@ -56,8 +55,6 @@ PCE::PCE(Nodal_t* nodal, OpenLcbCanBuffer* b, void (*cb)(uint16_t i), void (*res
     sendEvent = sendEvent<i ? sendEvent : i;
   }
 
-  extern EventID getEID(unsigned i);
-  //void getEID(EventID *eid, uint16_t p);
   void PCE::check() {
      // see in any replies are waiting to send
      while (sendEvent < nEvents) {
@@ -75,8 +72,7 @@ PCE::PCE(Nodal_t* nodal, OpenLcbCanBuffer* b, void (*cb)(uint16_t i), void (*res
 
          if ( (events[sendEvent].flags & (IDENT_FLAG | Event::CAN_PRODUCE_FLAG)) == (IDENT_FLAG | Event::CAN_PRODUCE_FLAG)) {
            events[sendEvent].flags &= ~IDENT_FLAG;    // reset flag
-           //buffer->setProducerIdentified(&events[sendEvent]);
-             buffer->setProducerIdentified(&ev);
+           buffer->setProducerIdentified(&ev);
            OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued, but OK due to earlier check
            break; // only send one from this loop
          } else if ( (events[sendEvent].flags & (IDENT_FLAG | Event::CAN_CONSUME_FLAG)) == (IDENT_FLAG | Event::CAN_CONSUME_FLAG)) {
@@ -151,7 +147,6 @@ void PCE::sendTeach(EventID e) {   /// DPH added for Clock
                events[index].flags |= IDENT_FLAG;
                sendEvent = sendEvent < index ? sendEvent : index;
            }
-           index++;
            if (index>=nEvents) break;
         }
     } else if (rcv->isIdentifyProducers()) {
@@ -166,7 +161,6 @@ void PCE::sendTeach(EventID e) {   /// DPH added for Clock
                events[index].flags |= IDENT_FLAG;
                sendEvent = sendEvent < index ? sendEvent : index;
            }
-           index++;
            if (index>=nEvents) break;
         }
         // ToDo: add identify flags so that events that are both produced and consumed
@@ -195,19 +189,18 @@ void PCE::sendTeach(EventID e) {   /// DPH added for Clock
       rcv->getEventID(&eventid);
                 eventid.print();
       // find matching eventID
-      int ind = 0;
-      while ( -1 != (ind = eventid.findIndexInArray(eventsIndex, nEvents, ind))) {
-          uint16_t index = eventsIndex[ind].index;
+      int index = 0;
+      while ( -1 != (ind = eventid.findIndexInArray(eventsIndex, nEvents, index))) {
+          uint16_t eindex = eventsIndex[ind];
             //LDEBUG("\nhandlePCRep ind: "); LDEBUG(ind);
             //LDEBUG("\nhandlePCRep Index: "); LDEBUG(index);
             //LDEBUG("\nevents[index].flags: "); LDEBUG2(events[index].flags,HEX);
-          if (events[index].flags & Event::CAN_CONSUME_FLAG)
+          if (events[eindex].flags & Event::CAN_CONSUME_FLAG)
           {
           	//LDEBUG(F("Found Consumer: Index: ")); LDEBUG(index);
-           	(*callback)(index);
+           	(*callback)((unsigned int)eindex);
           }
-          ind++;
-          if(ind>=nEvents) break;
+          if(index>=nEvents) break;
       }
   }
   
@@ -228,7 +221,7 @@ void PCE::sendTeach(EventID e) {   /// DPH added for Clock
                 //LDEBUG("\ni:"); LDEBUG(i);
                 //LDEBUG("\neid.writeEID(i):");
                 //LDEBUG2(i,HEX);
-                eid.writeEID(i);
+                writeEID(i);
                 events[i].flags |= IDENT_FLAG; // notify new eventID
                 events[i].flags &= ~LEARN_FLAG; // enough learning
                 sendEvent = sendEvent < i ? sendEvent : i;
