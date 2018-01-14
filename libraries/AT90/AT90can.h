@@ -5,18 +5,16 @@
 
 //#pragma message("!!! compiling AT90can.h ")
 
-#if defined (__cplusplus)
-extern "C" {
-#endif
+//#if defined (__cplusplus)
+//extern "C" {
+//#endif
     
 // #include <avr/pgmspace.h>
 // #include <stdint.h>
 // #include <stdbool.h>
-#include "CanBus.h"
-    
 
+/*
 //#define	SUPPORT_TIMESTAMPS
-    
     typedef struct
     {
         uint32_t id;				//!< ID der Nachricht (11 oder 29 Bit)
@@ -29,7 +27,8 @@ extern "C" {
          #if SUPPORT_TIMESTAMPS
           uint16_t timestamp;
          #endif
-    } tCAN;
+    } AT90CAN;
+
 //#pragma message("!!! AT90can.h tCAN")
 
     typedef struct
@@ -52,7 +51,7 @@ extern "C" {
         eLOOPBACK_MODE,			//!< alle Nachrichten direkt auf die Empfangsregister umleiten ohne sie zu senden
         eNORMAL_MODE				//!< normaler Modus, CAN Controller ist aktiv
     } tCANMode;
-    
+ 
 
     //extern bool can_init(uint8_t bitrate);
     extern bool can_init();
@@ -75,5 +74,26 @@ extern "C" {
 #if defined (__cplusplus)
 }
 #endif
+*/
+
+#ifndef CAN_H
+#define CAN_H
+
+
+#include "OlcbCanClass.h"
+#include "CanBus.h"
+
+class Can : public OlcbCanClass {
+public:
+     Can();
+     ~Can();
+     void init();
+     uint8_t avail();
+     uint8_t read();
+     uint8_t txReady();
+     uint8_t write();
+};
 
 #endif // CAN_H
+
+#endif // AT90CAN_H

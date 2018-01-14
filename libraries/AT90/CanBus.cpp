@@ -154,7 +154,8 @@ void copy_message_to_mob(const can_t *msg) {
 }
 
 // ----------------------------------------------------------------------------
-uint8_t send_message(const can_t *msg)
+//uint8_t send_message(const can_t *msg)
+uint8_t canbus_send_message( const can_t *msg)
 {
 	// check if there is any free MOb
 	uint8_t mob = _find_free_mob();
@@ -555,8 +556,8 @@ uint8_t CanBus::send_buffered_message(const can_t *msg) {
 		LEAVE_CRITICAL_SECTION;
   #endif
 		if (enqueued) return 1;
-        else return send_message( msg ); // buffer gets free while we where preparing the message, so send message directly
-	} else return send_message( msg );
+        else return canbus_send_message( msg ); // buffer gets free while we where preparing the message, so send message directly
+    } else return canbus_send_message( msg );
 }
 
 // ----------------------------------------------------------------------------

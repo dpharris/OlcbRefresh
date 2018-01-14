@@ -222,13 +222,13 @@ extern void initTables(){        // initialize tables
 }
 
 //OpenLCB olcb( &nodeid, NUM_EVENT, eventOffset, sizeof(MemStruct), 0, &link, dg, str, cfg, bg, &txBuffer, &rxBuffer, pceCallback, configWritten);
-OpenLCB olcb( &nodeid, NUM_EVENT, eidtab, sizeof(MemStruct), &can, &link, &dg, &str, &cfg, &bg, &txBuffer, &rxBuffer, pceCallback, configWritten);
+//OpenLCB olcb( &nodeid, NUM_EVENT, eidtab, sizeof(MemStruct), &can, &link, &dg, &str, &cfg, &bg, &txBuffer, &rxBuffer, pceCallback, configWritten);
 
 
-// ===== System Interface
-void OpenLCB::init() {       // was setup()
+// ===== System Interface  
+void Olcb_init() {       // was setup()
             Serial.print("\nIn olcb::init");
-    nm.setup(nid, event, nevent, (uint8_t*) 0, (uint16_t)0, (uint16_t)LAST_EEPROM);
+    nm.setup(&nodeid, event, NUM_EVENT, (uint16_t)sizeof(MemStruct));
             Serial.print("\nIn olcb::init1");
     
     initTables();
@@ -236,50 +236,50 @@ void OpenLCB::init() {       // was setup()
     printEvents();
             Serial.print("\nIn olcb::init2");
 
-    PIP_setup(txBuffer, link);
+    PIP_setup(&txBuffer, &link);
     //SNII_setup((uint8_t)sizeof(SNII_const_data), SNII_var_offset, &txBuffer, &link);
             Serial.print("\nIn olcb::init3");
-    SNII_setup((uint8_t)32, SNII_var_offset, txBuffer, link);
+    SNII_setup((uint8_t)32, SNII_var_offset, &txBuffer, &link);
             Serial.print("\nIn olcb::init4");
-    can->init();
+    can.init();
             Serial.print("\nIn olcb::init5");
-    link->reset();
+    link.reset();
             Serial.print("\nIn olcb::init6");
 }
-bool OpenLCB::process() {   // was loop()
-    bool rcvFramePresent = OpenLcb_can_get_frame(rxBuffer);
-    link->check();
+bool Olcb_process() {   // was loop()
+    bool rcvFramePresent = OpenLcb_can_get_frame(&rxBuffer);
+    link.check();
     bool handled = false;  // start accumulating whether it was processed or skipped
     if (rcvFramePresent) {
-        handled = link->receivedFrame(rxBuffer);
+        handled = link.receivedFrame(&rxBuffer);
     }
-    if (link->linkInitialized()) {
-        if (rcvFramePresent && rxBuffer->isForHere(link->getAlias()) ) {
+    if (link.linkInitialized()) {
+        if (rcvFramePresent && rxBuffer.isForHere(link.getAlias()) ) {
 #ifndef OLCB_NO_DATAGRAM
-            handled |= dg->receivedFrame(rxBuffer);  // has to process frame level
+            handled |= dg.receivedFrame(&rxBuffer);  // has to process frame level
 #endif
-            if(rxBuffer->isFrameTypeOpenLcb()) {  // skip if not OpenLCB message (already for here)
-                handled |= pce.receivedFrame(rxBuffer);
+            if(rxBuffer.isFrameTypeOpenLcb()) {  // skip if not OpenLCB message (already for here)
+                handled |= pce.receivedFrame(&rxBuffer);
 #ifndef OLCB_NO_STREAM
-                handled |= str->receivedFrame(rxBuffer); // suppress stream for space
+                handled |= str.receivedFrame(&rxBuffer); // suppress stream for space
 #endif
-                handled |= PIP_receivedFrame(rxBuffer);
-                handled |= SNII_receivedFrame(rxBuffer);
-                if (!handled && rxBuffer->isAddressedMessage()) link->rejectMessage(rxBuffer, 0x2000);
+                handled |= PIP_receivedFrame(&rxBuffer);
+                handled |= SNII_receivedFrame(&rxBuffer);
+                if (!handled && rxBuffer.isAddressedMessage()) link.rejectMessage(&rxBuffer, 0x2000);
             }
         }
         pce.check();
 #ifndef OLCB_NO_DATAGRAM
-        dg->check();
+        dg.check();
 #endif
 #ifndef OLCB_NO_STREAM
-        str->check();
+        str.check();
 #endif
 #ifndef OLCB_NO_MEMCONFIG
-        cfg->check();
+        cfg.check();
 #endif
 #ifndef OLCB_NO_BLUE_GOLD
-        bg->check();
+        bg.check();
 #endif
         PIP_check();
         SNII_check();

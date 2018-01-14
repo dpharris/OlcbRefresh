@@ -40,7 +40,7 @@ extern void printEvents();
 extern void initTables();
 extern void userInitEventIDOffsets();
 
-void NodeMemory::setup(NodeID* nid, Event* _cE, uint8_t _nC, uint8_t* data, uint16_t extraBytes, uint16_t clearBytes) {
+void NodeMemory::setup(NodeID* nid, Event* _cE, uint8_t _nC, uint16_t eeprom_size) {
     //LDEBUG("\nIn NodeMemory::setup");
     Event* cE  = _cE;
     uint16_t nC = nodal->_nC;

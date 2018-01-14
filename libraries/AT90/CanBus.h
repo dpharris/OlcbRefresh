@@ -199,6 +199,7 @@ static can_buffer_t can_tx_buffer;
 static can_t can_tx_list[CAN_TX_BUFFER_SIZE];
 
 static volatile uint8_t _transmission_in_progress = 0;
+
 // -------------------------------------------------------------------------
 // private buffer functions
 

@@ -3,10 +3,12 @@
 
 #include "Arduino.h"
 
+#include "OlcbCanClass.h"
 #include "AT90can.h"
+#include "CanBus.h"
 
 //tCAN CAN;              // Olcb buffer
-CanBus at90can;       // CanBus buffer
+CanBus canbus;       // CanBus buffer
 
 #define	BITRATE_10_KBPS	0	// ungetestet
 #define	BITRATE_20_KBPS	1	// ungetestet
@@ -28,13 +30,14 @@ CanBus at90can;       // CanBus buffer
  *			true ansonsten.
  */
 //bool can_init(uint8_t bitrate) {
-bool can_init() {
+/*
+ bool can_init() {
     //CAN_DEBUG("\nIn AT90 can_init");
     //at90can.init(BITRATE_125_KBPS);
-    at90can.init();
+    CanBus.init();
     return true;
 }
-
+*/
 // ----------------------------------------------------------------------------
 /**
  * \ingroup	can_interface
@@ -47,7 +50,7 @@ bool can_init() {
  *
  * \return	false falls ein Fehler auftrat, true ansonsten
  */
-extern bool can_set_filter(uint8_t number, const tCANFilter *filter);
+//extern bool can_set_filter(uint8_t number, const tCANFilter *filter);
 
 // ----------------------------------------------------------------------------
 /**
@@ -60,7 +63,7 @@ extern bool can_set_filter(uint8_t number, const tCANFilter *filter);
  *
  * \warning Wird nur vom AT90CAN32/64/128 unterstuetzt.
  */
-extern bool can_disable_filter(uint8_t number);
+//extern bool can_disable_filter(uint8_t number);
 
 // ----------------------------------------------------------------------------
 /**
@@ -74,7 +77,7 @@ extern bool can_disable_filter(uint8_t number);
  * \see		MCP2515_FILTER()
  * \warning	Wird nur vom MCP2515 unterstuetzt.
  */
-extern void can_static_filter(const uint8_t *filter_array);
+//extern void can_static_filter(const uint8_t *filter_array);
 
 // ----------------------------------------------------------------------------
 /**
@@ -102,7 +105,7 @@ extern void can_static_filter(const uint8_t *filter_array);
  *			of the corresponding registers because it is not possible to
  *			check the type of the filter.
  */
-extern uint8_t can_get_filter(uint8_t number, tCANFilter *filter);
+//extern uint8_t can_get_filter(uint8_t number, tCANFilter *filter);
 
 // ----------------------------------------------------------------------------
 /**
@@ -111,13 +114,13 @@ extern uint8_t can_get_filter(uint8_t number, tCANFilter *filter);
  *
  * \return	true falls neue Nachrichten verfuegbar sind, false ansonsten.
  */
-bool can_check_message(void) {
+//bool can_check_message(void) {
     //CAN_DEBUG("\nIn AT90 can_check_message:");
     //bool r = at90can.check_message();
     //CAN_DEBUG(r);
     //return r;
-    return at90can.check_message();
-}
+//    return at90can.check_message();
+//}
 
 // ----------------------------------------------------------------------------
 /**
@@ -126,16 +129,16 @@ bool can_check_message(void) {
  *
  * \return	true falls ein Sende-Puffer frei ist, false ansonsten.
  */
-bool can_check_free_buffer(void) {
+//bool can_check_free_buffer(void) {
     //CAN_DEBUG("\nIn AT90CAN can_check_free_buffer:");
-    bool r = at90can.check_free_buffer();
+//    bool r = at90can.check_free_buffer();
     //CAN_DEBUG(r);
-    return r;
+//    return r;
     //return at90can.check_free_buffer();
     //return tivaCAN.tx_idle();
-}
+//}
 
-extern uint8_t can_buffers_status(void);
+//extern uint8_t can_buffers_status(void);
 // ----------------------------------------------------------------------------
 /**
  * \ingroup	can_interface
@@ -146,16 +149,16 @@ extern uint8_t can_buffers_status(void);
  *			ansonsten der Code des Puffes in den die Nachricht gespeichert wurde
  *           Returns buffer number or 0
  */
-uint8_t can_send_message(const tCAN *msg) {
-            CAN_DEBUG("\nIn AT90 can_send_message");
-            CAN_DEBUG(" [");CAN_DEBUG2(msg->id,HEX);
-            CAN_DEBUG("](");CAN_DEBUG(msg->length);
-            CAN_DEBUG(")[");
-            for(unsigned i=0;i<msg->length;i++) {
-                    CAN_DEBUG2(msg->data[i],HEX); CAN_DEBUG(".");
-            }
-            CAN_DEBUG("]");
-    return at90can.send_buffered_message((can_t*) msg);
+//uint8_t can_send_message(const tCAN *msg) {
+//            CAN_DEBUG("\nIn AT90 can_send_message");
+//            CAN_DEBUG(" [");CAN_DEBUG2(msg->id,HEX);
+//            CAN_DEBUG("](");CAN_DEBUG(msg->length);
+//            CAN_DEBUG(")[");
+//            for(unsigned i=0;i<msg->length;i++) {
+ //                   CAN_DEBUG2(msg->data[i],HEX); CAN_DEBUG(".");
+//            }
+//            CAN_DEBUG("]");
+//    return at90can.send_buffered_message((can_t*) msg);
     /*
     CAN_message_t m;
     m.id = msg->id;
@@ -169,7 +172,7 @@ uint8_t can_send_message(const tCAN *msg) {
     return tivaCAN.write(&m,1);
     //return tivaCAN.write(&m);
      */
-}
+//}
 
 // ----------------------------------------------------------------------------
 /**
@@ -181,10 +184,11 @@ uint8_t can_send_message(const tCAN *msg) {
  *			ansonsten Filtercode welcher die Nachricht akzeptiert hat.
  *           Returns filter code or 0
  */
-uint8_t can_get_message(tCAN *msg) {
+//*
+uint8_t can_get_message(OlcbCanClass *msg) {
     //CAN_DEBUG("\nIn AT90 can_get_message");
     ////// if(at90can.check_message) return 0;
-    return at90can.get_buffered_message((can_t*)msg);
+    return canbus.get_buffered_message((can_t*)msg);
     /*
     CAN_message_t m;
     if(!tivaCAN.available()) return 0;
@@ -210,7 +214,7 @@ uint8_t can_get_message(tCAN *msg) {
  * \~english
  * \brief	Reads the Contents of the CAN Error Counter
  */
-extern tCANErrorRegister can_read_error_register(void);
+//extern tCANErrorRegister can_read_error_register(void);
 
 // ----------------------------------------------------------------------------
 /**
@@ -223,7 +227,7 @@ extern tCANErrorRegister can_read_error_register(void);
  *
  * \warning aktuell nur auf dem SJA1000
  */
-extern bool can_check_bus_off(void);
+//extern bool can_check_bus_off(void);
 
 // ----------------------------------------------------------------------------
 /**
@@ -235,7 +239,7 @@ extern bool can_check_bus_off(void);
  *
  * \warning	aktuell nur auf dem SJA1000
  */
-extern void can_reset_bus_off(void);
+//extern void can_reset_bus_off(void);
 
 // ----------------------------------------------------------------------------
 /**
@@ -244,10 +248,46 @@ extern void can_reset_bus_off(void);
  *
  * \param	mode	Gewünschter Modus des CAN Controllers
  */
-extern void can_set_mode(tCANMode mode);
+//extern void can_set_mode(tCANMode mode);
 
-extern void can_regdump(void);
+//extern void can_regdump(void);
 
 //#if defined (__cplusplus)
 //}
 //#endif
+
+//OlcbCanClass::OlcbCanClass(){}
+
+Can::Can() {}
+Can::~Can() {}
+
+//OlcbCanClass(){}
+//~OlcbCanClass(){}
+
+//OlcbCanClass::OlcbCanClass(){}
+//OlcbCanClass::~OlcbCanClass(){}
+
+//OlcbCanClass::Can(){}
+//OlcbCanClass::~Can(){}
+
+void Can::init()  {
+            Serial.print("\nIn Can::init()");
+    canbus.init();
+    return true;
+}
+uint8_t Can::avail()  {
+    return canbus.check_message();
+}
+uint8_t Can::read()  {
+    //can_t m;
+    //memcpy(&m, this, 13);
+    return canbus.get_buffered_message((can_t*)this);
+}
+uint8_t Can::txReady()  {
+    return canbus.check_free_buffer();
+}
+uint8_t Can::write()  {
+            Serial.print("\nIn Can::write(): ");
+            Serial.print(this->id);
+    return canbus.send_buffered_message((can_t*)this);
+}

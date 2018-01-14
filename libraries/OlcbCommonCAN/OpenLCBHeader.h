@@ -10,7 +10,6 @@
 #define OpenLCBHeader_h
 
 #include "NodeID.h"
-#include "OpenLCBInclude.h"
 
 typedef struct NodeVar_ {
     uint32_t magic;         // used to check eeprom status
@@ -62,6 +61,8 @@ typedef struct {
 #include "BG.h"
 #include "ButtonLed.h"
 #include "Event.h"
+
+#include "OlcbCanCLass.h"
 
 // ===== CDI System Portions =======================================
 #define CDIheader R"( \
@@ -130,7 +131,7 @@ extern "C" {
 
 #define OlcbCommonVersion "0.0.1"
 
-#define Can OlcbCanClass
+//#define Can OlcbCanClass
 
 extern void pceCallback(unsigned int i);
 extern void restore();
@@ -194,125 +195,7 @@ void printSortedEvents() {
     }
 }
 
-class OpenLCB {
-public:
-    NodeID* nid;
-    uint32_t magic;
-    uint16_t nextEID = 0;
-    uint16_t nevent;
-    uint16_t sMemStruct;
-    bool can_active;
-    
-    LinkControl* link;
-    Datagram* dg;
-    OlcbStream* str;
-    Configuration* cfg;
-    BG* bg;
-    Can* can;
 
-    OpenLcbCanBuffer* txBuffer;
-    OpenLcbCanBuffer* rxBuffer;
-    
-    EIDTab eidtab[];
-    void (*pceCb)(unsigned int index);
-    void (*configW)(unsigned int adress, unsigned int length);
-    
-    OpenLCB( NodeID* _nodeid, uint16_t _nevent, const EIDTab* eventidOffset, uint16_t _sMemStruct,
-            Can* _can, LinkControl* _link, Datagram* _dg, OlcbStream* _str, Configuration* _cfg, BG* _bg,
-            OpenLcbCanBuffer* _txBuffer, OpenLcbCanBuffer* _rxBuffer,
-            void (*_pceCb)(unsigned int i),
-            void (*_configW)(unsigned int a, unsigned int l) ) {
-        nid = _nodeid;
-        nevent = _nevent;
-        //eventidOffset = _eventidOffset;
-        sMemStruct = _sMemStruct;   // size of MemStruct
-        can = _can;
-        link = _link;
-        dg = _dg;
-        str = _str;
-        cfg = _cfg;
-        bg = _bg;
-        txBuffer = _txBuffer;
-        rxBuffer = _rxBuffer;
-        pceCb = _pceCb;
-        configW = _configW;
-    }
-    /*
-    void newSetEventIDs(uint16_t nextEID) {
-        Serial.print("\nIn olcb::newSetEventIDs, nextEID="); Serial.print(nextEID);
-        Serial.print(" nevent="); Serial.print(nevent);
-        for(unsigned int e=0;e<nevent;e++) {
-            Serial.print("\n eidtab[e].offset="); Serial.print(eidtab[e].offset);
-            EEPROM.put(eidtab[e].offset, *nid);
-            EEPROM.write(eidtab[e].offset+1, nextEID>>8);
-            EEPROM.write(eidtab[e].offset+2, nextEID);
-            EventID ev;
-            Serial.print("\n["); ev.print();
-            //EEPROM.put(NV(nid), nid);
-            //EEPROM.write(NV(nextEID),  nextEID>>8);
-            //EEPROM.write(NV(nextEID)+1,nextEID);
-            nextEID++;
-        }
-    }
-    // ===== Reset Routines ======================
-    const uint8_t magicOK[4] = { 0xEE, 0x55, 0x5E, 0xE5 };
-    const uint8_t magicNAK[4] = { 0xF5, 0x5A, 0xA5, 0x5A };
-    void reset(uint16_t nextEID){           // reset system variables and write EIDs
-        Serial.print("\nIn olcb::reset, nextEID=");
-        Serial.print(nextEID);
-        EEPROM.put(0,magicOK);
-        EEPROM.put((nid),*nid);
-        newSetEventIDs(nextEID);
-        EEPROM.write(NV(nextEID),nextEID>>8);
-        EEPROM.write(NV(nextEID)+1,nextEID);
-    }
-    void factoryReset(){     // reset to factory
-        Serial.print("\nIn olcb::factoryReset");
-        for(unsigned int i=0;i<sMemStruct;i++) EEPROM.write(i,0);  // clear EEPROM
-        reset(0);
-    }
-    
-    void forceInitAll() {
-        EEPROM.update(0,0xFF);
-        EEPROM.update(1,0xFF);
-    }
-    void forceInitEIDs() {
-        //LDEBUG("\nforceInitEvents");
-        EEPROM.update(2,0x33);
-        EEPROM.update(3,0xCC);
-    }
-
-    bool checkAllOK() {
-        //LDEBUG("\ncheckAllOK");
-        if (EEPROM.read(startAddress  ) != 0xEE ) return false;
-        if (EEPROM.read(startAddress+1) != 0x55 ) return false;
-        if (EEPROM.read(startAddress+2) != 0x5E ) return false;
-        if (EEPROM.read(startAddress+3) != 0xE5 ) return false;
-        return true;
-    }
-    bool checkNidOK() {
-        //LDEBUG("\ncheckNIDOK");
-        if (EEPROM.read(startAddress  ) != 0xEE ) return false;
-        if (EEPROM.read(startAddress+1) != 0x55 ) return false;
-        if (EEPROM.read(startAddress+2) != 0x33 ) return false;
-        if (EEPROM.read(startAddress+3) != 0xCC ) return false;
-        return true;
-    }
-     
-    static int findCompare(const void* a, const void* b){
-        uint16_t ia = (uint16_t) a;
-        uint16_t ib = (uint16_t) b;
-        //for(int i=0; i<8; i++) {
-        //  if(eventid[ia].val[i]>eventid[ib].val[i]) return 1;
-        //  if(eventid[ia].val[i]<eventid[ib].val[i]) return -1;
-        //}
-        return 0; // they are equal
-    }*/
-    
-    void init();
-    bool process();
-    
-};
 
 
 

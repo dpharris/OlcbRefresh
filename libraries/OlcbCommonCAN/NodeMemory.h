@@ -58,7 +58,7 @@ class NodeMemory {
   //void setup(NodeID* nid, Event* events, uint8_t numEvents, uint8_t* data,
   //          uint16_t extraBytes, uint16_t clearBytes);
 //  void setup(NodeID* nid, Event* cE, const uint16_t* eventidOffset, uint8_t nC, uint8_t* data, uint16_t extraBytes, uint16_t clearBytes);
-  void setup(NodeID* nid, Event* cE, uint8_t nC, uint8_t* data, uint16_t extraBytes, uint16_t clearBytes);
+  void setup(NodeID* nid, Event* cE, uint8_t nC, uint16_t eeprom_size);
   //void setupInMem(uint8_t *m, int n, Event *events, int num_event);
   //void setupInEeprom(uint8_t *m, int n, Event *events, int num_event);
     

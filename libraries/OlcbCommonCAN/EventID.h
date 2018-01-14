@@ -23,7 +23,7 @@ class EventID {
     
     //void writeEID(int index);
     
-    int findIndexInArray(Index* events, int len, int start);
+    int findIndexInArray(uint16_t* events, int len, int start);
     
 };
 

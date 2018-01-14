@@ -32,6 +32,8 @@
 #include "OpenLcbCanInterface.h"
 #include "processor.h"
 class OpenLcbCanBuffer;
+
+class Can;  ////
 /**
  * General interface
  *
@@ -40,7 +42,8 @@ class OpenLcbCanBuffer;
  */
 
 // Buffer structures
-class CanInterfaceBuffer : public tCAN {};
+//class CanInterfaceBuffer : public tCAN {};
+class CanInterfaceBuffer : public Can {};
 
 // Initialize CAN system
 void OpenLcb_can_init();

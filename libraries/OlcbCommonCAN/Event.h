@@ -16,7 +16,7 @@ class Event {
   static int evCompare(void* a, void* b);
 
   // Runtime action flags
-  //uint16_t flags;
+  uint16_t flags;
   
   // Mark entry as consumer
   static const int CAN_CONSUME_FLAG = 0x20;
