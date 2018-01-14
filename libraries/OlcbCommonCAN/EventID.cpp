@@ -35,101 +35,93 @@ EventID::EventID(uint8_t b0, uint8_t b1, uint8_t b2, uint8_t b3, uint8_t b4, uin
     val[7] = b7;
 }
 
-//static int EventID::evCompare(void* a, void* b);
-
-uint16_t EventID::hash() {
-    //uint16_t r = ((uint16_t)val[6])<<6;
-    //r += val[7];
-    //return r;
-    Index i;
-    return i.hashcalc(this,8);
+extern "C" {
+    extern EventID getEID(unsigned int i);
+    extern uint16_t getOffset(uint16_t index);
 }
 
 bool EventID::equals(EventID* n) {
+    //Serial.print("\nequals("); this->print();
+    //n->print(); Serial.print(")");
     return  (val[0]==n->val[0])&&(val[1]==n->val[1])
-    &&(val[2]==n->val[2])&&(val[3]==n->val[3])
-    &&(val[4]==n->val[4])&&(val[5]==n->val[5])
-    &&(val[6]==n->val[6])&&(val[7]==n->val[7]);
+         &&(val[2]==n->val[2])&&(val[3]==n->val[3])
+         &&(val[4]==n->val[4])&&(val[5]==n->val[5])
+         &&(val[6]==n->val[6])&&(val[7]==n->val[7]);
 }
 
 void EventID::print() {
     LDEBUG(" ");
     LDEBUG2(val[0],HEX);
+    Serial.print(" ");
+    Serial.print(val[0],HEX);
     for (int i=1;i<8;i++) {
         LDEBUG(",");
         LDEBUG2(val[i],HEX);
+        Serial.print(",");
+        Serial.print(val[i],HEX);
     }
 }
 
-/**
- * Check to see if this object is equal
- * to any in an array of EventIDs
- */
-/*
- int EventID::findIndexInArray(EventID* array, int len, int start) {
- for (int i = 0; i<len; i++) {
- if (equals(array+i)) return i;
- }
- return -1;
- }
- */
-//EventID EventID::getEID(uint16_t i){
-//    EventID r(1,2,3,4,5,6,7,8);
-//    return r;
-//}
+static int findCompare(const void* a, const void* b){
+    //  EventID* a, uint16_t* b
+    EventID* searchEID = (EventID*)a;
+    uint16_t ib = *(uint16_t*)b;
+    EventID eid = getEID(ib);
+    Serial.print("\nIn findCompare!! ia=");
+    Serial.print("\nia->"); searchEID->print();
+    Serial.print("\nib->"); eid.print();
+    for(int i=0; i<8; i++) {
+        //if(searchEID->val[i]>getEID(ib).val[i]) return 1;
+        //if(searchEID->val[i]<getEID(ib).val[i]) return -1;
+        if(searchEID->val[i]>eid.val[i]) return 1;
+        if(searchEID->val[i]<eid.val[i]) return -1;
+    }
+    return 0; // they are equal
+}
 
-int EventID::findIndexInArray(Index* eventsIndex, int len, int start) {
-            //LDEBUG(F("\nIn EventID::findIndexInArray"));
-            //LDEBUG(F("\nstart:")); LDEBUG(start);
-            //LDEBUG(F("\nthis:")); this->print();
-    Index hh;
-    hh.hash = this->hash();
-            //LDEBUG(F("\nhash:")); LDEBUG2(hh.hash,HEX);
-    Index* ei = &eventsIndex[start];
-            //LDEBUG(F("\nei->index=")); LDEBUG(ei->index);
-            //LDEBUG(F(", hash=")); LDEBUG(ei->hash);
+int EventID::findIndexInArray(uint16_t* eventIndex, int len, int start) {
+    //LDEBUG(F("\nIn EventID::findIndexInArray"));
+    //LDEBUG(F("\nstart:")); LDEBUG(start);
+    //LDEBUG(F("\nthis:")); this->print();
+    EventID eid;
+    if(start<0 || start>=len) return -1;
+    uint16_t* ei = &eventIndex[start];
+    //LDEBUG(F("\nei->index=")); LDEBUG(*ei);
+    //Serial.print("\n ei="); Serial.print((ei-&eventIndex[0]));
     if (start==0) {
-        ei = (Index*)bsearch( (const void*)&hh.hash, (const void*)eventsIndex, len, sizeof(Index), Index::findCompare);
+        ei = (uint16_t*)bsearch( (const void*)this, (const void*)eventIndex, len, sizeof(uint16_t), findCompare);
         if(!ei){
-        	//LDEBUG("\nNot Found");
-        	return -1;
+            //LDEBUG("\nNot Found");
+            //Serial.print("\nNot found1");
+            return -1;
         }
-            //LDEBUG(F("\nSearch result:")); ei->print();
-        while((ei-1)>=eventsIndex && (ei-1)->hash==hh.hash) {ei--;}
-            //LDEBUG(F("\nbackup:")); ei->print();
-    }
-    if(ei>=(eventsIndex+len))
-    	return -1;
-    	ei->print();
-    if(hh.hash!=ei->hash)
-    	return -1;
-
-    EventID eid = blog(ei->index);
-            //LDEBUG(F("\nfound:")); eid.print();
-
-    if( 0 == memcmp(this,&eid,8) )
-    {
-    		// Now figure out the index into the eventsIndex array that is pointed to by ei
-	    int foundIndex = ei - eventsIndex;
-    		//LDEBUG("\nMatching Index: "); LDEBUG(foundIndex);
-		return foundIndex;
-    }
-    return -1;
+        //LDEBUG(F("\nSearch result:")); eventid[*ei]->print();
+        Serial.print("\none:"); Serial.print(*ei);
+        while((ei-1)>=eventIndex ) {
+            eid = getEID(*(ei-1));
+            //Serial.print("\nbacking:");Serial.print(((ei-1)-&eventIndex[0]));
+            //Serial.print(":");Serial.print(*(ei-1));
+            //Serial.print(":");eid.print();
+            if ( !this->equals(&eid) ) break;
+            ei--;
+        }
+        //LDEBUG(F("\nbackup:")); LDEBUG(*ei));
+        //Serial.print("\nbacked:");Serial.print((ei-&eventIndex[0]));
+        //Serial.print(":");Serial.print(*ei);
+        //Serial.print(":");eid.print();
+    } else ei++;
+    //Serial.print("\nthis:"); this->print();
+    if(ei>=(eventIndex+len)) return -1;
+    eid = getEID(*ei);
+    if (!this->equals(&eid) ) return -1;
+    //LDEBUG(F("\nFound: ")); LDEBUG(*ei)); //eventid[*ei]->print();
+    //Serial.print("\nfound:");Serial.print((ei-&eventIndex[0]));
+    //Serial.print(":");Serial.print(*ei);
+    //Serial.print(":");eid.print();
+    return ei-&eventIndex[0];  // return the eventIndex indice.
 }
 
 
-/*
- int findIndexInArray(uint8_t* array, int len, int start);
- 
- uint8_t EventID::getEID( EventID* ev, Event* events);
- int findIndexInArray(Event* events, int len, int start) {
- for (int i = start; i<len; i++) {
- EventID ev;
- getEID( &ev, events[i].ea);
- if (equals(&ev)) return i;
- }
- return -1;
- }
- */
+
 
 

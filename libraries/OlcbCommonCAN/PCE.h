@@ -13,23 +13,29 @@
 
 #include "EventID.h"
 #include "Event.h"
-#include "Index.h"
-#include "Nodal.h"
+
+typedef uint16_t Index;
 
 class NodeID;
 class OpenLcbCanBuffer;
 class LinkControl;
 class Event;
-class Index;
+//class Index;
 
 
 class PCE {
   public:
 
-  //PCE(Event* events, int nEvents, OpenLcbCanBuffer* b, NodeID* nid, void (*callback)(int i), void (*store)(), LinkControl* link);
-  //PCE(Event* events, int nEvents, Index* eInd, OpenLcbCanBuffer* b, NodeID* nid, void (*callback)(uint16_t i), void (*restore)(), LinkControl* link);
-  PCE(Nodal_t* nodal, OpenLcbCanBuffer* b, void (*cb)(uint16_t i), void (*rest)(), LinkControl* li);
-  
+  // Instansiate
+    PCE(Event* evts,                // events
+        int nEvt,                   // number of events
+        uint16_t* eIndex,           // sorted index into events/eventids
+        OpenLcbCanBuffer* b,        // buffer
+        void (*cb)(unsigned int i),  // callback for Consumers received
+        void (*rest)(),             // restore()
+        LinkControl* li             // Link control
+        );
+    
   /**
    * Produce the ith event
    * 

@@ -8,9 +8,14 @@
 
 #include "lib_debug_print_common.h"
 
+extern "C" {
+    extern uint16_t getOffset(uint16_t index);
+    //extern void EventID::writeEID(int index);
+    extern void writeEID(int index);
+}
 
 #define KEYSIZE 4
-#define COUNTSIZE 2
+#define NEXTEIDSIZE 2
 
 // ToDo: NodeID* not kept in object member to save RAM space, may be false economy
 
@@ -34,29 +39,26 @@ void NodeMemory::forceInitEvents() {
 extern void printEvents();
 extern void initTables();
 extern void userInitEventIDOffsets();
-//void NodeMemory::setup(NodeID* nid, Event* cE, uint8_t nC, uint8_t* data, uint16_t extraBytes, uint16_t clearBytes) {
-//void NodeMemory::setup(NodeID* nid, Event* cE, const uint16_t* eventidOffset, uint8_t nC, uint8_t* data, uint16_t extraBytes, uint16_t clearBytes) {
-void NodeMemory::setup(Nodal_t* nodal, uint8_t* data, uint16_t extraBytes, uint16_t clearBytes) {
+
+void NodeMemory::setup(NodeID* nid, Event* _cE, uint8_t _nC, uint8_t* data, uint16_t extraBytes, uint16_t clearBytes) {
     //LDEBUG("\nIn NodeMemory::setup");
-    NodeID* nid = nodal->nid;
-    Event* cE  = nodal->events;
-    const uint16_t* eventidOffset = nodal->eventidOffset;
-    uint16_t nC = nodal->nevent;
-    //userInitEventIDOffsets();
+    Event* cE  = _cE;
+    uint16_t nC = nodal->_nC;
+
     //LDEBUG("\nnC(nevents)=");LDEBUG(nC);
     //for(int i=0;i<nC;i++) {
     //    LDEBUG("\n");LDEBUG(i);
     //    LDEBUG(":");LDEBUG2(eventidOffset[i],HEX);
     //}
-    
+                            //Serial.print("\nIn NodeMemory::setup");
+
     if (checkNidOK()) {
-        //LDEBUG("\ncheckNidOK'd");
-        
         // leave NodeID and count, reset rest
-        
+        //LDEBUG("\ncheckNidOK'd");
+
         // read NodeID from non-volative memory
         uint8_t* p;
-        int addr = startAddress+KEYSIZE+COUNTSIZE; // skip check word and count
+        int addr = startAddress+KEYSIZE+NEXTEIDSIZE; // skip check word and count
         p = (uint8_t*)nid;
         for (unsigned int i=0; i<sizeof(NodeID); i++) 
            *p++ = EEPROM.read(addr++);
@@ -67,56 +69,35 @@ void NodeMemory::setup(Nodal_t* nodal, uint8_t* data, uint16_t extraBytes, uint1
         count = (part1<<8)+part2;
 
         // handle the rest
-        reset(nid, cE, eventidOffset, nC, clearBytes);
+        reset(nid, cE, nC);
 
     } else if (!checkAllOK()) {
         //LDEBUG("\n!checkAllOK");
         // fires a factory reset
         count = 0;
         // handle the rest
-        reset(nid, cE, eventidOffset, nC, clearBytes);
+        reset(nid, cE, nC);
     }
     
     // read NodeID from non-volative memory
     uint8_t* p;
-    int addr = startAddress+KEYSIZE+COUNTSIZE; // skip check word and count
+    int addr = startAddress+KEYSIZE+NEXTEIDSIZE; // skip check word and count
     p = (uint8_t*)nid;
     for (uint8_t i=0; i<sizeof(NodeID); i++) 
         *p++ = EEPROM.read(addr++);
-
-    /*
-    // read events
-    p = (uint8_t*)cE;
-    for (uint8_t k=0; k<nC; k++)
-        for (unsigned int i=0; i<sizeof(Event); i++) 
-            *p++ = EEPROM.read(addr++);
-    */
-    
-    initTables();
-    
-    // read extra data & load into RAM
-    p = data;
-    addr = KEYSIZE+COUNTSIZE+sizeof(NodeID)+nC*(sizeof(Event));
-    for (uint8_t k=0; k<extraBytes; k++)
-        *p++ = EEPROM.read(addr++);
+ 
     //LDEBUG("\nOut NodeMemory::setup");
 }
 
-//void NodeMemory::reset(NodeID* nid, Event* cE, uint8_t nC, uint16_t clearBytes) {
-void NodeMemory::reset(NodeID* nid, Event* cE, const uint16_t* eventidOffset, uint8_t nC, uint16_t clearBytes) {
+void NodeMemory::reset(NodeID* nid, Event* cE, uint8_t nC) {
     //LDEBUG("\nNodeMemory::reset1");
-    // Do the in-memory update. Does not reset
-    // the total count to zero, this is not an "initial config" for factory use.
-
-    // clear EEPROM
-    //for (uint16_t i = 4; i<clearBytes; i++) EEPROM.update(i, 0);
-    //store(nid, cE, nC, eOff);
-    store(nid, cE, eventidOffset, nC);
-    //LDEBUG("\nnC="); LDEBUG(nC);
-    //while(0==0){}
-    for (int e=0; e<nC; e++)
-      //setToNewEventID(nid, cE[e].offset);
-      setToNewEventID(nid, eventidOffset[e]);
+    for (uint16_t e=0; e<nC; e++) {
+        //setToNewEventID(nid, getOffset(e));
+        //uint16_t off = eidtab[e].offset;
+        uint16_t off = getOffset(e);
+        setToNewEventID(nid, off);
+        nextEID++;
+    }
 }
 
 //void NodeMemory::store(NodeID* nid, Event* cE, uint8_t nC, uint16_t* eOff) {
@@ -138,56 +119,18 @@ void NodeMemory::store(NodeID* nid, Event* cE, const uint16_t* eventidOffset, ui
     p = (uint8_t*)nid;
     for (uint8_t i=0; i<sizeof(NodeID); i++) 
         EEPROM.update(addr++, *p++);
-
-    // write events
-    // don't need to rewrite the as they do not change --dph
-    /*
-    p = (uint8_t*)cE;
-    for (int k=0; k<nC; k++) {
-        for (uint8_t i=0; i<sizeof(EventID); i++) 
-            EEPROM.update(addr++, *p++);
-        for (uint8_t i=sizeof(EventID); i<sizeof(Event); i++) {
-            // skip over the flags
-            EEPROM.update(addr++, 0);
-            p++;
-         }
-    }
-     */
-
-    // clear some memory
-    //for (int k = 0; k < 64; k++) {
-    //    EEPROM.update(addr++, 0);
-    //}
-}
-
-void NodeMemory::store(NodeID* nid, Event* cE, const uint16_t* eventidOffset, uint8_t nC, uint8_t* data, int extraBytes) {
-    store(nid, cE, eventidOffset, nC);
-    // write extra data
-    uint8_t* p = data;
-    int addr = KEYSIZE+COUNTSIZE+sizeof(NodeID)+nC*(sizeof(Event));
-    for (int k=0; k<extraBytes; k++)
-        EEPROM.update(addr++, *p++);
-}
-void NodeMemory::storeToEEPROM(uint8_t *m, int n) {
-    for (int i=0; i<n; i++)
-        EEPROM.update(i, m[i]);
 }
 
 void NodeMemory::setToNewEventID(NodeID* nid, uint16_t offset) {
     //LDEBUG("\nIn setToNewEventID1");
     //LDEBUG(" offset="); LDEBUG2(offset,HEX);
-    // All write to eeprom, may need to do a restore to RAM --dph
-    uint16_t p = offset;  // this event's offset
-    //LDEBUG(" ");LDEBUG2(p,HEX);LDEBUG(":");
-    for (uint8_t i=0; i<sizeof(*nid); i++) {
-      EEPROM.update(p++, nid->val[i]);
-        //LDEBUG2(nid->val[i],HEX);LDEBUG(",");
-    }
-    count++;
-    EEPROM.update(p++, (count>>8)&0xFF);
-        //LDEBUG((count>>8)&0xFF);LDEBUG(",");
-    EEPROM.update(p++, count&0xFF);
-        //LDEBUG(count&0xFF);
+    //Serial.print("\nIn NodeMemory::setToNewEventID offset=");Serial.print(offset);
+    EventID eid = *((EventID*)nid);
+    //Serial.print("\n nid="); for(int i=0;i<6;++i){Serial.print(nid->val[i],HEX);Serial.print(".");}
+    eid.val[6] = (nextEID>>8)&0xFF;
+    eid.val[7] = nextEID&0xFF;
+    //eid.print();
+    EEPROM.put(offset, eid);
 }
 
 bool NodeMemory::checkAllOK() {

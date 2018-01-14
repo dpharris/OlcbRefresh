@@ -1,9 +1,9 @@
 #include <string.h>
 
 #include "BG.h"
-
+#include <EEPROM.h>
 #include "PCE.h"
-#include "NodeMemory.h"
+//#include "NodeMemory.h"
 #include "OpenLcbCanBuffer.h"
 
 #define UNREADY_BLINK 0xFF00FFL

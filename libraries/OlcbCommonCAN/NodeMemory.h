@@ -30,18 +30,10 @@
 #include <stdint.h>
 //#include "Event.h"
 #include "NodeID.h"
-#include "Nodal.h"
 
 class NodeID;
 class Event;
 class EventID;
-class Index;
-
-typedef struct {
-public:
-    uint16_t offset;
-    uint16_t flags;
-} EventOffset;
 
 class NodeMemory {
   public:
@@ -66,7 +58,7 @@ class NodeMemory {
   //void setup(NodeID* nid, Event* events, uint8_t numEvents, uint8_t* data,
   //          uint16_t extraBytes, uint16_t clearBytes);
 //  void setup(NodeID* nid, Event* cE, const uint16_t* eventidOffset, uint8_t nC, uint8_t* data, uint16_t extraBytes, uint16_t clearBytes);
-  void setup(Nodal_t* nodal, uint8_t* data, uint16_t extraBytes, uint16_t clearBytes);
+  void setup(NodeID* nid, Event* cE, uint8_t nC, uint8_t* data, uint16_t extraBytes, uint16_t clearBytes);
   //void setupInMem(uint8_t *m, int n, Event *events, int num_event);
   //void setupInEeprom(uint8_t *m, int n, Event *events, int num_event);
     
@@ -78,7 +70,7 @@ class NodeMemory {
    * at end of event strings; this is the full memory clear)
    */
   //void reset(NodeID* nid, Event* events, uint8_t numEvents, uint16_t clearBytes);
-  void reset(NodeID* nid, Event* events, const uint16_t* eventidOffset, uint8_t numEvents, uint16_t clearBytes);
+  void reset(NodeID* nid, Event* events, uint8_t numEvents);
 
   /** 
    * For debug and test, this forces the next
@@ -98,7 +90,7 @@ class NodeMemory {
   void store(NodeID* nid, Event* events, const uint16_t* eventidOffset, uint8_t nunEvents);
   void store(NodeID* nid, Event* events, const uint16_t* eventidOffset, uint8_t nunEvents, uint8_t* data, int extraBytes);
   void store(NodeID* nid, Event* cE, uint16_t* eventidOffset, uint8_t nC, NodeMemory eOff);
-  void storeToEEPROM(uint8_t *m, int n);
+  //void storeToEEPROM(uint8_t *m, int n);
   /*
    * Get a new, forever unique EventID and put in 
    * given EventID location. Does not do a EEPROM store,
@@ -106,7 +98,7 @@ class NodeMemory {
    * this node's nodeID. 
    */
   //void setToNewEventID(NodeID* nodeID, EventID* eventID);
-    void setToNewEventID(NodeID* nid, uint16_t eOff);
+  void setToNewEventID(NodeID* nid, uint16_t eOff);
   void setToNewEventID(NodeID* nid, int n);  //dph
     
   private:
@@ -114,7 +106,7 @@ class NodeMemory {
   bool checkAllOK(); // check if memory tag says all OK
   
   int startAddress; // address of 1st byte in EEPROM
-  uint16_t count; // count of EventIDs provided to date
+  uint16_t nextEID; // count of EventIDs provided to date
 };
 
 #endif
