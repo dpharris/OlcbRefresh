@@ -190,8 +190,8 @@ void PCE::sendTeach(EventID e) {   /// DPH added for Clock
                 eventid.print();
       // find matching eventID
       int index = 0;
-      while ( -1 != (ind = eventid.findIndexInArray(eventsIndex, nEvents, index))) {
-          uint16_t eindex = eventsIndex[ind];
+      while ( -1 != (index = eventid.findIndexInArray(eventsIndex, nEvents, index))) {
+          uint16_t eindex = eventsIndex[index];
             //LDEBUG("\nhandlePCRep ind: "); LDEBUG(ind);
             //LDEBUG("\nhandlePCRep Index: "); LDEBUG(index);
             //LDEBUG("\nevents[index].flags: "); LDEBUG2(events[index].flags,HEX);

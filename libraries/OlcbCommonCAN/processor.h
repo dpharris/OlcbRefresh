@@ -22,7 +22,8 @@
    defined(__AVR_ATmega168__) ||defined(__AVR_ATmega168P__) || defined(__AVR_ATmega328P__) || defined(__AVR_ATmega328P__)
     //#pragma message("!!! ATMega")
     //#include <can.h>
-#include "MCP2515can.h"
+    //#include "MCP2515can.h"
+    #include "mockCan.h"
 
 // Mega 16, 32
 #elif defined(__AVR_ATmega16__) || defined(__AVR_ATmega32__) 

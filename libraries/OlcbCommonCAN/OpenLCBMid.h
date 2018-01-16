@@ -224,7 +224,7 @@ extern void initTables(){        // initialize tables
 //OpenLCB olcb( &nodeid, NUM_EVENT, eventOffset, sizeof(MemStruct), 0, &link, dg, str, cfg, bg, &txBuffer, &rxBuffer, pceCallback, configWritten);
 //OpenLCB olcb( &nodeid, NUM_EVENT, eidtab, sizeof(MemStruct), &can, &link, &dg, &str, &cfg, &bg, &txBuffer, &rxBuffer, pceCallback, configWritten);
 
-
+extern can_init();
 // ===== System Interface  
 void Olcb_init() {       // was setup()
             Serial.print("\nIn olcb::init");
@@ -241,7 +241,8 @@ void Olcb_init() {       // was setup()
             Serial.print("\nIn olcb::init3");
     SNII_setup((uint8_t)32, SNII_var_offset, &txBuffer, &link);
             Serial.print("\nIn olcb::init4");
-    can.init();
+    //can.init();
+    can_init();
             Serial.print("\nIn olcb::init5");
     link.reset();
             Serial.print("\nIn olcb::init6");

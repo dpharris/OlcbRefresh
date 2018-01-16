@@ -21,6 +21,14 @@
 // time to wait between last CIM and RIM
 #define CONFIRM_WAIT_TIME 200
 
+//extern "C" {
+    extern bool can_init();
+    extern bool can_check_message(void);
+    extern bool can_check_free_buffer(void);
+    extern uint8_t can_send_message(const Can *msg);
+    extern uint8_t can_get_message(Can *msg);
+//}
+
 LinkControl::LinkControl(OpenLcbCanBuffer* b, NodeID* n) {
   txBuffer = b;
   nid = n;

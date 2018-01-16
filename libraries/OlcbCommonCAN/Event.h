@@ -9,6 +9,9 @@ class Event {
   Event();
   Event(uint8_t b0, uint8_t b1, uint8_t b2, uint8_t b3, uint8_t b4, uint8_t b5, uint8_t b6, uint8_t b7);
   Event(bool produce, bool consume);
+
+  bool isConsumer();
+  bool isProducer();
   
   //bool equals(Event* n);
   void print();

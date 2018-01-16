@@ -8,6 +8,7 @@
 
 #ifndef OlcbCanClass_h
 #define OlcbCanClass_h
+//#pragma message("Compiling OlcbCanClass.h")
 #include <Arduino.h>
 /*
 typedef struct {
@@ -37,15 +38,13 @@ class OlcbCanClass {
         int extended : 1;		//!< extended ID?
     } flags;
     
-     OlcbCanClass(){};
-     ~OlcbCanClass(){};
-    void init(){};
-    uint8_t avail() {
-        Serial.print("\nOlcbCanClass avail()");
-    }
-     uint8_t read();
-     uint8_t txReady();
-     uint8_t write();
+    // OlcbCanClass(){};
+    // ~OlcbCanClass(){};
+    virtual void init(){};
+    virtual uint8_t avail();
+    virtual  uint8_t read();
+    virtual  uint8_t txReady();
+    virtual  uint8_t write();
 };
 
 #endif // OlcbCanClass_h

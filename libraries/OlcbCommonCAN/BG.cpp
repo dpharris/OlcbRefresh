@@ -145,7 +145,10 @@ void BG::sendIdent() {
  */
 void BG::factoryReset() {
     // write to keep teh node ID, but reload everything else
-    NodeMemory::forceInitEvents();
+    //NodeMemory::forceInitEvents();
+    EEPROM.update(2,0x33);
+    EEPROM.update(3,0xCC);
+
     // cast a 0 to a function pointer, then dereference it. Ugly!
     (*  ((void (*)())0)  )();
 }

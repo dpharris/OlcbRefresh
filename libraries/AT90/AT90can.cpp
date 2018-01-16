@@ -30,14 +30,15 @@ CanBus canbus;       // CanBus buffer
  *			true ansonsten.
  */
 //bool can_init(uint8_t bitrate) {
-/*
+
  bool can_init() {
     //CAN_DEBUG("\nIn AT90 can_init");
     //at90can.init(BITRATE_125_KBPS);
-    CanBus.init();
+     Serial.print("\nIn can_init");
+    canbus.init();
     return true;
 }
-*/
+
 // ----------------------------------------------------------------------------
 /**
  * \ingroup	can_interface
@@ -114,13 +115,13 @@ CanBus canbus;       // CanBus buffer
  *
  * \return	true falls neue Nachrichten verfuegbar sind, false ansonsten.
  */
-//bool can_check_message(void) {
+bool can_check_message(void) {
     //CAN_DEBUG("\nIn AT90 can_check_message:");
     //bool r = at90can.check_message();
     //CAN_DEBUG(r);
     //return r;
-//    return at90can.check_message();
-//}
+    return canbus.check_message();
+}
 
 // ----------------------------------------------------------------------------
 /**
@@ -129,14 +130,14 @@ CanBus canbus;       // CanBus buffer
  *
  * \return	true falls ein Sende-Puffer frei ist, false ansonsten.
  */
-//bool can_check_free_buffer(void) {
+bool can_check_free_buffer(void) {
     //CAN_DEBUG("\nIn AT90CAN can_check_free_buffer:");
-//    bool r = at90can.check_free_buffer();
+    bool r = canbus.check_free_buffer();
     //CAN_DEBUG(r);
-//    return r;
+    return r;
     //return at90can.check_free_buffer();
     //return tivaCAN.tx_idle();
-//}
+}
 
 //extern uint8_t can_buffers_status(void);
 // ----------------------------------------------------------------------------
@@ -149,7 +150,7 @@ CanBus canbus;       // CanBus buffer
  *			ansonsten der Code des Puffes in den die Nachricht gespeichert wurde
  *           Returns buffer number or 0
  */
-//uint8_t can_send_message(const tCAN *msg) {
+uint8_t can_send_message(const Can *msg) {
 //            CAN_DEBUG("\nIn AT90 can_send_message");
 //            CAN_DEBUG(" [");CAN_DEBUG2(msg->id,HEX);
 //            CAN_DEBUG("](");CAN_DEBUG(msg->length);
@@ -158,7 +159,9 @@ CanBus canbus;       // CanBus buffer
  //                   CAN_DEBUG2(msg->data[i],HEX); CAN_DEBUG(".");
 //            }
 //            CAN_DEBUG("]");
-//    return at90can.send_buffered_message((can_t*) msg);
+    Serial.print("\nIn can_send_message: ");
+    Serial.print(msg->id);
+    return canbus.send_buffered_message((can_t*) msg);
     /*
     CAN_message_t m;
     m.id = msg->id;
@@ -172,7 +175,7 @@ CanBus canbus;       // CanBus buffer
     return tivaCAN.write(&m,1);
     //return tivaCAN.write(&m);
      */
-//}
+}
 
 // ----------------------------------------------------------------------------
 /**

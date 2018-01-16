@@ -51,7 +51,7 @@
         eLOOPBACK_MODE,			//!< alle Nachrichten direkt auf die Empfangsregister umleiten ohne sie zu senden
         eNORMAL_MODE				//!< normaler Modus, CAN Controller ist aktiv
     } tCANMode;
- 
+
 
     //extern bool can_init(uint8_t bitrate);
     extern bool can_init();
@@ -79,8 +79,8 @@
 #ifndef CAN_H
 #define CAN_H
 
-
 #include "OlcbCanClass.h"
+//#include "processor.h"
 #include "CanBus.h"
 
 class Can : public OlcbCanClass {
@@ -93,6 +93,8 @@ public:
      uint8_t txReady();
      uint8_t write();
 };
+
+
 
 #endif // CAN_H
 

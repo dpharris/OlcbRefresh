@@ -8,7 +8,7 @@
 
 #ifndef OpenLCBHeader_h
 #define OpenLCBHeader_h
-
+//#include "OlcbCanCLass.h"
 #include "NodeID.h"
 
 typedef struct NodeVar_ {
@@ -62,7 +62,7 @@ typedef struct {
 #include "ButtonLed.h"
 #include "Event.h"
 
-#include "OlcbCanCLass.h"
+
 
 // ===== CDI System Portions =======================================
 #define CDIheader R"( \

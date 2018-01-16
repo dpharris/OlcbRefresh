@@ -27,12 +27,13 @@
 #define NUM_CHANNEL 4
 // total number of events, two per channel
 #define NUM_EVENT 2*NUM_CHANNEL
+  
+//#include "mockCan.h"
 
 #include "OlcbCommonVersion.h"
 //#include "debug.h"
-//#include "mockCan.h"
 #include "OpenLCBHeader.h"
-#include "AT90can.h"
+//#include "AT90can.h"
 Can can;
 //OlcbCanClass can;
 // Description of EEPROM memory structure, and the mirrored mem if in MEM_LARGE
@@ -301,7 +302,7 @@ void setup()
   //for(int i=0;i<13;i++) {
   //  Serial.print(buffer[i]); Serial.print(".");
   //}
-  while(1==1){}
+  //while(1==1){}
 }
 
 void loop() {

@@ -9,11 +9,11 @@ Event::Event(bool produce, bool consume) {
     if (consume) flags |= Event::CAN_CONSUME_FLAG;
 }
 
-Event::isConsumer() {
+bool Event::isConsumer() {
     return flags&Event::CAN_CONSUME_FLAG;
 }
 
-Event::isProducer() {
+bool Event::isProducer() {
     return flags&Event::CAN_PRODUCE_FLAG;
 }
 

@@ -21,7 +21,7 @@ extern "C" {
 
 NodeMemory::NodeMemory(int start) {
     startAddress = start;
-    count = 0;
+    nextEID = 0;
 }
 
 void NodeMemory::forceInitAll() {
@@ -43,7 +43,7 @@ extern void userInitEventIDOffsets();
 void NodeMemory::setup(NodeID* nid, Event* _cE, uint8_t _nC, uint16_t eeprom_size) {
     //LDEBUG("\nIn NodeMemory::setup");
     Event* cE  = _cE;
-    uint16_t nC = nodal->_nC;
+    uint16_t nC = _nC;
 
     //LDEBUG("\nnC(nevents)=");LDEBUG(nC);
     //for(int i=0;i<nC;i++) {
@@ -66,7 +66,7 @@ void NodeMemory::setup(NodeID* nid, Event* _cE, uint8_t _nC, uint16_t eeprom_siz
         // load count
         uint8_t part1 = EEPROM.read(startAddress+KEYSIZE);
         uint8_t part2 = EEPROM.read(startAddress+KEYSIZE+1);
-        count = (part1<<8)+part2;
+        nextEID = (part1<<8)+part2;
 
         // handle the rest
         reset(nid, cE, nC);
@@ -74,7 +74,7 @@ void NodeMemory::setup(NodeID* nid, Event* _cE, uint8_t _nC, uint16_t eeprom_siz
     } else if (!checkAllOK()) {
         //LDEBUG("\n!checkAllOK");
         // fires a factory reset
-        count = 0;
+        nextEID = 0;
         // handle the rest
         reset(nid, cE, nC);
     }
@@ -111,8 +111,8 @@ void NodeMemory::store(NodeID* nid, Event* cE, const uint16_t* eventidOffset, ui
     EEPROM.update(addr++, 0xE5);
 
     // write count
-    EEPROM.update(addr++, (count>>8)&0xFF);
-    EEPROM.update(addr++, (count)&0xFF);
+    EEPROM.update(addr++, (nextEID>>8)&0xFF);
+    EEPROM.update(addr++, (nextEID)&0xFF);
     
     // write NodeID
     uint8_t* p;

@@ -7,12 +7,23 @@
 //#include "OpenLcbCanInterface.h"
 #include "OpenLcbCanBuffer.h"
 #include <Arduino.h>
+#include "processor.h"
+#include "AT90can.h"
+
+//extern "C" {
+    extern bool can_init();
+    extern bool can_check_message(void);
+    extern bool can_check_free_buffer(void);
+    extern uint8_t can_send_message(const Can *msg);
+    extern uint8_t can_get_message(Can *msg);
+//}
 
 void OpenLcb_can_init() {
     //uint8_t r = can_init(BITRATE_125_KBPS);
-    uint8_t r = can_init();
+//    uint8_t r = can_init();
     //ADEBUG("\nOpenLcb_can_init return=");
     //ADEBUG(r);
+    this->init();
 }
 
 // Can a (the) CAN buffer be used?  
@@ -37,8 +48,9 @@ bool OpenLcb_can_xmt_ready(OpenLcbCanBuffer* b) {
 //    return r;
 //    //return can_check_free_buffer();  //  Both at full
 //#else
-    return OpenLcb_can_xmt_idle();
+//    return OpenLcb_can_xmt_idle();
 //#endif
+    return this->txReady();
 }
 
 // Queue a CAN frame for sending, if possible
@@ -46,13 +58,17 @@ bool OpenLcb_can_xmt_ready(OpenLcbCanBuffer* b) {
 bool OpenLcb_can_queue_xmt_immediate(OpenLcbCanBuffer* b) {
                             //ADEBUG("\nOpenLcb_can_queue_xmt_immediate id=");
                             //ADEBUG(b->id,HEX);
-    if (!OpenLcb_can_xmt_ready(b)) return false;
+//    if (!OpenLcb_can_xmt_ready(b)) return false;
     //ADEBUG("\nOpenLcb_can_queue_xmt_immediate 2");
   // buffer available, queue for send
-    OpenLcb_can_active = true;
+//    OpenLcb_can_active = true;
                             //ADEBUG(" .. can_send_message");
-    can_send_message(b);
-    return true;
+//    can_send_message(b);
+//    return true;
+  if(this->txReady()) return false;
+  OpenLcb_can_active = true;
+  this->write();
+  return true;
 }
 
 // Queue a CAN frame for sending; spins until it can queue
@@ -84,8 +100,9 @@ bool OpenLcb_can_xmt_idle() {
 //                            //ADEBUG("\ncan_check_free_buffer2  ");
 //    return can_check_free_buffer();  //  Both at full
 //#else
-    return can_check_free_buffer();
+ //   return can_check_free_buffer();
 //#endif
+    return this->avail();
 }
 
 // Make the oldest received CAN frame available,
@@ -93,11 +110,13 @@ bool OpenLcb_can_xmt_idle() {
 // Return false (zero) if no frame available.
 bool OpenLcb_can_get_frame(OpenLcbCanBuffer* b) {
     //ADEBUG("\nIn OpenLcb_can_get_frame");
-    int v = can_get_message(b);
+//    int v = can_get_message(b);
                             //if(v>0) {
                             //  ADEBUG("\nOpenLcb_can_get_frame  ");
                             //  ADEBUGL(b->id,HEX);
                             //}
+//    return v!=0;
+    int v = this->read();
     return v!=0;
 }
 

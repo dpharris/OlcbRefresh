@@ -30,10 +30,15 @@
  * this implementation, this is the can.h file in the CAN library.
  */
 #include "OpenLcbCanInterface.h"
+#include "OlcbCanClass.h"
 #include "processor.h"
+
+//#include "mockCan.h"
+//class Can;
+
 class OpenLcbCanBuffer;
 
-class Can;  ////
+//class Can;  ////
 /**
  * General interface
  *
@@ -44,6 +49,7 @@ class Can;  ////
 // Buffer structures
 //class CanInterfaceBuffer : public tCAN {};
 class CanInterfaceBuffer : public Can {};
+//class CanInterfaceBuffer : public OlcbCanClass {};
 
 // Initialize CAN system
 void OpenLcb_can_init();
