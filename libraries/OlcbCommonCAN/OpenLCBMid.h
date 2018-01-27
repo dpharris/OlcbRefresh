@@ -39,11 +39,12 @@
 #include "BG.h"
 #include "ButtonLed.h"
 
-//OpenLcbCanBuffer     rxBuffer;  // CAN receive buffer
+
+
+Can olcbcanRx;
+Can olcbcanTx;
 OlcbCanInterface     rxBuffer(&olcbcanRx);  // CAN receive buffer
-//OpenLcbCanBuffer     txBuffer;  // CAN send buffer
 OlcbCanInterface     txBuffer(&olcbcanTx);  // CAN send buffer
-//OpenLcbCanBuffer*    ptxCAN;
 
 #define LAST_EEPROM sizeof(MemStruct)
 
@@ -224,10 +225,7 @@ extern void initTables(){        // initialize tables
     //while(1==1){}
 }
 
-//OpenLCB olcb( &nodeid, NUM_EVENT, eventOffset, sizeof(MemStruct), 0, &link, dg, str, cfg, bg, &txBuffer, &rxBuffer, pceCallback, configWritten);
-//OpenLCB olcb( &nodeid, NUM_EVENT, eidtab, sizeof(MemStruct), &can, &link, &dg, &str, &cfg, &bg, &txBuffer, &rxBuffer, pceCallback, configWritten);
-
-extern can_init();
+//extern can_init();
 // ===== System Interface  
 void Olcb_init() {       // was setup()
             Serial.print("\nIn olcb::init");

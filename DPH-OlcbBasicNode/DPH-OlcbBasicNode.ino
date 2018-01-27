@@ -32,16 +32,9 @@
 #include "OpenLCBHeader.h"
 //#include "mockCan.h"
 #include "AT90can.h"
-//#include "OlcbCan.h"
-Can olcbcanRx;
-Can olcbcanTx;
-
-//Can can;
-//OlcbCanClass can;
-// Description of EEPROM memory structure, and the mirrored mem if in MEM_LARGE
 
 //NodeID nodeid(5,1,1,1,3,255);    // This node's default ID; must be valid 
-NodeID nodeid(0x11,0x22,0x33,0x44,0x55,0x66);    // This node's default ID; must be valid 
+NodeID nodeid(0x11,0x22,0x33,0x44,0x55,0x66);    // Easy to find in eeprom listings 
 
 // ===== CDI =====
 //   Configuration Description Information in xml, must match MemStruct below
@@ -108,10 +101,6 @@ extern "C" {
     extern const char SNII_const_data[] PROGMEM = "\001OpenLCB\000DPHOlcbBasicNode\0001.0\000" OlcbCommonVersion ; // last zero in double-quote
 //const char SNII_const_data[] PROGMEM = "\001OpenLCB\000OlcbBasicNode\0001.0\000" OlcbCommonVersion ;
 }; // end extern "C"
-
-// Establish location of node Name and Node Decsription in memory
-//#define SNII_var_data &pmem->nodeName           // location of SNII_var_data EEPROM, and address of nodeName
-//#define SNII_var_offset sizeof(pmem->nodeName)  // location of nodeDesc
 
 // PIP Protocol Identification Protocol uses a bit-field to indicate which protocols this node supports
 // See 3.3.6 and 3.3.7 in http://openlcb.com/wp-content/uploads/2016/02/S-9.7.3-MessageNetwork-2016-02-06.pdf
@@ -217,58 +206,8 @@ void configWritten(unsigned int address, unsigned int length) {
   // }
 }
 
-//void userInitEventTypes() {
-//  // Set event types, now that IDs have been loaded from configuration
-//  // newEvent arguments are (event index, producer?, consumer?)
-//    for (int i=2*(FIRST_PRODUCER_CHANNEL_INDEX); i<2*(LAST_PRODUCER_CHANNEL_INDEX+1); i++) {
-//      pce.newEvent(i,true,false); // producer
-//    }
-//    for (int i=2*(FIRST_CONSUMER_CHANNEL_INDEX); i<2*(LAST_CONSUMER_CHANNEL_INDEX+1); i++) {
-//      pce.newEvent(i,false,true); // consumer
-//    }
-//}
-// Unit testing
-//  Uncomment a test
-//#define test testEquals()
-//#define test testFindIndexInArray
-//#define test testIndex_FindIndex
-//#define test testBsearch
-//#define test testPCEEventReport
-//#define test testSpeed
-//#define test testPCEHandleLearnEvent
-//#define test testIdentifyConsumers
-//#define test testIdentifyProducers
-//#define test testIdentifyEvents
-//#define test testCan
-#ifdef test 
-  #include "unittesting.h"
-#endif
-
-//#include "streaming.h"
-
 #include "OpenLCBMid.h"
 #include "extras.h"
-/*
-// Instansiate a OpenLCB object:
-OpenLCB olcb( &nodeid,  // NodeID
-            NUM_EVENT,  // number of events
-               eidtab,  // array of offsets to eventids in MemStryct, and initial P/C flags
-          //eventOffset,  // array of event offsets in MemStruct
-           eventIndex,  // sorted array of indexes to events
-             eventids,  // copy in ram of the array of eventids in EEPROM  
-    sizeof(MemStruct),  // number of EEPROM entries to zero on reset
-                 &can,  // CAN bus connection
-                &link,  // Link level
-                  &dg,  // Datagram
-                 &str,  // Stream
-                 &cfg,  // Configuration
-                  &bg,  // BlueGold
-            &txBuffer,  // CAN transmit buffer
-            &rxBuffer,  // CAN receive buffer
-          pceCallback,  // callback for received P/C Event messages
-        configWritten   // callback for EEPROM writes from Tools
-);
-*/
 
 // ==== Setup does initial configuration =============================
 void setup() {
@@ -276,57 +215,19 @@ void setup() {
   while(!Serial){}
   delay(250);Serial.begin(115200);Serial.print(F("\nOlcbBasicNode\n"));
 
-
-/*
-  Serial.print("\nconfigDefInfo\n");
-  for(int i=0;i<sizeof(configDefInfo);i++) {
-    Serial.print((char)configDefInfo[i]);
-    //if(configDefInfo[i]=='>') Serial.print("\n");
-  }
-  while(1==1){}
-*/
-
-/*
-  OlcbCanInterface can1(&olcbcan);
-  OlcbCanInterface can2(&olcbcan);
-  can1.net->id=1;
-  can2.net->id=2;
-  Serial.print("\ncan1.net->id=");   Serial.print(can1.net->id,HEX); 
-  Serial.print("\ncan2.net->id=");   Serial.print(can2.net->id,HEX); 
-  while(1==1){}
-*/ 
-  nm.forceInitAll();
-
-  EEPROM.put(EEADDR(nodeVar.nodeName),"OlcbBasicNode");
-  EEPROM.put(EEADDR(nodeVar.nodeDesc),"Testing");
-  EEPROM.put(EEADDR(inputs[0].desc),"Input0");
-  EEPROM.put(EEADDR(inputs[1].desc),"Input1");
-  EEPROM.put(EEADDR(outputs[0].desc),"Output0");
-  EEPROM.put(EEADDR(outputs[1].desc),"Output1");
+  #if 1==0
+      nm.forceInitAll();
+      // initialize descriptions
+      EEPROM.put(EEADDR(nodeVar.nodeName),"OlcbBasicNode");
+      EEPROM.put(EEADDR(nodeVar.nodeDesc),"Testing");
+      EEPROM.put(EEADDR(inputs[0].desc),"Input0");
+      EEPROM.put(EEADDR(inputs[1].desc),"Input1");
+      EEPROM.put(EEADDR(outputs[0].desc),"Output0");
+      EEPROM.put(EEADDR(outputs[1].desc),"Output1");
+  #endif
   
   Olcb_init();
   printEeprom();
-
-  /*
-  printEventIndexes();
-  printSortedEvents();
-  OpenLcbCanBuffer buf;
-  buf.setPCEventReport(&eee);
-  pce.receivedFrame(&buf);
-  */
-// test void OpenLcbCanBuffer::setConsumerIdentified(EventID* eid) --- returns 194C4 instead of 19474
-/*
-  OlcbCanInterface buffer(&olcbcan);
-  EventID eee = { 11,22,333,44,55,66,77,88 };
-  buffer.setConsumerIdentified(&eee);
-  Serial.print("\n setConsumerIdentified()=");
-  //Serial.print(buffer.id,HEX);
-  
-  //for(int i=0;i<13;i++) {
-  //  Serial.print(buffer[i]); Serial.print(".");
-  //}
-  //while(1==1){}
-  */
 }
 
 // ==== Loop ===========================================
