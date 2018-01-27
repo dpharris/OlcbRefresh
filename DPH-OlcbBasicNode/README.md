@@ -89,58 +89,34 @@ And we also need some footer-xml.  This describes the system variables, and let'
 ```
 The actual xml is coded in the sketch in the **cdi.h** file as follows:
 ```
-const char configDefInfo[] PROGMEM = R"(
-<cdi xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='http://openlcb.org/trunk/prototypes/xml/schema/cdi.xsd'>
-
-    <identification>
-        <manufacturer>OpenLCB</manufacturer>
-        <model>OlcbBasicNode</model>
-        <hardwareVersion>1.0</hardwareVersion>
-        <softwareVersion>0.4</softwareVersion>
-    </identification>
-
-    <segment origin='12' space='253'> <!-- bypasses magic, nextEID, nodeID -->
-        <group>
-            <name>Node ID</name>
-            <description>User-provided description of the node</description>
-            <string size='20'><name>Node Name</name></string>
-            <string size='24'><name>Node Description</name></string>
-        </group>
-        <group>
-            <name>I/O Events</name>
-            <description>Define events associated with input and output pins</description>
-            <group replication='2'>
+        const char configDefInfo[] PROGMEM =  
+          // ===== Enter User definitions below CDIheader line =====
+          CDIheader R"(
+            <group>
+              <name>I/O Events</name>
+              <description>Define events associated with input and output pins</description>
+              <group replication='2'>
                 <name>Inputs</name>
                 <repname>Input</repname>
                 <string size='16'><name>Description</name></string>
                 <eventid><name>Activation Event</name></eventid>
                 <eventid><name>Inactivation Event</name></eventid>
-            </group>
-            <group replication='2'>
+              </group>
+              <group replication='2'>
                 <name>Outputs</name>
                 <repname>Output</repname>
                 <string size='16'><name>Description</name></string>
                 <eventid><name>Set Event</name></eventid>
                 <eventid><name>Reset Event</name></eventid>
+              </group>
             </group>
-        </group>
-    </segment>
-    <segment origin='0' space='253'> <!-- stuff magic to trigger resets -->
-        <name>Reset</name>
-        <description>Controls reloading and clearing node memory. Board must be restarted for this to take effect.</description>
-        <int size='4'>
-          <map>
-            <relation><property>3998572261</property><value>(No reset)</value></relation>
-            <relation><property>3998561228</property><value>User clear: New default EventIDs, blank strings</value></relation>
-            <relation><property>0</property><value>Mfg clear: Reset all, including Node ID</value></relation>
-          </map>
-        </int>
-    </segment>
-</cdi>)";
+          )" CDIfooter;
+          // ===== Enter User definitions above CDIfooter line =====
+    }
 ```
 For more information about CDI/xml, see the Configuration Description Protocol documents: [Standard](http://openlcb.org/wp-content/uploads/2016/02/S-9.7.4.1-ConfigurationDescriptionInformation-2016-02-06.pdf) and [TechNote](http://openlcb.org/wp-content/uploads/2016/02/TN-9.7.4.1-ConfigurationDescriptionInformation-2016-02-06.pdf)
 ### Matching MemStruct
-The matching C++ struct{} MemStruct consists of some fixed system variables, and node variables matching the xml.  It is included in the **MemStruct.h** file, and is coded as: 
+The matching C++ struct{} MemStruct consists of some fixed system variables, and node variables matching the xml.  It looks like:
 ```
 typedef struct //__attribute__ ((packed)) 
 { 
@@ -164,17 +140,29 @@ typedef struct //__attribute__ ((packed))
 It looks much simpler because it does not contain all the descriptive text for the GUI, but only the node-variables that are stored in the node.  The first three variables are system-variables used for node integrity, so they can not be altered.  
 See: Memory Config [Standard](http://openlcb.org/wp-content/uploads/2016/02/S-9.7.4.2-MemoryConfiguration-2016-02-06.pdf) and [TechNote](http://openlcb.org/wp-content/uploads/2016/02/TN-9.7.4.2-MemoryConfiguration-2016-02-06.pdf)
 
-### Stepping Through the Sketch's Code
-
-```C++
-#define MEM_SMALL 1
-#define MEM_MEDIUM 2
-#define MEM_LARGE 3
-#define MEM_MODEL MEM_SMALL    // small but slow, works out of EEPROM
-//#define MEM_MODEL MEM_MEDIUM   // faster, eventIDs are copied to RAM
-//#define MEM_MODEL MEM_LARGE    // fastest but large, EEPROM is mirrored to RAM 
+Coded in the sketch it uses a header, likr this:
 ```
-These #defines let you choose the Memory Model.  Just uncomment one of the last three #defines to choose the model.  
+    typedef struct { 
+      NodeVar nodeVar;         // must remain
+      // ===== Enter User definitions below =====
+            struct {
+              char desc[16];        // description of this input-pin
+              EventID activation;   // eventID which is Produced on activation of this input-pin 
+              EventID inactivation; // eventID which is Produced on inactivation of this input-pin
+            } inputs[2];            // 2 inputs
+            struct {
+              char desc[16];        // decription of this output
+              EventID setEvent;     // Consumed eventID which sets this output-pin
+              EventID resetEvent;   // Consumed eventID which resets this output-pin
+            } outputs[2];           // 2 outputs
+      // ===== Enter User definitions above =====
+    } MemStruct;                 // type definition
+    MemStruct *pmem = 0; 
+```
+Th3 variable **pmem** is useful for referring to to fields in the CDI, for example: **&pmem->inputs[1].desc** returns the offest into Memstruct for that **desc** varible.  The macro **EEADDR(X)** simplifies this: **EEADDR(inputs[1].desc)**, and can be used, for example: **EEPROM.get(inputs[1].desc, array)** can be used to retrieve that field.  
+
+### Stepping Through the Sketch's Code
+ 
 ```C++
 // Number of channels implemented. Each corresonds 
 // to an input or output pin.
@@ -183,38 +171,45 @@ These #defines let you choose the Memory Model.  Just uncomment one of the last 
 #define NUM_EVENT 2*NUM_CHANNEL
 ```
 These lines determine how many channels and eventIDs this node uses.  In this case, there are four channels: two inputs and two outputs.  Each channel is either 'on' or 'off' and each state-transition has an associated eventID, so there are twice as many eventIDs as there are channels.  
-```C++
-#include "MemStruct.h"
-```
-This line #includes the struct{} defintion of the format of the EEPROM, and, if in LARGE-mode, the mirrored copy of it in RAM.  
+ 
 ```C++
 NodeID nodeid(5,1,1,1,3,255);    // This node's default ID; must be valid 
 ```
 This defines the node's ID.  It must be *changed* to one that *you control or own*.  
-```C++
-// Define pins
-// BLUE is 18 LEDuino; others defined by board (48 IO, 14 IOuino)
-#define BLUE 18
-
-// GOLD is 19 LEDuino; others defined by board (49 IO, 15 IOuino)
-#define GOLD 19
 ```
-This example node implements two status indicators, one blue, and the other gold.  The blue LED flashes when the node receives a message, and the gold LED flashes when this noe sends a message.  This example also implements Blue and Gold buttons which can be used to Teach eventIDs to other nodes, or to reset theis node.  
-```C++
-// next lines get "warning: only initialized variables can be placed into program memory area" due to GCC bug
-extern "C" {
-
-// CDI (Configuration Description Information) in xml, must match MemStruct
-// See: http://openlcb.com/wp-content/uploads/2016/02/S-9.7.4.1-ConfigurationDescriptionInformation-2016-02-06.pdf
-#include "cdi.h"
+// ===== CDI =====
+//   Configuration Description Information in xml, must match MemStruct below
+//   See: http://openlcb.com/wp-content/uploads/2016/02/S-9.7.4.1-ConfigurationDescriptionInformation-2016-02-06.pdf
+    extern "C" { 
+        const char configDefInfo[] PROGMEM = 
+          // ===== Enter User definitions below CDIheader line =====
+          CDIheader R"(
+            <group>
+              ...
+            </group>
+          )" CDIfooter;
+          // ===== Enter User definitions above CDIfooter line =====
+    }
 ```
-This #includes the CDI/xml description of the node's EEPROM in a form that is useful to a GUI-Tool.  <br>
-See: CDI [Standard](http://openlcb.org/wp-content/uploads/2016/02/S-9.7.4.1-ConfigurationDescriptionInformation-2016-02-06.pdf) and [TechNote](http://openlcb.org/wp-content/uploads/2016/02/TN-9.7.4.1-ConfigurationDescriptionInformation-2016-02-06.pdf)
+Defines the CDI, as described above.  
+```
+// ===== MemStruct =====
+//   Memory structure of EEPROM, must match CDI above
+    typedef struct { 
+      NodeVar nodeVar;         // must remain
+      // ===== Enter User definitions below =====
+            struct {
+              ...
+            } outputs[2];           // 2 outputs
+      // ===== Enter User definitions above =====
+    } MemStruct;                 // type definition
+    MemStruct *pmem = 0; 
+```
+This defines the memory structure that matches the CDI, as described above.  
 ```C++
 // SNIP Short node description for use by the Simple Node Information Protocol 
 // See: http://openlcb.com/wp-content/uploads/2016/02/S-9.7.4.3-SimpleNodeInformation-2016-02-06.pdf
 const char SNII_const_data[] PROGMEM = "\001OpenLCB\000DPHOlcbBasicNode\0001.0\000" OlcbCommonVersion ; // last zero in double-quote
-
 }; // end extern "C"
 ```
 These lines define a string that has a short-hand description of the node that includes its type and versions of its hardware and software.  It is requested by the GUI-Tool using the Simple Node Information protocol, and this string is sent in reply.  This allows the GUI-Tool to build a list of which nodes are on the bus.  <br>
@@ -235,24 +230,11 @@ uint8_t protocolIdentValue[6] = {0xD7,0x58,0x00,0,0,0};
 This line defines which protocol that this example node uses, these are listed in the commented lines below.  
 See: PIP Section 3.3.6 in [Standard](http://openlcb.org/wp-content/uploads/2016/02/S-9.7.3-MessageNetwork-2016-02-06.pdf) and [TechNote](http://openlcb.org/wp-content/uploads/2016/02/TN-9.7.3-MessageNetwork-2016-02-06.pdf)
 ```C++
-#include "OlcbArduinoCAN.h"
-#include "OlcbInc1.h"
+ButtonLed blue(BLUE, LOW);
+ButtonLed gold(GOLD, LOW);
 ```
-These lines include some of the back-story system code and libraries.  
+These lines instansiate two buttons associated with the, previously defined, Blue and Gold pins. 
 ```C++
-Event events[NUM_EVENT] = { Event() };   // repeated for all eight events.  
-```
-The events array contains one entry per eventID.  Each entry contains a flags word that has bits that indicate a  quality of, or an action to be taken on, that eventID.  For example whether that eventID is a consumer, producer, or both; or whether that eventID should be produced, ie sent onto the bus.  
-```C++
-Nodal_t nodal = { &nodeid, events, eventsIndex, eventidOffset, NUM_EVENT };
-//Nodal_t nodal = { &NodeID(5,1,1,1,3,255), events, eventsIndex, eventidOffset, NUM_EVENT };  // alternate form.
-```
-This variable simply holds a number of system items which need to be passed to sub-systems.  
-```C++
-// input/output pin drivers
-// 14, 15, 16, 17 for LEDuino with standard shield
-// 16, 17, 18, 19 for IOduino to clear built-in blue and gold
-// Io 0-7 are outputs & LEDs, 8-15 are inputs
 ButtonLed pA(0, LOW); 
 ButtonLed pB(1, LOW);
 ButtonLed pC(8, LOW);
@@ -279,11 +261,10 @@ ButtonLed* buttons[] = {  // One for each event; each channel is a pair
 };
 ```
 This array associates a button to each of the node's eight eventIDs. 
-```C++
-ButtonLed blue(BLUE, LOW);
-ButtonLed gold(GOLD, LOW);
+
 ```
-These lines instansiate two buttons associated with the, previously defined, Blue and Gold pins. 
+This example node implements two status indicators, one blue, and the other gold.  The blue LED flashes when the node receives a message, and the gold LED flashes when this noe sends a message.  This example also implements Blue and Gold buttons which can be used to Teach eventIDs to other nodes, or to reset theis node.  
+
 ```C++
 void pceCallback(uint16_t index){
 // Invoked when an event is consumed; drive pins as needed
@@ -296,20 +277,7 @@ buttons[index]->on( patterns[index]&0x1 ? 0x0L : ~0x0L );
 }
 ```
 This is the definition of the pceCallback() which is called when one of the node's eventIDs is received by the node.  The eight eventIDs are indexed, or numbered sequentially, from 0 to 7, and the received eventID's index is supplied as the paramter.  This routine has to be defined by the application developer.  In this case the code determines which of the buttons[] is involved  and applies the approprite pattern is applied, depending on the which eventID was received.  'patterns[index]&0x1' determines which of the pair of 'on' or 'off' was received.  
-```C++
-NodeMemory nm(0);  // allocate from start of EEPROM
-void store() { nm.store(&nodeid, events, eventidOffset, NUM_EVENT); }
-```
-These lines initializes the NodeMemory subsystem.  
-```C++
-PCE pce(&nodal, &txBuffer, pceCallback, restore, &link);
-```
-This initializes the Producer-Consumer Event processing subsystem.  
-```C++
-// Set up Blue/Gold configuration
-BG bg(&pce, buttons, patterns, NUM_EVENT, &blue, &gold, &txBuffer);
-```
-This line initializes the BlueGold subsystem, which handles the Blue and Gold LEDs and buttons.  The LEDs are used to indicate bus activity received and sent, while the buttons are used to implement the Teach/Learn protocol and node resets.  
+
 ```C++
 bool states[] = {false, false, false, false}; // current input states; report when changed
 ```
@@ -366,48 +334,42 @@ void userConfigWrite(unsigned int address, unsigned int length){
 }
 ```
 This is another user-define routine.  It is not actually used in this sketch, but it is called whenever the EEPROM is changed by a GUI-Tool.  It is useful when you want the node to respond immediately to such a change, rather than waiting for it to take effect at the end of an editting seesion on the GUI-Tool. The commented code shows a theoretical example where a servo position can be updated in real time, by updating its position from a node variable (channel.posn) immediately on each change.   
+```
+#include "OpenLCBMid.h"
+```
+This file includes much of the 'behind the scenes' code for setting up structures.  
+
 ```C++
-/**
-* Setup does initial configuration
-*/
+// ==== Setup does initial configuration =============================
 void setup()
 {
     // set up serial comm; may not be space for this!
-    delay(250);Serial.begin(BAUD_RATE);Serial.print(F("\nOlcbBasicNode\n"));
+    //delay(250);Serial.begin(BAUD_RATE);Serial.print(F("\nOlcbBasicNode\n"));
     Serial.print(F("\nMemModel=")); Serial.print(MEM_MODEL);
-    nm.setup(&nodal, (uint8_t*) 0, (uint16_t)0, (uint16_t)LAST_EEPROM); 
-```
-Every Sketch has to have a setup() and loop() routine.  Here is the first half of setup(), where we see the Serial  and the Node Memory being initialized.  
-```C++
-// set event types, now that IDs have been loaded from configuration
-// newEvent arguments are (event index, producer?, consumer?)
-    for (int i=2*(FIRST_PRODUCER_CHANNEL_INDEX); i<2*(LAST_PRODUCER_CHANNEL_INDEX+1); i++) {
-        pce.newEvent(i,true,false); // producer
-    }
-    for (int i=2*(FIRST_CONSUMER_CHANNEL_INDEX); i<2*(LAST_CONSUMER_CHANNEL_INDEX+1); i++) {
-        pce.newEvent(i,false,true); // consumer
-    }
+    
+    //nm.forceInitAll();
 
-    Olcb_setup();
+    Olcb_init();
 }
 ```
-This is the rest of setup().  The user is responsible to flag each eventID as a Consumer-eventid ,a Producer-eventID, or both, by calling calling pce.newEvent().  In addition, system internals are initialized by calling Olcb_setup().  
+This is the node setup().  **nm.forceInitAll();** will rset the node ot factory settings.  System internals are initialized by calling Olcb_setup().  
 ```C+
+// ==== Loop ===========================================
 void loop() {
-    bool activity = Olcb_loop();
+    bool activity = Olcb_process();
     if (activity) {
         // blink blue to show that the frame was received
         blue.blink(0x1);
     }
-    if (OpenLcb_can_active) { // set when a frame sent
+    //if (OpenLcb_can_active) { // set when a frame sent
+    if (olcbcanTx.active) { // set when a frame sent
         gold.blink(0x1);
-        OpenLcb_can_active = false;
+        olcbcanTx.active = false;
     }
     // handle the status lights  
     blue.process();
     gold.process();
 }
-
 ```
 The other mandatory routine, loop(), where the system internals are processed by calling Olcb_loop(), which returns an indication of received bus activity.  This is displayed on the Blue LED.  Any outgping activity is similarly displayed on the Gold LED.  The gold.blimk() call implements a 'keep-alive' blink on the Gold LED.  And finally, the Blue and Gold buttons are processed.  
 <br>
