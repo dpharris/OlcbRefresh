@@ -28,9 +28,10 @@
 
 #include "OpenLCBHeader.h"
 #include "AT90can.h"
-Can olcbcan;
+Can olcbcanRx;
+Can olcbcanTx;
 
-#define DEBUG_BAUD_RATE 115200
+//#define DEBUG_BAUD_RATE 115200
 
 #define SERVO_POS_DEG_THROWN  60
 #define SERVO_POS_DEG_CLOSED  115
@@ -41,9 +42,11 @@ NodeID nodeid(0x05,0x02,0x01,0x02,0x02,0x24);    // This node's default ID; must
  // See: http://openlcb.com/wp-content/uploads/2016/02/S-9.7.4.1-ConfigurationDescriptionInformation-2016-02-06.pdf
     extern "C" { 
         const char configDefInfo[] PROGMEM = 
+            // ===== Enter User definitions below =====
             CDIheader R"(
-          // ===== Enter User definitions below =====
-              //<segment origin='56' space='253'>
+                <group>
+                  <name>I/O</name>
+                  <description>Define events associated with input and output pins</description>
                   <group replication='8'>
                       <name>Digital Outputs</name>
                       <repname>Output</repname>
@@ -65,7 +68,7 @@ NodeID nodeid(0x05,0x02,0x01,0x02,0x02,0x24);    // This node's default ID; must
                       <eventid><name>Block Empty Event</name></eventid>
                       <eventid><name>Block Occupied Event</name></eventid>
                   </group>
-                  <group replication='16'>
+                 <group replication='16'>
                       <name>Turnout Servo Control</name>
                       <repname>Servo</repname>
                       <string size='16'><name>Description</name></string>
@@ -86,9 +89,9 @@ NodeID nodeid(0x05,0x02,0x01,0x02,0x02,0x24);    // This node's default ID; must
                           <description>Position in Degrees (0-180)</description>
                       </int>
                   </group>
-              //</segment>
-          // ===== Enter User definitions above =====
+                </group>
             )" CDIfooter;
+          // ===== Enter User definitions above =====
     } // end extern
 
 // ===== MemStruct =====
@@ -285,6 +288,8 @@ void produceFromInputs() {
 
 
 #include "OpenLCBMid.h"
+#include "extras.h"
+
 // ==== Setup does initial configuration ======================
     void setup()
     { 
@@ -292,7 +297,7 @@ void produceFromInputs() {
           Serial.begin(DEBUG_BAUD_RATE);DEBUGL(F("\nAJS OlcbIo 16P 16C 24BoD 16Servo"));
         #endif  
       
-        //nm.forceInitAll();   
+        nm.forceInitAll();   
        
         // Setup Output Pins
         for(uint8_t i = 0; i < NUM_OUTPUTS; i++)
@@ -307,7 +312,7 @@ void produceFromInputs() {
           pinMode(bodPinNums[i], INPUT_PULLUP);
                 
         Olcb_init();
-          
+        printEeprom();
         servoPWM.begin();
         servoPWM.setPWMFreq(60);
     }
@@ -319,9 +324,9 @@ void produceFromInputs() {
             // blink blue to show that the frame was received
             // blue.blink(0x1);
         }
-        if (olcbcan.active) { // set when a frame sent
+        if (olcbcanTx.active) { // set when a frame sent
             // gold.blink(0x1);
-            olcbcan.active = false;
+            olcbcanTx.active = false;
         }
         // handle the status lights  
         // blue.process();
