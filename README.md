@@ -1,5 +1,5 @@
 # OlcbRefresh
-#### **WARNING** This code is in development.  TivaCAN appears to work, but not AT90CAN (it transmits, but does not receive).  Others not tested.  
+#### **WARNING** This code is in development.  AT90CAN appears to work.  Others not tested.  
 This is a refresh of the Arduino base libs, ie OlcbStarLibraries.  
 
 It is meant to simplify and extend the Arduino code.
@@ -8,7 +8,7 @@ It is meant to simplify and extend the Arduino code.
 1. Added support for multiple processors: Arduino, Teensy, Tiva. 
    - Each set of files specific to a CAN-processor is kept in its own directory.   
    - The processor is automatically selected in the processor.h file. 
-2. A sorted Index[] is used to speed eventID processing, using a hash of the eventid.  
+2. A sorted index[] into eventids[] is used to speed eventID processing, using qsort() and bsearch().  
 3. Simplified the definition of CDI/xml for the node by matching a struct{} to the xml structure, see the example below.   
 
 e.g.: This CDI/xml, which self-describes the node to the system:
@@ -19,6 +19,7 @@ e.g.: This CDI/xml, which self-describes the node to the system:
         <name>Channels</name>
             <eventid><name>event0</name></eventid>
             <eventid><name>event1</name></eventid>
+            <int size='1'><name>Rate</name></int>
         </group>
         ...
     </cdi>
@@ -30,37 +31,34 @@ parallels this program structure:
         struct {
             EventID event0;
             EventID event1;
+            uint8_t rate;
         } channels[8];
         ...
     } MemStruct;
+    Memstruct *pmem;
 ```
+The system constant parts of these two items are provided, and only the user-app parts are needed in the sketch.  'pmem' is used to retrieve od=ffsets within Memstruct, and the macro EEADDR(x) returns this offset, which is useful in code to refer to and manipulate Memstruct fields.  
+For example, **EEADDR(channels[0].rate)** will return the offset to that item in Memstruct, and it can be used to retrieve its value: **int r = EEPROM.get(EEADDR(channels[0].rate)**.  
 
-## Memory Models:
-The code can be written to be maximize space or speed, and the user can choose from three memory models: 
-1. Small: All operations are from EEPROM<br>
-    Minimizes RAM size, but is slower.  If many eventIDs are needed, it may be the only choice.  
-2. Medium: only eventIDs are copied to RAM into eventids[]<br>
-    Quite good compromize between size and speed.
-3. Large:  The whole of EEPROM is mirrored to RAM as mem[]<br>
-    Faster but larger.  This is best on larger processors.  
+
+## Memory Model:
+Only eventIDs are copied to RAM into the eventids[] array.  <br>
 #### In Flash:<br>
-**eventidOffset[]** stores the offset of each eventID into the EEPROM or RAM struct{}.<br>
-    It is initialized at compile-time.
+**EIDTab[]** holds the offset of each eventID into the EEPROM and RAM struct{}, and the associated flags indicating P/C.<br>
+    It is initialized at compile-time using three macros: CEID(), PEID(), and PCEID().
+    Fore example, **CEID(channels.event0)** provides the memory offset to teh event, and indicates it is a consumer-event.  
 #### In RAM:
-**eventidIndex[]** contains a hash of each eventID, and an associated sequential index into eventidOffset[].<br>
+**eventidIndex[]** contains sorted index into **eventidOffset[]**.<br>
     It is sorted on the hash values.  
+**event[]** contains run-time flags, used to indicate P/C, learning, and eventids to be transmitted to the net.  
 
 In the medium model *only*, **eventids[]** contains a copy of the node's eventIDs, and is indexed by eventidIndex[].
 
 This restated as a diagram:
- - In all models: 
 ```
-        eventidIndex[]--(index)-->eventidOffset[]--(offset)-->mem[] or EEPROM[]
-        eventidIndex[]--(index)-->Events[].flags
-```
- - In the Medium model *only*, eventIndex also indexes the eventIDs array:
-```
-        eventidIndex[]--(index)-->eventids[]
+                       +--> (index) -->eventid[].flags
+        eventIndex[] --+--> (index) -->event[].flags
+                       +--> (index) -->EIDTab[] --(offset)--> mem[] or EEPROM[]
 ```
 
 ## More about OpenLCB/LCC - what is it?
@@ -135,8 +133,7 @@ The programmer of the Application must:
  - Choose the **NodeID** - this must be from **a range controlled** by the manufacturer - **ie you**.  
  - Write the **CDI/xml** describing the node and its node-variables, including its eventIDs. 
  - Write a **MemStruct{}** that matches the xml description.  
- - Choose the Memory Model, one of: **SMALL. MEDIUM, or LARGE**.  A good first choice is **MEDIUM**.  
- - Write code to flag each eventID as a **Producer, Consumer, or Both**.  
+ - Define **EIDTab** to flag each eventID as a **Producer, Consumer, or Both** by using **CEID**, **PEID**, and **PCEID**.  
  - Write **pceCallback()**, which processes received eventIDs, ie eventIDs to be consumed, and causing whatever action is required, eg a LED being lit or extinguished.  
  - Write **produceFromInputs()** which scans the node's inputs and, if appropriate, flags an evenItD to be sent.  
  - Write **userConfigWrite()** which is called whenever a UI Tool writes to the node's memory.  This code can then compare the memory address range of the change to the node's variables, and take whatever action is appropriate, e.g. update a servo position.
