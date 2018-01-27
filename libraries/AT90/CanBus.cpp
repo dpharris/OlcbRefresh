@@ -530,6 +530,8 @@ uint8_t CanBus::get_filter(uint8_t number, can_filter_t *filter)
 // -----------------------------------------------------------------------------
 uint8_t CanBus::send_buffered_message(const can_t *msg) {
 	// check if there is any free buffer left
+                        //Serial.print("\nIn CanBus::send_buffered_message id=");
+                        //Serial.print(msg->id,HEX);
   #if CAN_FORCE_TX_ORDER
 	if (_transmission_in_progress)
   #else
@@ -621,6 +623,7 @@ void CanBus::set_mode(can_mode_t mode) {
 //bool CanBus::init(uint8_t bitrate) {
 bool CanBus::init() {
     //CAN_DEBUG("\nIn CanBus::init");
+                        //Serial.print("\nIn CanBus::init");
     uint8_t bitrate = 4; // fixed at 125k
 	if (bitrate >= 8) return false;
 	// switch CAN controller to reset mode

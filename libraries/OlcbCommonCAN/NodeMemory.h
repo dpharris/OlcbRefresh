@@ -90,6 +90,8 @@ class NodeMemory {
   void store(NodeID* nid, Event* events, const uint16_t* eventidOffset, uint8_t nunEvents);
   void store(NodeID* nid, Event* events, const uint16_t* eventidOffset, uint8_t nunEvents, uint8_t* data, int extraBytes);
   void store(NodeID* nid, Event* cE, uint16_t* eventidOffset, uint8_t nC, NodeMemory eOff);
+  void store(NodeID* nid);
+    
   //void storeToEEPROM(uint8_t *m, int n);
   /*
    * Get a new, forever unique EventID and put in 

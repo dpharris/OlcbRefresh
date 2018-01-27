@@ -1,13 +1,14 @@
 #include <string.h>
 
+#include "OlcbCanInterface.h"
 #include "SNII.h"
 #include "LinkControl.h"
-#include "OpenLcbCanBuffer.h"
+//#include "OpenLcbCanBuffer.h"
 #include "OpenLcbCan.h"
 
 #include "lib_debug_print_common.h"
 
-static OpenLcbCanBuffer* buffer;
+static OlcbCanInterface* buffer;
 static uint8_t const_count;
 static uint8_t var_offset;
 static LinkControl* link;
@@ -36,12 +37,14 @@ extern "C" {
   const uint8_t getRead(uint32_t address, int space);
 }
 
-void SNII_setup(uint8_t count, uint8_t offset, OpenLcbCanBuffer* b, LinkControl* li) {
+void SNII_setup(uint8_t count, uint8_t offset, OlcbCanInterface* b, LinkControl* li) {
       const_count = count;
       var_offset = offset;
       buffer = b;
       link = li;
       state = STATE_DONE;
+                    //Serial.print("\nSNII_setup  buffer->net->id=");
+                    //Serial.print(buffer->net->id,HEX);
   }
   
 const uint8_t SNII_nextByte() { 
@@ -73,26 +76,32 @@ const uint8_t SNII_nextByte() {
 
 void SNII_check() {
     if ( state != STATE_DONE ) {
-        if (OpenLcb_can_xmt_ready(buffer)) {
+        //if (OpenLcb_can_xmt_ready(buffer)) {
+        if (buffer->net->txReady()) {
+                    //Serial.print("\nSNII_check  buffer->net->id=");
+                    //Serial.print(buffer->net->id,HEX);
             buffer->setOpenLcbMTI(MTI_SNII_REPLY);
             buffer->setDestAlias(dest);
             uint8_t i;
             for (i = 2; i<8; i++ ) {
-                buffer->data[i] = SNII_nextByte();
+                buffer->net->data[i] = SNII_nextByte();
                 if (state == STATE_DONE) {
                     i++;
                     break;
                 }
             }
-            buffer->length = i;
-            OpenLcb_can_queue_xmt_immediate(buffer);  // checked previously
+                    //Serial.print("   buffer->net->id=");
+                    //Serial.print(buffer->net->id,HEX);
+            buffer->net->length = i;
+            //OpenLcb_can_queue_xmt_immediate(buffer);  // checked previously
+            buffer->net->write(200); // checked previously
         }
     }
     return;
 }
 
 
-bool SNII_receivedFrame(OpenLcbCanBuffer* rcv) {
+bool SNII_receivedFrame(OlcbCanInterface* rcv) {
     if ( rcv->isOpenLcbMTI(MTI_SNII_REQUEST) )  {
         //LDEBUG("\nIn SNII_receivedFrame");
         // check if available to send

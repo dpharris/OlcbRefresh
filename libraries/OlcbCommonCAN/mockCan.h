@@ -6,24 +6,21 @@
 //
 //
 
-#ifndef CAN_H
-#define CAN_H
-#define MockCAN_H
+#ifndef MOCKCAN_H
+#define MOCKCAN_H
 
-#pragma message("Compiling mockCan.h")
-#include "OlcbCanClass.h"
-class Can : public OlcbCanClass {
+//#pragma message("Compiling mockCan.h")
+
+#include "OlcbCan.h"
+
+class Can : public OlcbCan {
   public:
-    //OlcbCanClass(){};
-    // ~OlcbCanClass(){};
-    //Can();
-    //~Can();
-    void init();
-    uint8_t avail();
-    uint8_t read();
-    uint8_t txReady();
-    uint8_t write();
+    void init();                    // initialization
+    uint8_t avail();                // read rxbuffer available
+    uint8_t read();                 // read a buffer
+    uint8_t txReady();              // write txbuffer available
+    uint8_t write(long timeout);    // write, 0= immediately or fail; 0< if timeout occurs fail
 };
 
 
-#endif
+#endif // MOCKCAN_H

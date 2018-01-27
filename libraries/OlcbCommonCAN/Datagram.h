@@ -1,6 +1,8 @@
 #ifndef Datagram_h
 #define Datagram_h
 
+//#pragma message("!!! compiling Datagram_h")
+
 /**
  * Class for handling Datagrams
  *
@@ -27,12 +29,24 @@
 #define DATAGRAM_REJECTED_RESEND_MASK            0x2000
 #define DATAGRAM_REJECTED_TRANSPORT_ERROR_MASK   0x4000
 
-class OpenLcbCanBuffer;
+//class OpenLcbCanBuffer;
+
+#include "OlcbCanInterface.h"
+
 class LinkControl;
 
 class Datagram {
   public:
-
+    /*
+     void setDatagram(NodeID src, NodeID dst, uint16_t len, void* data);
+     void isDatagram();
+     void setDatagramReply(NodeID src, NodeID dst);
+     void isDatagramReply();
+     void setDatagramAck(NodeID src, NodeID dst);
+     void isDatagramAck();
+     void setDatagramNak(NodeID src, NodeID dst);
+     void isDatagramNak();
+     */
   /**
    * Ask for the transmit buffer. If
    * it's in use, indicated by returning a 0 pointer,
@@ -56,12 +70,15 @@ class Datagram {
    * be transferred to the PCER object via this method
    * so that it can handle the verification protocol.
    */
-  bool receivedFrame(OpenLcbCanBuffer* rcv);
+  //bool receivedFrame(OpenLcbCanBuffer* rcv);
+  bool receivedFrame(OlcbCanInterface* rcv);
   
-  Datagram(OpenLcbCanBuffer* b, unsigned int (*callback)(uint8_t tbuf[DATAGRAM_LENGTH], unsigned int length, unsigned int from), LinkControl* link);
+  //Datagram(OpenLcbCanBuffer* b, unsigned int (*callback)(uint8_t tbuf[DATAGRAM_LENGTH], unsigned int length, unsigned int from), LinkControl* link);
+  Datagram(OlcbCanInterface* b, unsigned int (*callback)(uint8_t tbuf[DATAGRAM_LENGTH], unsigned int length, unsigned int from), LinkControl* link);
   
   private:
-  OpenLcbCanBuffer* buffer;
+  //OpenLcbCanBuffer* buffer;
+  OlcbCanInterface* buffer;
   LinkControl* link;
   
   uint8_t tbuf[DATAGRAM_LENGTH];

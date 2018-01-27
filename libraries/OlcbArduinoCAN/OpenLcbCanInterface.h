@@ -1,6 +1,7 @@
 #ifndef OpenLcbCanInterface_h
 #define OpenLcbCanInterface_h
 
+#if 1==0
 
 //#pragma message("!!! compiling OpenLcbCanInterface_h")
 
@@ -29,8 +30,10 @@
  * needed library in the top level file.  In the case of
  * this implementation, this is the can.h file in the CAN library.
  */
-#include "OpenLcbCanInterface.h"
-#include "OlcbCanClass.h"
+//#include "OpenLcbCanInterface.h"
+//#include "OlcbCanClass.h"
+
+
 #include "processor.h"
 
 //#include "mockCan.h"
@@ -80,5 +83,7 @@ bool OpenLcb_can_get_frame(OpenLcbCanBuffer* b);
 
 // set true on any transmit; used to inform externals
 extern bool OpenLcb_can_active;
+
+#endif
 
 #endif

@@ -1,6 +1,8 @@
 #ifndef OpenLcbCanBuffer_h
 #define OpenLcbCanBuffer_h
 
+#if 1==0
+
 //#pragma message("!!! compiling OpenLcbCanBuffer_h")
 
 class NodeID;
@@ -124,5 +126,7 @@ class EventID;
   // copy content (0-7) to a previously-allocated Eid
   void loadFromEid(EventID* eid);
 };
+
+#endif
 
 #endif

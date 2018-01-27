@@ -1,4 +1,6 @@
 
+#if 1==0
+
 /**
  * Specific implementation for CAN MP2515
  */
@@ -122,3 +124,4 @@ bool OpenLcb_can_get_frame(OpenLcbCanBuffer* b) {
 
 bool OpenLcb_can_active;
 
+#endif

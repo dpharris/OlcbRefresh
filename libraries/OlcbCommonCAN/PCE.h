@@ -13,11 +13,12 @@
 
 #include "EventID.h"
 #include "Event.h"
+#include "OlcbCanInterface.h"
 
 typedef uint16_t Index;
 
 class NodeID;
-class OpenLcbCanBuffer;
+//class OpenLcbCanBuffer;
 class LinkControl;
 class Event;
 //class Index;
@@ -30,7 +31,8 @@ class PCE {
     PCE(Event* evts,                // events
         int nEvt,                   // number of events
         uint16_t* eIndex,           // sorted index into events/eventids
-        OpenLcbCanBuffer* b,        // buffer
+        //OpenLcbCanBuffer* b,        // buffer
+        OlcbCanInterface* b,        // buffer
         void (*cb)(unsigned int i),  // callback for Consumers received
         void (*rest)(),             // restore()
         LinkControl* li             // Link control
@@ -56,7 +58,8 @@ class PCE {
    * be transferred to the PCER object via this method
    * so that it can handle the verification protocol.
    */
-  bool receivedFrame(OpenLcbCanBuffer* rcv);
+  //bool receivedFrame(OpenLcbCanBuffer* rcv);
+  bool receivedFrame(OlcbCanInterface* rcv);
   
   /**
    * A new event has been defined, and we should
@@ -95,12 +98,15 @@ private:
   Index* eventsIndex; // array
   int nEvents;
   LinkControl* link;
-  OpenLcbCanBuffer* buffer;
+  //OpenLcbCanBuffer* buffer;
+  OlcbCanInterface* buffer;
   NodeID* nid;
   void (*callback)(uint16_t i);   // void callback(int index) pointer
   void (*restore)();           // void store() pointer for storing config changes
-  void handlePCEventReport(OpenLcbCanBuffer* rcv);
-  void handleLearnEvent(OpenLcbCanBuffer* rcv);
+  //void handlePCEventReport(OpenLcbCanBuffer* rcv);
+  void handlePCEventReport(OlcbCanInterface* rcv);
+  //void handleLearnEvent(OpenLcbCanBuffer* rcv);
+  void handleLearnEvent(OlcbCanInterface* rcv);
   int sendEvent; // index of next identified event to send, or -1
 };
 

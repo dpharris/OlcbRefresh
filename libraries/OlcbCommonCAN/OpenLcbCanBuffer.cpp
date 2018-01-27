@@ -1,3 +1,6 @@
+
+#if 1==0  // depreciated
+
 #include <string.h>
 
 #ifdef debug
@@ -349,4 +352,5 @@
   void OpenLcbCanBuffer::loadFromEid(EventID* eid) {
     memcpy(data, eid->val, 8);
   }
-  
+
+#endif

@@ -6,8 +6,8 @@
 #include "EventID.h"
 #include "Event.h"
 #include "LinkControl.h"
-#include "OpenLcbCanBuffer.h"
-
+//#include "OpenLcbCanBuffer.h"
+#include "OlcbCanInterface.h"
 #include "lib_debug_print_common.h"
 
 // Mark as waiting to have Identify sent
@@ -26,7 +26,7 @@ extern "C" {
     extern void writeEID(int index);
 }
 
-PCE::PCE(Event* evts, int nEvt, uint16_t* eIndex, OpenLcbCanBuffer* b, void (*cb)(unsigned int i), void (*rest)(), LinkControl* li)
+PCE::PCE(Event* evts, int nEvt, uint16_t* eIndex, OlcbCanInterface* b, void (*cb)(unsigned int i), void (*rest)(), LinkControl* li)
 {
       //events = evts;
     events = evts;
@@ -73,24 +73,28 @@ PCE::PCE(Event* evts, int nEvt, uint16_t* eIndex, OpenLcbCanBuffer* b, void (*cb
          if ( (events[sendEvent].flags & (IDENT_FLAG | Event::CAN_PRODUCE_FLAG)) == (IDENT_FLAG | Event::CAN_PRODUCE_FLAG)) {
            events[sendEvent].flags &= ~IDENT_FLAG;    // reset flag
            buffer->setProducerIdentified(&ev);
-           OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued, but OK due to earlier check
+           //OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued, but OK due to earlier check
+           buffer->net->write(200);  // wait until buffer queued, but OK due to earlier check
            break; // only send one from this loop
          } else if ( (events[sendEvent].flags & (IDENT_FLAG | Event::CAN_CONSUME_FLAG)) == (IDENT_FLAG | Event::CAN_CONSUME_FLAG)) {
            events[sendEvent].flags &= ~IDENT_FLAG;    // reset flag
            buffer->setConsumerIdentified(&ev);
-           OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued, but OK due to earlier check
+           //OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued, but OK due to earlier check
+           buffer->net->write(200);  // wait until buffer queued, but OK due to earlier check
            break; // only send one from this loop
          } else if (events[sendEvent].flags & PRODUCE_FLAG) {
            events[sendEvent].flags &= ~PRODUCE_FLAG;    // reset flag
            buffer->setPCEventReport(&ev);
            handlePCEventReport(buffer);
-           OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued, but OK due to earlier check
+             //OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued, but OK due to earlier check
+           buffer->net->write(200);  // wait until buffer queued, but OK due to earlier check
            break; // only send one from this loop
          } else if (events[sendEvent].flags & TEACH_FLAG) {
            events[sendEvent].flags &= ~TEACH_FLAG;    // reset flag
            buffer->setLearnEvent(&ev);
            handleLearnEvent(buffer);
-           OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued, but OK due to earlier check
+           //OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued, but OK due to earlier check
+           buffer->net->write(200);  // wait until buffer queued, but OK due to earlier check
            break; // only send one from this loop
          } else {
            // just skip
@@ -123,16 +127,17 @@ bool PCE::isMarkedToLearn(int index) {
 void PCE::sendTeach(EventID e) {   /// DPH added for Clock
 	buffer->setLearnEvent(&e);
 	handleLearnEvent(buffer);
-	OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued, but OK due to earlier check
-}	
+	//OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued, but OK due to earlier check
+    buffer->net->write(200);  // wait until buffer queued, but OK due to earlier check
+}
 
-  
+
   void PCE::sendTeach(int index) {
     events[index].flags |= TEACH_FLAG;
     sendEvent = sendEvent < index ? sendEvent : index;
   }
   
-  bool PCE::receivedFrame(OpenLcbCanBuffer* rcv) {
+  bool PCE::receivedFrame(OlcbCanInterface* rcv) {
     //LDEBUG("\nIn receivedFrame");
     EventID eventid;
     if (rcv->isIdentifyConsumers()) {
@@ -183,7 +188,7 @@ void PCE::sendTeach(EventID e) {   /// DPH added for Clock
     return true;
   }
 
-  void PCE::handlePCEventReport(OpenLcbCanBuffer* rcv) {
+  void PCE::handlePCEventReport(OlcbCanInterface* rcv) {
                 LDEBUG("\nIn handlePCEventReport");
       EventID eventid;
       rcv->getEventID(&eventid);
@@ -204,7 +209,7 @@ void PCE::sendTeach(EventID e) {   /// DPH added for Clock
       }
   }
   
-  void PCE::handleLearnEvent(OpenLcbCanBuffer* rcv) {
+  void PCE::handleLearnEvent(OlcbCanInterface* rcv) {
              //LDEBUG("\nIn PCE::handleLearnEvent");
              //LDEBUG("\n rcv=");
       //for(int i=0;i<14;i++) { LDEBUG2( ((uint8_t*)rcv)[i],HEX ); LDEBUG(" "); }

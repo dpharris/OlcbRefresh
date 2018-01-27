@@ -11,8 +11,8 @@
 
 #define NV(x) EEADDR(nodeVar.x)
 
-#include "OpenLcbCanInterface.h"
-#include "OpenLcbCanBuffer.h"
+//#include "OpenLcbCanInterface.h"
+//#include "OpenLcbCanBuffer.h"
 #include "NodeID.h"
 #include "EventID.h"
 #include "Event.h"
@@ -39,8 +39,10 @@
 #include "BG.h"
 #include "ButtonLed.h"
 
-OpenLcbCanBuffer     rxBuffer;  // CAN receive buffer
-OpenLcbCanBuffer     txBuffer;  // CAN send buffer
+//OpenLcbCanBuffer     rxBuffer;  // CAN receive buffer
+OlcbCanInterface     rxBuffer(&olcbcanRx);  // CAN receive buffer
+//OpenLcbCanBuffer     txBuffer;  // CAN send buffer
+OlcbCanInterface     txBuffer(&olcbcanTx);  // CAN send buffer
 //OpenLcbCanBuffer*    ptxCAN;
 
 #define LAST_EEPROM sizeof(MemStruct)
@@ -203,7 +205,7 @@ extern void initTables(){        // initialize tables
         event[e].flags = eidtab[e].flags;   //// will need flash reads
     }
     //printEventIndexes();
-
+    /*
     eventid[0].val[7]=7;
     eventid[1].val[7]=4;
     eventid[2].val[7]=5;
@@ -218,6 +220,7 @@ extern void initTables(){        // initialize tables
         qsort( eventIndex, NUM_EVENT, sizeof(eventIndex[0]), sortCompare);
     printEventIndexes();
     printEvents();
+    */
     //while(1==1){}
 }
 
@@ -239,16 +242,18 @@ void Olcb_init() {       // was setup()
     PIP_setup(&txBuffer, &link);
     //SNII_setup((uint8_t)sizeof(SNII_const_data), SNII_var_offset, &txBuffer, &link);
             Serial.print("\nIn olcb::init3");
-    SNII_setup((uint8_t)32, SNII_var_offset, &txBuffer, &link);
+    //SNII_setup((uint8_t)32, SNII_var_offset, &txBuffer, &link);
+    SNII_setup((uint8_t)sizeof(SNII_const_data), SNII_var_offset, &txBuffer, &link);
             Serial.print("\nIn olcb::init4");
     //can.init();
-    can_init();
+    olcbcanTx.init();
             Serial.print("\nIn olcb::init5");
     link.reset();
             Serial.print("\nIn olcb::init6");
 }
 bool Olcb_process() {   // was loop()
-    bool rcvFramePresent = OpenLcb_can_get_frame(&rxBuffer);
+    //bool rcvFramePresent = OpenLcb_can_get_frame(&rxBuffer);
+    bool rcvFramePresent = rxBuffer.net->read();
     link.check();
     bool handled = false;  // start accumulating whether it was processed or skipped
     if (rcvFramePresent) {
@@ -256,6 +261,7 @@ bool Olcb_process() {   // was loop()
     }
     if (link.linkInitialized()) {
         if (rcvFramePresent && rxBuffer.isForHere(link.getAlias()) ) {
+        //if (rcvFramePresent && rxBuffer.isForHere(nodeid) ) {
 #ifndef OLCB_NO_DATAGRAM
             handled |= dg.receivedFrame(&rxBuffer);  // has to process frame level
 #endif

@@ -1,13 +1,19 @@
 #ifndef NodeID_h
 #define NodeID_h
 
+#include <Arduino.h>
 #include <ctype.h>
 
 class NodeID {
-  public: 
-
-  uint8_t val[6];
+  public:
+    union {
+        uint32_t val32;
+        uint8_t  val[6];
+    };
+  private:
+    //uint16_t alias;
   
+  public:
   NodeID() {
       val[0] = 0;
       val[1] = 0;
@@ -15,6 +21,7 @@ class NodeID {
       val[3] = 0;
       val[4] = 0;
       val[5] = 0;
+      //alias = 0;
   }
   
   NodeID(uint8_t b0, uint8_t b1, uint8_t b2, 
@@ -25,12 +32,19 @@ class NodeID {
       val[3] = b3;
       val[4] = b4;
       val[5] = b5;
+      //alias = b0^(b1<<1)^(b2<<2)^(b3<<3)^(b4<<4)^(b5<<3);
+  }
+    
+  NodeID(uint32_t n, uint16_t a) {
+      val32 = n;
+      //alias = a;
   }
   
   bool equals(NodeID* n) {
-    return  (val[0]==n->val[0])&&(val[1]==n->val[1])
-          &&(val[2]==n->val[2])&&(val[3]==n->val[3])
-          &&(val[4]==n->val[4])&&(val[5]==n->val[5]);
+    //return  (val[0]==n->val[0])&&(val[1]==n->val[1])
+    //      &&(val[2]==n->val[2])&&(val[3]==n->val[3])
+    //      &&(val[4]==n->val[4])&&(val[5]==n->val[5]);
+      return val32 == n->val32;
      }
 
   /**
@@ -43,7 +57,17 @@ class NodeID {
       }
       return 0;
   }
-
+    /**
+     * Check to see if this object is equal
+     * to any in an array of NodeIDs
+     */
+  //NodeID* findAliasInArray(NodeID* array, int len) {
+  //  for (int i = 0; i<len; i++) {
+  //    if (array[i].alias==this->alias) return array+i;
+  //  }
+  //    return 0;
+  //}
+    
 };
 
 #endif

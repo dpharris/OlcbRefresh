@@ -67,9 +67,9 @@ static int findCompare(const void* a, const void* b){
     EventID* searchEID = (EventID*)a;
     uint16_t ib = *(uint16_t*)b;
     EventID eid = getEID(ib);
-    Serial.print("\nIn findCompare!! ia=");
-    Serial.print("\nia->"); searchEID->print();
-    Serial.print("\nib->"); eid.print();
+    //Serial.print("\nIn findCompare!! ia=");
+    //Serial.print("\nia->"); searchEID->print();
+    //Serial.print("\nib->"); eid.print();
     for(int i=0; i<8; i++) {
         //if(searchEID->val[i]>getEID(ib).val[i]) return 1;
         //if(searchEID->val[i]<getEID(ib).val[i]) return -1;
@@ -96,7 +96,7 @@ int EventID::findIndexInArray(uint16_t* eventIndex, int len, int start) {
             return -1;
         }
         //LDEBUG(F("\nSearch result:")); eventid[*ei]->print();
-        Serial.print("\none:"); Serial.print(*ei);
+        //Serial.print("\none:"); Serial.print(*ei);
         while((ei-1)>=eventIndex ) {
             eid = getEID(*(ei-1));
             //Serial.print("\nbacking:");Serial.print(((ei-1)-&eventIndex[0]));

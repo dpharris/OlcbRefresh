@@ -9,6 +9,9 @@
 #ifndef OpenLCBHeader_h
 #define OpenLCBHeader_h
 //#include "OlcbCanCLass.h"
+
+#include "OlcbCommonVersion.h"
+#include <EEPROM.h>
 #include "NodeID.h"
 
 typedef struct NodeVar_ {
@@ -33,7 +36,8 @@ typedef struct {
 
 //#include <EEPROM.h>
 //#include "Can.h"
-#include "OpenLcbCanBuffer.h"
+//#include "OpenLcbCanBuffer.h"
+#include "OlcbCanInterface.h"
 #include "PIP.h"
 #include "SNII.h"
 #include "PCE.h"
@@ -65,9 +69,9 @@ typedef struct {
 
 
 // ===== CDI System Portions =======================================
-#define CDIheader R"( \
-    <cdi xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='http://openlcb.org/trunk/prototypes/xml/schema/cdi.xsd'> \
-    <identification> \
+#define CDIheader "\
+    <cdi xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='http://openlcb.org/trunk/prototypes/xml/schema/cdi.xsd'>\n\
+    <identification>\n\
         <manufacturer>OpenLCB</manufacturer>\
         <model>OlcbBasicNode</model>\
         <hardwareVersion>1.0</hardwareVersion>\
@@ -79,8 +83,8 @@ typedef struct {
             <description>User-provided description of the node</description>\
             <string size='20'><name>Node Name</name></string>\
             <string size='24'><name>Node Description</name></string>\
-        </group>)" 
-#define CDIfooter R"( \
+        </group>"
+#define CDIfooter "\
     </segment>\
     <segment origin='0' space='253'> <!-- stuff magic to trigger resets -->\
         <name>Reset</name>\
@@ -93,7 +97,7 @@ typedef struct {
             </map>\
         </int>\
     </segment>\
-    </cdi>)"
+    </cdi>"
 
 
 extern "C" {
@@ -129,7 +133,7 @@ extern "C" {
 #define pFirmwareUpgrade     0x20
 #define pFirwareUpdateActive 0x10
 
-#define OlcbCommonVersion "0.0.1"
+//#define OlcbCommonVersion "0.0.1"
 
 //#define Can OlcbCanClass
 
@@ -163,12 +167,13 @@ void printEventIndexes() {
 }
 void printEvents() {
     Serial.print(F("\nprintEvents "));
-    //Serial.print(MEM_MODEL);
+    Serial.print(F("\n#  flags  EventID"));
     for(int i=0;i<8;i++) {
         //Serial.print(F("\n  offset: ")); Serial.print(events[i].offset,HEX);
-        Serial.print("\n"); Serial.print(i); Serial.print(":");
-        Serial.print(F(" flags: ")); Serial.print(event[i].flags,HEX);
-        Serial.print(F(" eventID: ")); eventid[i].print();
+        Serial.print("\n"); Serial.print(i);
+        Serial.print(":"); Serial.print(eidtab[i].offset,HEX);
+        Serial.print(F(" : ")); Serial.print(event[i].flags,HEX);
+        Serial.print(F(" : ")); eventid[i].print();
     }
 }
 

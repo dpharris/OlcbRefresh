@@ -73,6 +73,7 @@ void NodeMemory::setup(NodeID* nid, Event* _cE, uint8_t _nC, uint16_t eeprom_siz
 
     } else if (!checkAllOK()) {
         //LDEBUG("\n!checkAllOK");
+        Serial.print(F("\n!checkAllOK"));
         // fires a factory reset
         nextEID = 0;
         // handle the rest
@@ -91,6 +92,7 @@ void NodeMemory::setup(NodeID* nid, Event* _cE, uint8_t _nC, uint16_t eeprom_siz
 
 void NodeMemory::reset(NodeID* nid, Event* cE, uint8_t nC) {
     //LDEBUG("\nNodeMemory::reset1");
+    Serial.print(F("\nNodeMemory::reset1"));
     for (uint16_t e=0; e<nC; e++) {
         //setToNewEventID(nid, getOffset(e));
         //uint16_t off = eidtab[e].offset;
@@ -98,10 +100,12 @@ void NodeMemory::reset(NodeID* nid, Event* cE, uint8_t nC) {
         setToNewEventID(nid, off);
         nextEID++;
     }
+    store(nid); // magic#, nextEID, nid
 }
 
 //void NodeMemory::store(NodeID* nid, Event* cE, uint8_t nC, uint16_t* eOff) {
-void NodeMemory::store(NodeID* nid, Event* cE, const uint16_t* eventidOffset, uint8_t nC) {
+//void NodeMemory::store(NodeID* nid, Event* cE, const uint16_t* eventidOffset, uint8_t nC) {
+void NodeMemory::store(NodeID* nid) {
     
     int addr = startAddress;
     // write tag

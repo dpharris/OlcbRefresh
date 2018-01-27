@@ -1,8 +1,11 @@
 #ifndef BG_h
 #define BG_h
 
-#include <ButtonLed.h>
+//#pragma message("!!! compiling BG_h")
 
+#include <ButtonLed.h>
+#include "OlcbNet.h"
+#include "OlcbInterface.h"
 /**
  * Class for Blue/Gold configuration.
  * Works with a PCE instance to do the actual operations.
@@ -30,12 +33,13 @@
 
 class PCE;
 class ButtonLed;
-class OpenLcbCanBuffer;
+//class OpenLcbCanBuffer;
 
 class BG {
   public:
 
-  BG(PCE* pce, ButtonLed** buttons, uint32_t* patterns, uint8_t nEvents, ButtonLed* blue, ButtonLed* gold, OpenLcbCanBuffer* buffer);
+  //BG(PCE* pce, ButtonLed** buttons, uint32_t* patterns, uint8_t nEvents, ButtonLed* blue, ButtonLed* gold, OpenLcbCanBuffer* buffer);
+    BG(PCE* pce, ButtonLed** buttons, uint32_t* patterns, uint8_t nEvents, ButtonLed* blue, ButtonLed* gold, OlcbInterface* buffer);
   
   void check();
   
@@ -47,7 +51,8 @@ class BG {
   uint8_t nEvents;
   ButtonLed* blue;
   ButtonLed* gold;
-  OpenLcbCanBuffer* buffer;
+  //OpenLcbCanBuffer* buffer;
+  OlcbInterface* buffer;
 
   int8_t index;
   bool lastBlue;

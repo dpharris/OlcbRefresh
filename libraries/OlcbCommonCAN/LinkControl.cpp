@@ -5,8 +5,11 @@
 #include "LinkControl.h"
 
 #include "OpenLcbCan.h"
-#include "OpenLcbCanBuffer.h"
-#include "OpenLcbCanInterface.h"
+//#include "OpenLcbCanBuffer.h"
+//#include "OpenLcbCanInterface.h"
+
+#include "OlcbCan.h"
+
 #include "NodeID.h"
 
 #include "lib_debug_print_common.h"
@@ -22,14 +25,14 @@
 #define CONFIRM_WAIT_TIME 200
 
 //extern "C" {
-    extern bool can_init();
-    extern bool can_check_message(void);
-    extern bool can_check_free_buffer(void);
-    extern uint8_t can_send_message(const Can *msg);
-    extern uint8_t can_get_message(Can *msg);
+//    extern bool can_init();
+//    extern bool can_check_message(void);
+//    extern bool can_check_free_buffer(void);
+//    extern uint8_t can_send_message(const Can *msg);
+//    extern uint8_t can_get_message(Can *msg);
 //}
 
-LinkControl::LinkControl(OpenLcbCanBuffer* b, NodeID* n) {
+LinkControl::LinkControl(OlcbCanInterface* b, NodeID* n) {
   txBuffer = b;
   nid = n;
 }
@@ -111,8 +114,10 @@ bool LinkControl::sendAMR() {
 
 bool LinkControl::sendFrame() {
     //LDEBUG("\nIn LinkControl::sendFrame");
-  if (!OpenLcb_can_xmt_ready(txBuffer)) return false;  // couldn't send just now
-  OpenLcb_can_queue_xmt_wait(txBuffer);  // wait for queue, but earlier check says will succeed
+  //if (!OpenLcb_can_xmt_ready(txBuffer)) return false;  // couldn't send just now
+    if (!txBuffer->net->txReady()) return false; // couldn't send just now
+  //OpenLcb_can_queue_xmt_wait(txBuffer);  // wait for queue, but earlier check says will succeed
+    txBuffer->net->write(200); // wait for queue, but earlier check says will succeed
   return true;
 }
 
@@ -165,13 +170,14 @@ uint16_t LinkControl::getAlias() {
   return (lfsr1 ^ lfsr2 ^ (lfsr1>>12) ^ (lfsr2>>12) )&0xFFF;
 }
 
-void LinkControl::rejectMessage(OpenLcbCanBuffer* rcv, uint16_t code) {
+void LinkControl::rejectMessage(OlcbCanInterface* rcv, uint16_t code) {
      // send OptionalInterationRejected; should be threaded, but isn't
      txBuffer->setOptionalIntRejected(rcv, code);
-     OpenLcb_can_queue_xmt_wait(txBuffer);
+    // OpenLcb_can_queue_xmt_wait(txBuffer);
+    txBuffer->net->write(200);
 }
 
-bool LinkControl::receivedFrame(OpenLcbCanBuffer* rcv) {
+bool LinkControl::receivedFrame(OlcbCanInterface* rcv) {
     //LDEBUG("\nIn LinkControl::receivedFrame");
     uint16_t alias = getAlias();
    // check received message
@@ -190,10 +196,12 @@ bool LinkControl::receivedFrame(OpenLcbCanBuffer* rcv) {
    // check for aliasMapEnquiry
    else if (rcv->isFrameTypeCAN() && (rcv->getVariableField() == AME_VAR_FIELD)) {
       // check node ID matches or no node ID present
-      if (rcv->length != 0 && (!rcv->matchesNid(nid))) return false;
+      if (rcv->net->length != 0 && (!rcv->matchesNid(nid))) return false;
       // reply
       txBuffer->setAMD(alias, nid);
-      OpenLcb_can_queue_xmt_wait(txBuffer);
+      //OpenLcb_can_queue_xmt_wait(txBuffer);
+      txBuffer->net->write(200);
+
    }
    // check for aliasMapDefinition
    // check for aliasMapReset
@@ -201,12 +209,13 @@ bool LinkControl::receivedFrame(OpenLcbCanBuffer* rcv) {
    // see if this is a Verify request to us; first check type
    else if (rcv->isVerifyNID() && 
                 ( rcv->isAddressedMessage() ? rcv->getDestAlias() == alias
-                                    : (rcv->length == 0 || rcv->matchesNid(nid))
+                                    : (rcv->net->length == 0 || rcv->matchesNid(nid))
                 )
             ) {
      // reply; should be threaded, but isn't
      txBuffer->setVerifiedNID(nid);
-     OpenLcb_can_queue_xmt_wait(txBuffer);
+     //OpenLcb_can_queue_xmt_wait(txBuffer);
+     txBuffer->net->write(200);
      return true;
    }
    

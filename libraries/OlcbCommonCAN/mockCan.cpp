@@ -10,31 +10,32 @@
 #pragma message("Compiling mockCan.cpp")
 
 #include <stdio.h>
-#include "OlcbCanClass.h"
+#include "OlcbCan.h"
 #include "mockCan.h"
 
-//OlcbCanClass(){};
-// ~OlcbCanClass(){};
-    //Can(){}
-    //~Can(){}
 void Can::init(){
-        Serial.print("\nIn mockCan::init()");
+    Serial.print("\nIn mockCan::init()");
+    return 1;
 }
 
 uint8_t Can::avail() {
-        Serial.print("\nIn mockCan::avail()");
+    Serial.print("\nIn mockCan::avail()");
+    return 1;
 }
 
 uint8_t Can::read(){
-        Serial.print("\nIn mockCan::init()");
+    Serial.print("\nIn mockCan::init()");
+    return 1;
 }
 
 uint8_t Can::txReady(){
-        Serial.print("\nIn mockCan::read()");
+    Serial.print("\nIn mockCan::read()");
+    return 1;
 }
 
-uint8_t Can::write(){
-        Serial.print("\nIn mockCan::write()");
+uint8_t Can::write(long timeout){
+    Serial.print("\nIn mockCan::write()");
+    return 1;
 }
 
 #endif

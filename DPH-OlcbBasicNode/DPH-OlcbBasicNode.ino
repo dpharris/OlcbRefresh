@@ -28,25 +28,29 @@
 // total number of events, two per channel
 #define NUM_EVENT 2*NUM_CHANNEL
   
-//#include "mockCan.h"
-
-#include "OlcbCommonVersion.h"
 //#include "debug.h"
 #include "OpenLCBHeader.h"
-//#include "AT90can.h"
-Can can;
+//#include "mockCan.h"
+#include "AT90can.h"
+//#include "OlcbCan.h"
+Can olcbcanRx;
+Can olcbcanTx;
+
+//Can can;
 //OlcbCanClass can;
 // Description of EEPROM memory structure, and the mirrored mem if in MEM_LARGE
 
-NodeID nodeid(5,1,1,1,3,255);    // This node's default ID; must be valid 
+//NodeID nodeid(5,1,1,1,3,255);    // This node's default ID; must be valid 
+NodeID nodeid(0x11,0x22,0x33,0x44,0x55,0x66);    // This node's default ID; must be valid 
 
 // ===== CDI =====
 //   Configuration Description Information in xml, must match MemStruct below
 //   See: http://openlcb.com/wp-content/uploads/2016/02/S-9.7.4.1-ConfigurationDescriptionInformation-2016-02-06.pdf
     extern "C" { 
         const char configDefInfo[] PROGMEM = 
-            CDIheader R"(
-          // ===== Enter User definitions below =====
+        //const char configDefInfo[]  = 
+          // ===== Enter User definitions below CDIheader line =====
+          CDIheader R"(
             <group>
               <name>I/O Events</name>
               <description>Define events associated with input and output pins</description>
@@ -65,8 +69,8 @@ NodeID nodeid(5,1,1,1,3,255);    // This node's default ID; must be valid
                 <eventid><name>Reset Event</name></eventid>
               </group>
             </group>
-          // ===== Enter User definitions above =====
-            )" CDIfooter;
+          )" CDIfooter;
+          // ===== Enter User definitions above CDIfooter line =====
     }
 
 // ===== MemStruct =====
@@ -91,7 +95,8 @@ NodeID nodeid(5,1,1,1,3,255);    // This node's default ID; must be valid
 extern "C" {
   // ===== eventid Table =====
   //  Array of the offsets to every eventID in MemStruct/EEPROM/mem, and P/C flags
-       const EIDTab eidtab[NUM_EVENT]  = {
+       //const EIDTab eidtab[NUM_EVENT] PROGMEM = {
+       const EIDTab eidtab[NUM_EVENT] = {
         PEID(inputs[0].activation), PEID(inputs[0].inactivation),
         PEID(inputs[1].activation), PEID(inputs[1].inactivation),
         CEID(outputs[0].setEvent),  CEID(outputs[0].resetEvent),
@@ -101,14 +106,8 @@ extern "C" {
  // SNIP Short node description for use by the Simple Node Information Protocol 
  // See: http://openlcb.com/wp-content/uploads/2016/02/S-9.7.4.3-SimpleNodeInformation-2016-02-06.pdf
     extern const char SNII_const_data[] PROGMEM = "\001OpenLCB\000DPHOlcbBasicNode\0001.0\000" OlcbCommonVersion ; // last zero in double-quote
-
+//const char SNII_const_data[] PROGMEM = "\001OpenLCB\000OlcbBasicNode\0001.0\000" OlcbCommonVersion ;
 }; // end extern "C"
-    
-// Define pins
-// BLUE is 18 LEDuino; others defined by board (48 IO, 14 IOuino)
-#define BLUE 18
-#define GOLD 19  // GOLD is 19 LEDuino; others defined by board (49 IO, 15 IOuino)
-
 
 // Establish location of node Name and Node Decsription in memory
 //#define SNII_var_data &pmem->nodeName           // location of SNII_var_data EEPROM, and address of nodeName
@@ -129,50 +128,45 @@ uint8_t protocolIdentValue[6] = {   //0xD7,0x58,0x00,0,0,0};
 // 14, 15, 16, 17 for LEDuino with standard shield
 // 16, 17, 18, 19 for IOduino to clear built-in blue and gold
 // Io 0-7 are outputs & LEDs, 8-15 are inputs
-ButtonLed pA(0, LOW); 
-ButtonLed pB(1, LOW);
-ButtonLed pC(8, LOW);
-ButtonLed pD(9, LOW);
-
-#define ShortBlinkOn   0x00010001L
-#define ShortBlinkOff  0xFFFEFFFEL
-
-uint32_t patterns[] = { // two per cchannel, one per event
-  ShortBlinkOff,ShortBlinkOn,
-  ShortBlinkOff,ShortBlinkOn,
-  ShortBlinkOff,ShortBlinkOn,
-  ShortBlinkOff,ShortBlinkOn
-};
-ButtonLed* buttons[] = {  
-  &pA,&pA,&pB,&pB,&pC,&pC,&pD,&pD // One for each event; each channel is a pair
-};
-ButtonLed blue(BLUE, LOW);
-ButtonLed gold(GOLD, LOW);
+// Define pins
+    #define BLUE 18   // BLUE is 18 LEDuino; others defined by board (48 IO, 14 IOuino)
+    #define GOLD 19   // GOLD is 19 LEDuino; others defined by board (49 IO, 15 IOuino)
+    
+    ButtonLed pA(0, LOW); 
+    ButtonLed pB(1, LOW);
+    ButtonLed pC(8, LOW);
+    ButtonLed pD(9, LOW);
+    
+    #define ShortBlinkOn   0x00010001L
+    #define ShortBlinkOff  0xFFFEFFFEL
+    
+    uint32_t patterns[] = { // two per cchannel, one per event
+      ShortBlinkOff,ShortBlinkOn,
+      ShortBlinkOff,ShortBlinkOn,
+      ShortBlinkOff,ShortBlinkOn,
+      ShortBlinkOff,ShortBlinkOn
+    };
+    ButtonLed* buttons[] = {  
+      &pA,&pA,&pB,&pB,&pC,&pC,&pD,&pD // One for each event; each channel is a pair
+    };
+    ButtonLed blue(BLUE, LOW);
+    ButtonLed gold(GOLD, LOW);
 
 // ===== Process Consumer-eventIDs =====
-void pceCallback(unsigned int index){
-  // Invoked when an event is consumed; drive pins as needed
-  // from index of all events.  
-  // Sample code uses inverse of low bit of pattern to drive pin all on or all off.  
-  // The pattern is mostly one way, blinking the other, hence inverse.
-  //
-  //Serial.print(F("\npceCallback()")); Serial.print(index);
-  Serial.print("\n In pceCallback inndex="); Serial.print(index);
-  buttons[index]->on( patterns[index]&0x1 ? 0x0L : ~0x0L );
-}
-
-//NodeMemory nm(0);  // allocate from start of EEPROM
-//void store() { nm.store(&nodeid, events, eventidOffset, NUM_EVENT); }
-
-//PCE pce(&nodal, &txBuffer, pceCallback, restore, &link);
-
-// Set up Blue/Gold configuration
-//BG bg(&pce, buttons, patterns, NUM_EVENT, &blue, &gold, &txBuffer);
+    void pceCallback(unsigned int index) {
+      // Invoked when an event is consumed; drive pins as needed
+      // from index of all events.  
+      // Sample code uses inverse of low bit of pattern to drive pin all on or all off.  
+      // The pattern is mostly one way, blinking the other, hence inverse.
+      //
+      //Serial.print(F("\npceCallback()")); Serial.print(index);
+      Serial.print("\n In pceCallback inndex="); Serial.print(index);
+      buttons[index]->on( patterns[index]&0x1 ? 0x0L : ~0x0L );
+    }
 
 bool states[] = {false, false, false, false}; // current input states; report when changed
 
 
-// ===== Process changes to Configuration EEPROM =====
 // On the assumption that the producers (inputs) and consumers (outputs) are consecutive, 
 // these are used later to label the individual channels as producer or consumer
 #define FIRST_PRODUCER_CHANNEL_INDEX    0
@@ -275,18 +269,45 @@ OpenLCB olcb( &nodeid,  // NodeID
         configWritten   // callback for EEPROM writes from Tools
 );
 */
-/**
- * Setup does initial configuration
- */
-void setup()
-{
+
+// ==== Setup does initial configuration =============================
+void setup() {
   // set up serial comm; may not be space for this!
   while(!Serial){}
   delay(250);Serial.begin(115200);Serial.print(F("\nOlcbBasicNode\n"));
-//  nm.setup(&nodal, (uint8_t*) 0, (uint16_t)0, (uint16_t)LAST_EEPROM); 
+
+
+/*
+  Serial.print("\nconfigDefInfo\n");
+  for(int i=0;i<sizeof(configDefInfo);i++) {
+    Serial.print((char)configDefInfo[i]);
+    //if(configDefInfo[i]=='>') Serial.print("\n");
+  }
+  while(1==1){}
+*/
+
+/*
+  OlcbCanInterface can1(&olcbcan);
+  OlcbCanInterface can2(&olcbcan);
+  can1.net->id=1;
+  can2.net->id=2;
+  Serial.print("\ncan1.net->id=");   Serial.print(can1.net->id,HEX); 
+  Serial.print("\ncan2.net->id=");   Serial.print(can2.net->id,HEX); 
+  while(1==1){}
+*/ 
+  nm.forceInitAll();
+
+  EEPROM.put(EEADDR(nodeVar.nodeName),"OlcbBasicNode");
+  EEPROM.put(EEADDR(nodeVar.nodeDesc),"Testing");
+  EEPROM.put(EEADDR(inputs[0].desc),"Input0");
+  EEPROM.put(EEADDR(inputs[1].desc),"Input1");
+  EEPROM.put(EEADDR(outputs[0].desc),"Output0");
+  EEPROM.put(EEADDR(outputs[1].desc),"Output1");
+  
   Olcb_init();
-  /*
   printEeprom();
+
+  /*
   printEventIndexes();
   printSortedEvents();
   OpenLcbCanBuffer buf;
@@ -294,29 +315,33 @@ void setup()
   pce.receivedFrame(&buf);
   */
 // test void OpenLcbCanBuffer::setConsumerIdentified(EventID* eid) --- returns 194C4 instead of 19474
-  OpenLcbCanBuffer buffer;
+/*
+  OlcbCanInterface buffer(&olcbcan);
   EventID eee = { 11,22,333,44,55,66,77,88 };
   buffer.setConsumerIdentified(&eee);
   Serial.print("\n setConsumerIdentified()=");
-  Serial.print(buffer.id,HEX);
+  //Serial.print(buffer.id,HEX);
+  
   //for(int i=0;i<13;i++) {
   //  Serial.print(buffer[i]); Serial.print(".");
   //}
   //while(1==1){}
+  */
 }
 
+// ==== Loop ===========================================
 void loop() {
-    //bool activity = Olcb_loop();
     bool activity = Olcb_process();
     if (activity) {
         // blink blue to show that the frame was received
-        Serial.print("\nrcv");
+        //Serial.print("\nrcv");
         blue.blink(0x1);
     }
-    if (OpenLcb_can_active) { // set when a frame sent
+    //if (OpenLcb_can_active) { // set when a frame sent
+    if (olcbcanTx.active) { // set when a frame sent
         gold.blink(0x1);
-        Serial.print("\nsnd");
-        OpenLcb_can_active = false;
+        //Serial.print("\nsnd");
+        olcbcanTx.active = false;
     }
     // handle the status lights  
     blue.process();

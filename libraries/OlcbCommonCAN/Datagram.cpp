@@ -1,13 +1,29 @@
 #include <string.h>
 
-#include "OpenLcbCan.h"
-#include "OpenLcbCanBuffer.h"
+#include "OpenLcbCan.h"   // constants
+//#include "OpenLcbCanBuffer.h"
+
+#include "OlcbCanInterface.h"
 #include "LinkControl.h"
 #include "Datagram.h"
 
 #include <stdio.h>
 
-Datagram::Datagram(OpenLcbCanBuffer* b, unsigned int (*cb)(uint8_t tbuf[DATAGRAM_LENGTH], unsigned int length,  unsigned int from), LinkControl* ln) {
+//#pragma message("!!! compiling Datagram.cpp")
+
+ /*
+ void setDatagram(NodeID src, NodeID dst, uint16_t len, void* data);
+ void isDatagram();
+ void setDatagramReply(NodeID src, NodeID dst);
+ void isDatagramReply();
+ void setDatagramAck(NodeID src, NodeID dst);
+ void isDatagramAck();
+ void setDatagramNak(NodeID src, NodeID dst);
+ void isDatagramNak();
+ */
+
+//Datagram::Datagram(OpenLcbCanBuffer* b, unsigned int (*cb)(uint8_t tbuf[DATAGRAM_LENGTH], unsigned int length,  unsigned int from), LinkControl* ln) {
+Datagram::Datagram(OlcbCanInterface* b, unsigned int (*cb)(uint8_t tbuf[DATAGRAM_LENGTH], unsigned int length,  unsigned int from), LinkControl* ln) {
       buffer = b;
       link = ln;
       callback = cb; 
@@ -40,16 +56,18 @@ void Datagram::check() {
   // see if any datagram segments are waiting to send
   if (sendcount >= 0) { // 0 is valid length
     // check if can send now
-    if (OpenLcb_can_xmt_ready(buffer)) {
+    //if (OpenLcb_can_xmt_ready(buffer)) {
+    if (buffer->net->txReady()) {
       // load buffer
       if (first)
         buffer->setOpenLcbFormat(FRAME_FORMAT_ADDRESSED_DATAGRAM_FIRST);
       else
         buffer->setOpenLcbFormat(FRAME_FORMAT_ADDRESSED_DATAGRAM_MID);
-      buffer->length = sendcount<8 ? sendcount : 8;
-      for (int i = 0; i<buffer->length; i++)
-          buffer->data[i] = *(tptr++);
-      sendcount = sendcount - buffer->length;
+      buffer->net->length = sendcount<8 ? sendcount : 8;
+      //buffer->net->setL(sendcount<8 ? sendcount : 8);
+      for (int i = 0; i<buffer->net->length; i++)
+          buffer->net->data[i] = *(tptr++);
+      sendcount = sendcount - buffer->net->length;
       // if hit zero this time, done
       if (sendcount == 0) {
           sendcount = -1;
@@ -61,8 +79,8 @@ void Datagram::check() {
       // and send it
       buffer->setDestAlias(dest);
       first = false;
-      OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued, but OK due to earlier check
-      // and wait for reply
+      //OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued, but OK due to earlier check
+      buffer->net->write(200);
     }
   }
 }
@@ -81,12 +99,13 @@ void Datagram::setDatagramAck(uint16_t srcAlias, uint16_t dstAlias) {
 void Datagram::setDatagramNak(uint16_t srcAlias, uint16_t dstAlias, uint16_t code) {
     setDatagramReply(srcAlias, dstAlias);
     buffer->setOpenLcbMTI(MTI_DATAGRAM_REJECTED);
-    buffer->data[2] = (code>>8)&0xFF;
-    buffer->data[3] = code&0xFF;
-    buffer->length = 4;
+    buffer->net->data[2] = (code>>8)&0xFF;
+    buffer->net->data[3] = code&0xFF;
+    buffer->net->length = 4;
 }
 
-bool Datagram::receivedFrame(OpenLcbCanBuffer* rcv) {
+//bool Datagram::receivedFrame(OpenLcbCanBuffer* rcv) {
+bool Datagram::receivedFrame(OlcbCanInterface* rcv) {
     // conditionally check for link-level frames that stop reception
     if (receiving) {
         if (rcv->isAMR(fromAlias) || rcv->isAMD(fromAlias)) {
@@ -108,7 +127,7 @@ bool Datagram::receivedFrame(OpenLcbCanBuffer* rcv) {
         return true;
     } else if (rcv->isOpenLcbMTI(MTI_DATAGRAM_REJECTED) ) { // datagram NAK
         // check permanent or temporary
-        if (rcv->length < 6 || rcv->data[2] & (DATAGRAM_REJECTED_RESEND_MASK >> 8)) {
+        if (rcv->net->length < 6 || rcv->net->data[2] & (DATAGRAM_REJECTED_RESEND_MASK >> 8)) {
             // temporary, set up for resend
             sendcount = resendcount;
             tptr = tbuf;
@@ -139,7 +158,8 @@ bool Datagram::receivedFrame(OpenLcbCanBuffer* rcv) {
                 if (rcv->getOpenLcbFormat() == FRAME_FORMAT_ADDRESSED_DATAGRAM_ALL ) {
                     // TODO: Need a more robust scheduling method here
                     setDatagramNak(link->getAlias(), rcv->getSourceAlias(), DATAGRAM_REJECTED_BUFFER_FULL);
-                    OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued _WITHOUT_ prior check
+                    //OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued _WITHOUT_ prior check
+                    buffer->net->write(200);  // wait until buffer queued _WITHOUT_ prior check
                 }
                 return true;
                 // TODO send error response some how; will return false be enough?
@@ -157,7 +177,8 @@ bool Datagram::receivedFrame(OpenLcbCanBuffer* rcv) {
                     ) {
                     // TODO: Need a more robust scheduling method here
                     setDatagramNak(link->getAlias(), rcv->getSourceAlias(), DATAGRAM_REJECTED_OUT_OF_ORDER);
-                    OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued _WITHOUT_ prior check
+                    //OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued _WITHOUT_ prior check
+                    buffer->net->write(200);  // wait until buffer queued _WITHOUT_ prior check
                 }
                 return true;
                 // TODO send error response some how; will return false be enough?
@@ -171,13 +192,14 @@ bool Datagram::receivedFrame(OpenLcbCanBuffer* rcv) {
                 ) {
                 // TODO: Need a more robust scheduling method here
                 setDatagramNak(link->getAlias(), rcv->getSourceAlias(), DATAGRAM_REJECTED_BUFFER_FULL);
-                OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued _WITHOUT_ prior check
+                //OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued _WITHOUT_ prior check
+                buffer->net->write(200);  // wait until buffer queued _WITHOUT_ prior check
             }
             return true;
          }
          // this is a datagram fragment, store into the buffer
-         for (int i=0; i<rcv->length; i++) {
-            *(rptr++) = rcv->data[i];
+         for (int i=0; i<rcv->net->length; i++) {
+            *(rptr++) = rcv->net->data[i];
          }
          // is the end of the datagram?
          if ( ( rcv->getOpenLcbFormat() == FRAME_FORMAT_ADDRESSED_DATAGRAM_ALL) 
@@ -199,7 +221,8 @@ bool Datagram::receivedFrame(OpenLcbCanBuffer* rcv) {
                 // TODO: Need a more robust method here
                 setDatagramNak(link->getAlias(), rcv->getSourceAlias(), DATAGRAM_REJECTED_DATAGRAM_TYPE_NOT_ACCEPTED);
             }
-            OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued _WITHOUT_ prior check
+            //OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued _WITHOUT_ prior check
+            buffer->net->write(200);  // wait until buffer queued _WITHOUT_ prior check
          }
          return true;
     }

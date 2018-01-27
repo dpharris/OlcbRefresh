@@ -4,12 +4,14 @@
 #include <EEPROM.h>
 #include "PCE.h"
 //#include "NodeMemory.h"
-#include "OpenLcbCanBuffer.h"
+//#include "OpenLcbCanBuffer.h"
+
+//#pragma message("!!! compiling BG_cpp")
 
 #define UNREADY_BLINK 0xFF00FFL
 #define READY_BLINK   0x1L
 
-BG::BG(PCE* pc, ButtonLed** bC, uint32_t* pt, uint8_t n, ButtonLed* bptr, ButtonLed* gptr, OpenLcbCanBuffer* b) {
+BG::BG(PCE* pc, ButtonLed** bC, uint32_t* pt, uint8_t n, ButtonLed* bptr, ButtonLed* gptr, OlcbInterface* b) {
       pce = pc;
       buttons = bC;
       patterns = pt;
@@ -136,7 +138,8 @@ EventID ident(0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0xFE, 0x00);
 
 void BG::sendIdent() {
     buffer->setProducerIdentified(&ident);
-    OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued, need to improve this 
+    //OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued, need to improve this
+    buffer->net->write(100);  // wait until buffer queued, need to improve this  // dph ?? how long
 }
 
 /**

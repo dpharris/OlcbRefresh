@@ -1,10 +1,11 @@
 #ifndef LinkControl_h
 #define LinkControl_h
 
-class OpenLcbCanBuffer;
+//class OpenLcbCanBuffer;
 class NodeID;
 #include <Arduino.h>
 #include <stdint.h>
+#include "OlcbCanInterface.h"
 
 /**
  * Controls a OpenLcb S9.6 CAN link.
@@ -38,7 +39,8 @@ class LinkControl {
   * buffer to be used to send frames, and the NodeID of this
   * node.
   */
-  LinkControl(OpenLcbCanBuffer* b, NodeID* n);
+  //LinkControl(OpenLcbCanBuffer* b, NodeID* n);
+  LinkControl(OlcbCanInterface* b, NodeID* n);
 
   /**
    * Invoke once to configure an object of this type.
@@ -60,12 +62,14 @@ class LinkControl {
    * When a CAN frame is received, it should
    * be transferred to the LinkControl object via this method.
    */
-  bool receivedFrame(OpenLcbCanBuffer* rcv);
+  //bool receivedFrame(OpenLcbCanBuffer* rcv);
+  bool receivedFrame(OlcbCanInterface* rcv);
 
   /**
    * Send an Optional Interaction Rejected frame
    */
-  void rejectMessage(OpenLcbCanBuffer* rcv, uint16_t code);
+  //void rejectMessage(OpenLcbCanBuffer* rcv, uint16_t code);
+  void rejectMessage(OlcbCanInterface* rcv, uint16_t code);
 
   /**
    * Check if the link startup procedure has completed OK.
@@ -119,7 +123,8 @@ class LinkControl {
    */
   void restart();
 
-  OpenLcbCanBuffer* txBuffer;
+  //OpenLcbCanBuffer* txBuffer;
+  OlcbCanInterface* txBuffer;
   NodeID* nid;
   uint32_t timer; // used to wait for specific times (Arduino type definition)
   uint32_t lfsr1, lfsr2;  // PRNG sequence value: lfsr1 is upper 24 bits, lfsr2 lower
