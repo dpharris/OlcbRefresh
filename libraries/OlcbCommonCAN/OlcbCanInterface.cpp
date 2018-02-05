@@ -79,7 +79,7 @@ void OlcbCanInterface::setSource(NodeID nid) {
     //setSourceAlias(nid.alias);
 }
 NodeID OlcbCanInterface::getSource() {
-    return NodeID(0,net->id & MASK_SRC_ALIAS);
+    //return NodeID(net->id & MASK_SRC_ALIAS);
 }
 
 

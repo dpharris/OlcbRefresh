@@ -57,6 +57,9 @@ PCE::PCE(Event* evts, int nEvt, uint16_t* eIndex, OlcbCanInterface* b, void (*cb
 
   void PCE::check() {
      // see in any replies are waiting to send
+      //Serial.print("\nEvent::CAN_PRODUCE_FLAG"); Serial.print(Event::CAN_PRODUCE_FLAG,HEX);
+      //Serial.print("\nEvent::CAN_CONSUME_FLAG"); Serial.print(Event::CAN_CONSUME_FLAG,HEX);
+      
      while (sendEvent < nEvents) {
          // OK to send, see if marked for some cause
          // ToDo: This only sends _either_ producer ID'd or consumer ID'd, not both
@@ -69,7 +72,6 @@ PCE::PCE(Event* evts, int nEvt, uint16_t* eIndex, OlcbCanInterface* b, void (*cb
          //LDEBUG(" cC:"); LDEBUG(0!=(events[sendEvent].flags & Event::CAN_CONSUME_FLAG));
          //LDEBUG(" P:"); LDEBUG(0!=(events[sendEvent].flags & PRODUCE_FLAG));
          //LDEBUG(" E:"); LDEBUG(0!=(events[sendEvent].flags & EMPTY_FLAG));
-
          if ( (events[sendEvent].flags & (IDENT_FLAG | Event::CAN_PRODUCE_FLAG)) == (IDENT_FLAG | Event::CAN_PRODUCE_FLAG)) {
            events[sendEvent].flags &= ~IDENT_FLAG;    // reset flag
            buffer->setProducerIdentified(&ev);
@@ -190,11 +192,12 @@ void PCE::sendTeach(EventID e) {   /// DPH added for Clock
 
   void PCE::handlePCEventReport(OlcbCanInterface* rcv) {
                 LDEBUG("\nIn handlePCEventReport");
+      Serial.print("\nIn handlePCEventReport: ");
       EventID eventid;
       rcv->getEventID(&eventid);
                 eventid.print();
       // find matching eventID
-      int index = 0;
+      int index = -1;
       while ( -1 != (index = eventid.findIndexInArray(eventsIndex, nEvents, index))) {
           uint16_t eindex = eventsIndex[index];
             //LDEBUG("\nhandlePCRep ind: "); LDEBUG(ind);

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "group:Adafruit_PWM_Servo_Driver_Library">
+   </FileRef>
+   <FileRef
+      location = "group:AT90">
+   </FileRef>
+   <FileRef
+      location = "group:ButtonLED">
+   </FileRef>
+   <FileRef
+      location = "group:LCmini">
+   </FileRef>
+   <FileRef
+      location = "group:LocoNet">
+   </FileRef>
+   <FileRef
+      location = "group:MCP2515">
+   </FileRef>
+   <FileRef
+      location = "group:NmraDcc">
+   </FileRef>
+   <FileRef
+      location = "group:OlcbArduinoCAN">
+   </FileRef>
+   <FileRef
+      location = "group:OlcbCommonCAN">
+   </FileRef>
+   <FileRef
+      location = "group:OlcbI2C">
+   </FileRef>
+   <FileRef
+      location = "group:OlcbTestCAN">
+   </FileRef>
+   <FileRef
+      location = "group:TeesyARM">
+   </FileRef>
+   <FileRef
+      location = "group:Tiva">
+   </FileRef>
+</Workspace>

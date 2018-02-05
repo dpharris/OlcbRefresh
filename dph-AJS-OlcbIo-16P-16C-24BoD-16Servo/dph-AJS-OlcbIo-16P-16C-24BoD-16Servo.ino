@@ -28,8 +28,6 @@
 
 #include "OpenLCBHeader.h"
 #include "AT90can.h"
-Can olcbcanRx;
-Can olcbcanTx;
 
 //#define DEBUG_BAUD_RATE 115200
 
@@ -123,7 +121,6 @@ NodeID nodeid(0x05,0x02,0x01,0x02,0x02,0x24);    // This node's default ID; must
           } servoOutputs[NUM_SERVOS];
       // ===== Enter User definitions above =====
     } MemStruct;                 // type definition
-    MemStruct *pmem = 0; 
 
 extern "C" {
   // ===== eventid Table =====

@@ -48,7 +48,33 @@ OlcbCanInterface     txBuffer(&olcbcanTx);  // CAN send buffer
 
 #define LAST_EEPROM sizeof(MemStruct)
 
+// flashGet
+//template <typename T> T flashGet(const T* sce) {
+//    static T r;
+//    memcpy_P (&r, sce, sizeof (T));
+//    return r;
+//}
+
+
+// The variable parts of the SNII protocol are stored in EEPROM, as secribed by MemStruct
+MemStruct *pmem = 0;
+#define SNII_var_data &pmem->nodeVar.nodeName           // location of SNII_var_data EEPROM, and address of nodeName
+#define SNII_var_offset sizeof(pmem->nodeVar.nodeName)  // location of nodeDesc
+
+
 extern "C" {
+
+    // EIDTab - eventID_Table is stored in Flash
+    // It has two fields:
+    //   offset = offset to each eventID in the MemStruct in EEPROM
+    //   flags = the initial flags indicating whether the eventID showed be announced at startup
+    uint16_t getOffset(unsigned index) {
+        return pgm_read_word(&eidtab[index].offset);
+    }
+    uint16_t getFlags(unsigned index) {
+        return pgm_read_word(&eidtab[index].flags);
+    }
+
     uint32_t spaceUpperAddr(uint8_t space) {  // return last valid address
         switch (space) {
             case 255: return sizeof(configDefInfo) - 1; // CDI (data starts at zero)
@@ -86,31 +112,72 @@ extern "C" {
     }
     
     void getWrite(uint32_t address, int space, uint8_t val) {
-        //Serial.print("\nolcbinc getWrite");
-        //Serial.print(" space: "); Serial.print(space,HEX);
-        //Serial.print(":"); Serial.print(address,HEX);
-        //Serial.print("="); Serial.print(val,HEX);
+                        //Serial.print("\nolcbinc getWrite");
+                        //Serial.print(" space: "); Serial.print(space,HEX);
+                        //Serial.print(":"); Serial.print(address,HEX);
+                        //Serial.print("="); Serial.print(val,HEX);
         if (space == 0xFE) {
             // All memory
             *(((uint8_t*)&rxBuffer)+address) = val;
         } else if (space == 0xFD) {
             // Configuration space
             EEPROM.write(address, val);
-            configWritten(address, val);
+            //configWritten(address, val);
         }
         // all other spaces not written
     }
     
-    uint16_t getOffset(uint16_t index) {
-            //return pgm_read_word(eidtab);
-        return eidtab[index].offset;
-    }
     void printeidtab() {
         Serial.print("\neidtab:\n");
         for(int i=0;i<NUM_EVENT;i++) {
             Serial.print("[");
-            Serial.print(eidtab[i].offset,HEX); Serial.print(", ");
-            Serial.print(eidtab[i].flags,HEX); Serial.print("], ");
+            Serial.print(getOffset(i),HEX); Serial.print(", ");
+            Serial.print(getFlags(i),HEX); Serial.print("], ");
+        }
+    }
+    // Extras
+    void printEventIndexes() {
+        Serial.print(F("\nprintEventIndex\n"));
+        for(int i=0;i<NUM_EVENT;i++) {
+            Serial.print(eventIndex[i],HEX); Serial.print(F(", "));
+        }
+    }
+    void printEvents() {
+        Serial.print(F("\nprintEvents "));
+        Serial.print(F("\n#  flags  EventID"));
+        for(int i=0;i<8;i++) {
+            //Serial.print(F("\n  offset: ")); Serial.print(events[i].offset,HEX);
+            Serial.print("\n"); Serial.print(i);
+            //Serial.print(":"); Serial.print(eidtab[i].offset,HEX);
+            Serial.print(":"); Serial.print(getOffset(i),HEX);
+            Serial.print(F(" : ")); Serial.print(event[i].flags,HEX);
+            //Serial.print(F(" : ")); eventid[i].print();
+            Serial.print(F(" : ")); event[i].eid.print();
+        }
+    }
+    
+    void printEventids() {
+        Serial.print("\neventids:");
+        for(int e=0;e<NUM_EVENT;e++) {
+            Serial.print("\n[");
+            for(int i=0;i<8;i++) {
+                //Serial.print(eventid[e].val[i],HEX); Serial.print(", ");
+                Serial.print(event[e].eid.val[i],HEX); Serial.print(", ");
+            }
+        }
+    }
+    void printSortedEvents() {
+        Serial.print("\nSorted events");
+        for(int i=0; i<NUM_EVENT; i++) {
+            Serial.print("\n");
+            Serial.print(i); Serial.print(": ");
+            int e = eventIndex[i];
+            Serial.print(e); Serial.print(": ");
+            for(int j=0;j<8;j++) {
+                //Serial.print(eventid[e].val[j]);
+                Serial.print(event[e].eid.val[j]);
+                Serial.print(".");
+            }
         }
     }
 } // end of extern
@@ -131,8 +198,8 @@ LinkControl link(&txBuffer, &nodeid);
 #ifndef OLCB_NO_DATAGRAM
     unsigned int datagramCallback(uint8_t *rbuf, unsigned int length, unsigned int from);
     Datagram dg(&txBuffer, datagramCallback, &link);
-    //Configuration* cfg(&dg, &str, &getRead, &getWrite, (void (*)())0, &configWritten);
-    Configuration cfg(&dg, &str, getRead, getWrite, (void (*)())0, (void (*)(unsigned int, unsigned int))0 );
+    Configuration cfg(&dg, &str, getRead, getWrite, (void (*)())0, configWritten);
+    //Configuration cfg(&dg, &str, getRead, getWrite, (void (*)())0, (void (*)(unsigned int, unsigned int))0 );
 
     unsigned int datagramCallback(uint8_t *rbuf, unsigned int length, unsigned int from) {
         // invoked when a datagram arrives
@@ -161,18 +228,16 @@ PCE pce(event, NUM_EVENT, eventIndex, &txBuffer, pceCallback, restore, &link);
 NodeMemory nm(0);
 
 extern "C" {
-
+    
     extern EventID getEID(unsigned i) {
-        return eventid[i];
+        //return eventid[i];
+        return event[i].eid;
     }
     
     extern void writeEID(int index) {
         // All write to EEPROM, may have to restore to RAM.
         Serial.print("\nwriteEID() "); Serial.print(index);
-        //uint8_t offset = eventOffset[index];
-        //uint8_t offset = eidtab[index].offset;
-        //for (int i=0;i<8;i++) EEPROM.update(offset+i, this->val[i]);
-        EEPROM.put(eidtab[index].offset, eventid[index]);
+        EEPROM.put(getOffset(index), event[index].eid);
     }
 }
 
@@ -187,25 +252,21 @@ static int sortCompare(const void* a, const void* b){
     Serial.print(" ib=");Serial.print(ib);
     //EventID ea = eventid[ia];
     for(unsigned int i=0; i<8; i++) {
-        if(eventid[ia].val[i]>eventid[ib].val[i]) return 1;
-        if(eventid[ia].val[i]<eventid[ib].val[i]) return -1;
+        if(event[ia].eid.val[i]>event[ib].eid.val[i]) return 1;
+        if(event[ia].eid.val[i]<event[ib].eid.val[i]) return -1;
     }
     return 0; // they are equal
 }
 
 
 extern void initTables(){        // initialize tables
-    Serial.print("\nIn olcb::initTables");
-    //EEPROM.get(NV(nid),nid);
-    //nextEID = EEPROM.read(NV(nextEID)) << 8;
-    //nextEID += EEPROM.read(NV(nextEID+1));
+    
     for(unsigned int e=0; e<NUM_EVENT; e++) {
         eventIndex[e] = e;
-        EEPROM.get(eidtab[e].offset, eventid[e]);
-        //event[e].flags = eidtab[e].flags;   //// will need flash reads
-        event[e].flags = eidtab[e].flags;   //// will need flash reads
+        EEPROM.get(getOffset(e), event[e].eid);
+        event[e].flags |= getFlags(e);
     }
-    //printEventIndexes();
+
     /*
     eventid[0].val[7]=7;
     eventid[1].val[7]=4;
@@ -222,7 +283,7 @@ extern void initTables(){        // initialize tables
     printEventIndexes();
     printEvents();
     */
-    //while(1==1){}
+
 }
 
 //extern can_init();
@@ -249,14 +310,20 @@ void Olcb_init() {       // was setup()
     link.reset();
             Serial.print("\nIn olcb::init6");
 }
+
+// Main processing loop
+//
 bool Olcb_process() {   // was loop()
-    //bool rcvFramePresent = OpenLcb_can_get_frame(&rxBuffer);
+
     bool rcvFramePresent = rxBuffer.net->read();
+
     link.check();
+
     bool handled = false;  // start accumulating whether it was processed or skipped
     if (rcvFramePresent) {
         handled = link.receivedFrame(&rxBuffer);
     }
+
     if (link.linkInitialized()) {
         if (rcvFramePresent && rxBuffer.isForHere(link.getAlias()) ) {
         //if (rcvFramePresent && rxBuffer.isForHere(nodeid) ) {

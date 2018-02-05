@@ -83,13 +83,11 @@ NodeID nodeid(0x11,0x22,0x33,0x44,0x55,0x66);    // Easy to find in eeprom listi
             } outputs[2];           // 2 outputs
       // ===== Enter User definitions above =====
     } MemStruct;                 // type definition
-    MemStruct *pmem = 0; 
 
 extern "C" {
   // ===== eventid Table =====
   //  Array of the offsets to every eventID in MemStruct/EEPROM/mem, and P/C flags
-       //const EIDTab eidtab[NUM_EVENT] PROGMEM = {
-       const EIDTab eidtab[NUM_EVENT] = {
+       const EIDTab eidtab[NUM_EVENT] PROGMEM = {
         PEID(inputs[0].activation), PEID(inputs[0].inactivation),
         PEID(inputs[1].activation), PEID(inputs[1].inactivation),
         CEID(outputs[0].setEvent),  CEID(outputs[0].resetEvent),
@@ -118,8 +116,12 @@ uint8_t protocolIdentValue[6] = {   //0xD7,0x58,0x00,0,0,0};
 // 16, 17, 18, 19 for IOduino to clear built-in blue and gold
 // Io 0-7 are outputs & LEDs, 8-15 are inputs
 // Define pins
-    #define BLUE 18   // BLUE is 18 LEDuino; others defined by board (48 IO, 14 IOuino)
-    #define GOLD 19   // GOLD is 19 LEDuino; others defined by board (49 IO, 15 IOuino)
+    //#define BLUE 18   // BLUE is 18 LEDuino; others defined by board (48 IO, 14 IOuino)
+    //#define GOLD 19   // GOLD is 19 LEDuino; others defined by board (49 IO, 15 IOuino)
+    #define BLUE 48   // BLUE is 18 LEDuino; others defined by board (48 IO, 14 IOuino)
+    #define GOLD 49   // GOLD is 19 LEDuino; others defined by board (49 IO, 15 IOuino)
+    //#define BLUE 14   // BLUE is 18 LEDuino; others defined by board (48 IO, 14 IOuino)
+    //#define GOLD 15   // GOLD is 19 LEDuino; others defined by board (49 IO, 15 IOuino)
     
     ButtonLed pA(0, LOW); 
     ButtonLed pB(1, LOW);
@@ -149,7 +151,7 @@ uint8_t protocolIdentValue[6] = {   //0xD7,0x58,0x00,0,0,0};
       // The pattern is mostly one way, blinking the other, hence inverse.
       //
       //Serial.print(F("\npceCallback()")); Serial.print(index);
-      Serial.print("\n In pceCallback inndex="); Serial.print(index);
+      Serial.print("\n In pceCallback index="); Serial.print(index);
       buttons[index]->on( patterns[index]&0x1 ? 0x0L : ~0x0L );
     }
 
@@ -193,7 +195,7 @@ void produceFromInputs() {
 // 
 //void userConfigWrite(unsigned int address, unsigned int length) {
 void configWritten(unsigned int address, unsigned int length) {
-  //Serial.print("\nuserConfigWrite "); Serial.print(address,HEX);
+  Serial.print("\nuserConfigWrite "); Serial.print(address,HEX);
   //Serial.print(":"); Serial.print(length,HEX);
   // resets the board:
   //if( address==0 && length==0xFFFF ) setup();
@@ -215,7 +217,8 @@ void setup() {
   while(!Serial){}
   delay(250);Serial.begin(115200);Serial.print(F("\nOlcbBasicNode\n"));
 
-  #if 1==0
+  //#define FORCEALLINIT
+  #ifdef FORCEALLINIT
       nm.forceInitAll();
       // initialize descriptions
       EEPROM.put(EEADDR(nodeVar.nodeName),"OlcbBasicNode");
@@ -233,6 +236,11 @@ void setup() {
 // ==== Loop ===========================================
 void loop() {
     bool activity = Olcb_process();
+    static long T = millis()+5000;
+    if(millis()>T) {
+      T+=5000;
+      Serial.print("\n.");
+    }
     if (activity) {
         // blink blue to show that the frame was received
         //Serial.print("\nrcv");

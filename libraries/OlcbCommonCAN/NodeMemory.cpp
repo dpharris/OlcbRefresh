@@ -52,7 +52,7 @@ void NodeMemory::setup(NodeID* nid, Event* _cE, uint8_t _nC, uint16_t eeprom_siz
     //}
                             //Serial.print("\nIn NodeMemory::setup");
 
-    if (checkNidOK()) {
+    if (checkNidOK()) {    // the nodeID is ok, but need new set of eventIDs
         // leave NodeID and count, reset rest
         //LDEBUG("\ncheckNidOK'd");
 
@@ -69,9 +69,9 @@ void NodeMemory::setup(NodeID* nid, Event* _cE, uint8_t _nC, uint16_t eeprom_siz
         nextEID = (part1<<8)+part2;
 
         // handle the rest
-        reset(nid, cE, nC);
+        reset(nid, cE, nC);  // !!!
 
-    } else if (!checkAllOK()) {
+    } else if (!checkAllOK()) {  // All trash, so reint everything.
         //LDEBUG("\n!checkAllOK");
         Serial.print(F("\n!checkAllOK"));
         // fires a factory reset
@@ -90,6 +90,8 @@ void NodeMemory::setup(NodeID* nid, Event* _cE, uint8_t _nC, uint16_t eeprom_siz
     //LDEBUG("\nOut NodeMemory::setup");
 }
 
+// Factory reset: write to EEPROM new set of eventIDs and then magic, nextEID and nodeID
+// !! simplify to reset() ?
 void NodeMemory::reset(NodeID* nid, Event* cE, uint8_t nC) {
     //LDEBUG("\nNodeMemory::reset1");
     Serial.print(F("\nNodeMemory::reset1"));
@@ -103,8 +105,7 @@ void NodeMemory::reset(NodeID* nid, Event* cE, uint8_t nC) {
     store(nid); // magic#, nextEID, nid
 }
 
-//void NodeMemory::store(NodeID* nid, Event* cE, uint8_t nC, uint16_t* eOff) {
-//void NodeMemory::store(NodeID* nid, Event* cE, const uint16_t* eventidOffset, uint8_t nC) {
+// store to EEPROM magic, nextEID, and NodeID
 void NodeMemory::store(NodeID* nid) {
     
     int addr = startAddress;
@@ -125,6 +126,7 @@ void NodeMemory::store(NodeID* nid) {
         EEPROM.update(addr++, *p++);
 }
 
+// wtite to EEPROM one new eventEID
 void NodeMemory::setToNewEventID(NodeID* nid, uint16_t offset) {
     //LDEBUG("\nIn setToNewEventID1");
     //LDEBUG(" offset="); LDEBUG2(offset,HEX);
@@ -137,6 +139,7 @@ void NodeMemory::setToNewEventID(NodeID* nid, uint16_t offset) {
     EEPROM.put(offset, eid);
 }
 
+// checkAllOK:  false if EEPROM is not initialize, requires a Factory reset.
 bool NodeMemory::checkAllOK() {
     //LDEBUG("\ncheckAllOK");
     if (EEPROM.read(startAddress  ) != 0xEE ) return false;

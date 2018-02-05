@@ -41,8 +41,8 @@ extern "C" {
 }
 
 bool EventID::equals(EventID* n) {
-    //Serial.print("\nequals("); this->print();
-    //n->print(); Serial.print(")");
+                        //Serial.print("\nequals("); this->print();
+                        //n->print(); Serial.print(")");
     return  (val[0]==n->val[0])&&(val[1]==n->val[1])
          &&(val[2]==n->val[2])&&(val[3]==n->val[3])
          &&(val[4]==n->val[4])&&(val[5]==n->val[5])
@@ -63,16 +63,13 @@ void EventID::print() {
 }
 
 static int findCompare(const void* a, const void* b){
-    //  EventID* a, uint16_t* b
     EventID* searchEID = (EventID*)a;
     uint16_t ib = *(uint16_t*)b;
     EventID eid = getEID(ib);
-    //Serial.print("\nIn findCompare!! ia=");
-    //Serial.print("\nia->"); searchEID->print();
-    //Serial.print("\nib->"); eid.print();
+                        //Serial.print("\nIn findCompare!! ia=");
+                        //Serial.print("\nia->"); searchEID->print();
+                        //Serial.print("\nib->"); eid.print();
     for(int i=0; i<8; i++) {
-        //if(searchEID->val[i]>getEID(ib).val[i]) return 1;
-        //if(searchEID->val[i]<getEID(ib).val[i]) return -1;
         if(searchEID->val[i]>eid.val[i]) return 1;
         if(searchEID->val[i]<eid.val[i]) return -1;
     }
@@ -80,44 +77,44 @@ static int findCompare(const void* a, const void* b){
 }
 
 int EventID::findIndexInArray(uint16_t* eventIndex, int len, int start) {
-    //LDEBUG(F("\nIn EventID::findIndexInArray"));
-    //LDEBUG(F("\nstart:")); LDEBUG(start);
-    //LDEBUG(F("\nthis:")); this->print();
+                        //LDEBUG(F("\nIn EventID::findIndexInArray"));
+                        //LDEBUG(F("\nstart:")); LDEBUG(start);
+                        //LDEBUG(F("\nthis:")); this->print();
     EventID eid;
-    if(start<0 || start>=len) return -1;
-    uint16_t* ei = &eventIndex[start];
-    //LDEBUG(F("\nei->index=")); LDEBUG(*ei);
-    //Serial.print("\n ei="); Serial.print((ei-&eventIndex[0]));
-    if (start==0) {
+    if(start<-1 || start>=len) return -1;
+    uint16_t* ei;
+                        //LDEBUG(F("\nei->index=")); LDEBUG(*ei);
+    if (start==-1) {
         ei = (uint16_t*)bsearch( (const void*)this, (const void*)eventIndex, len, sizeof(uint16_t), findCompare);
+                        //Serial.print("\nbsearch result=");Serial.print(*ei);
         if(!ei){
-            //LDEBUG("\nNot Found");
-            //Serial.print("\nNot found1");
+                        //LDEBUG("\nNot Found");
+                        //Serial.print("\nNot found1");
             return -1;
         }
-        //LDEBUG(F("\nSearch result:")); eventid[*ei]->print();
-        //Serial.print("\none:"); Serial.print(*ei);
+                        //LDEBUG(F("\nSearch result:")); eventid[*ei]->print();
+                        //Serial.print("\none:"); Serial.print(*ei);
         while((ei-1)>=eventIndex ) {
             eid = getEID(*(ei-1));
-            //Serial.print("\nbacking:");Serial.print(((ei-1)-&eventIndex[0]));
-            //Serial.print(":");Serial.print(*(ei-1));
-            //Serial.print(":");eid.print();
+                        //Serial.print("\nbacking:");Serial.print(((ei-1)-&eventIndex[0]));
+                        //Serial.print(":");Serial.print(*(ei-1));
+                        //Serial.print(":");eid.print();
             if ( !this->equals(&eid) ) break;
             ei--;
         }
-        //LDEBUG(F("\nbackup:")); LDEBUG(*ei));
-        //Serial.print("\nbacked:");Serial.print((ei-&eventIndex[0]));
-        //Serial.print(":");Serial.print(*ei);
-        //Serial.print(":");eid.print();
+                        //LDEBUG(F("\nbackup:")); LDEBUG(*ei));
+                        //Serial.print("\nbacked:");Serial.print((ei-&eventIndex[0]));
+                        //Serial.print(":");Serial.print(*ei);
+                        //Serial.print(":");eid.print();
     } else ei++;
-    //Serial.print("\nthis:"); this->print();
+                        //Serial.print("\nthis:"); this->print();
     if(ei>=(eventIndex+len)) return -1;
     eid = getEID(*ei);
     if (!this->equals(&eid) ) return -1;
-    //LDEBUG(F("\nFound: ")); LDEBUG(*ei)); //eventid[*ei]->print();
-    //Serial.print("\nfound:");Serial.print((ei-&eventIndex[0]));
-    //Serial.print(":");Serial.print(*ei);
-    //Serial.print(":");eid.print();
+                        //LDEBUG(F("\nFound: ")); LDEBUG(*ei)); //eventid[*ei]->print();
+                        //Serial.print("\nfound:");Serial.print((ei-&eventIndex[0]));
+                        //Serial.print(":");Serial.print(*ei);
+                        //Serial.print(":");eid.print();
     return ei-&eventIndex[0];  // return the eventIndex indice.
 }
 

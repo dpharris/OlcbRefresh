@@ -18,6 +18,8 @@ class Event {
   //EventID getEID(unsigned i);
   static int evCompare(void* a, void* b);
 
+  // RAM copy of EventIDs
+  EventID eid;
   // Runtime action flags
   uint16_t flags;
   

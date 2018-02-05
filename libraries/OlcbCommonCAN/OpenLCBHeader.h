@@ -100,14 +100,18 @@ typedef struct {
     </cdi>"
 
 
-extern "C" {
-    extern const EIDTab eidtab[];
-}
 
-#define EEADDR(x) ((unsigned int)&pmem->x)
-#define CEID(x)    EEADDR(x), Event::CAN_CONSUME_FLAG
-#define PEID(x)    EEADDR(x), Event::CAN_PRODUCE_FLAG
-#define PCEID(x)   EEADDR(x), Event::CAN_CONSUME_FLAG|Event::CAN_PRODUCE_FLAG
+
+//extern "C" {
+//    extern const EIDTab eidtab[] PROGMEM;
+//}
+// Mark as waiting to have Identify sent
+#define IDENT_FLAG 0x01
+
+#define EEADDR(x)  ((uint16_t)(&(((MemStruct*)0)->x)))
+#define CEID(x)    {EEADDR(x), (uint16_t)Event::CAN_CONSUME_FLAG | IDENT_FLAG}
+#define PEID(x)    {EEADDR(x), (uint16_t)Event::CAN_PRODUCE_FLAG | IDENT_FLAG}
+#define PCEID(x)   {EEADDR(x), (uint16_t)Event::CAN_CONSUME_FLAG|Event::CAN_PRODUCE_FLAG | IDENT_FLAG}
 
 // ===== PIP Support ===============================================
 #define pSimple       0x80
@@ -139,66 +143,24 @@ extern "C" {
 
 extern void pceCallback(unsigned int i);
 extern void restore();
+
 ////Nodal* nodal;
 extern PCE pce;
 
 // Establish location of node Name and Node Decsription in memory
 //#define SNII_var_data &pmem->nodeName           // location of SNII_var_data EEPROM, and address of nodeName
 //#define SNII_var_offset sizeof(pmem->nodeName)  // location of nodeDesc
-#define SNII_var_data 12           // location of SNII_var_data EEPROM, and address of nodeName
-#define SNII_var_offset 20          // location of nodeDesc
+//#define SNII_var_data 12           // location of SNII_var_data EEPROM, and address of nodeName
+//#define SNII_var_offset 20          // location of nodeDesc
 
 
 Event event[NUM_EVENT];             // operating flags
-EventID eventid[NUM_EVENT];         // copy of EIDs from EEPROM
+//EventID eventid[NUM_EVENT];         // copy of EIDs from EEPROM
 uint16_t eventIndex[NUM_EVENT];     // Sorted index to eventids
 //uint16_t eventOffset[NUM_EVENT];    // stored in flash
 
 
-// Extras
-void printEventIndexes() {
-    Serial.print(F("\nprintEventIndex\n"));
-    for(int i=0;i<NUM_EVENT;i++) {
-        Serial.print(eventIndex[i],HEX); Serial.print(F(", "));
-        //eventsIndex[i].print();
-        //Serial.print(F("\n hash: ")); Serial.print(eventIndex[i].hash,HEX);
-        //Serial.print(F("  index: ")); Serial.print(eventIndex[i].index,HEX);
-    }
-}
-void printEvents() {
-    Serial.print(F("\nprintEvents "));
-    Serial.print(F("\n#  flags  EventID"));
-    for(int i=0;i<8;i++) {
-        //Serial.print(F("\n  offset: ")); Serial.print(events[i].offset,HEX);
-        Serial.print("\n"); Serial.print(i);
-        Serial.print(":"); Serial.print(eidtab[i].offset,HEX);
-        Serial.print(F(" : ")); Serial.print(event[i].flags,HEX);
-        Serial.print(F(" : ")); eventid[i].print();
-    }
-}
 
-void printEventids() {
-    Serial.print("\neventids:");
-    for(int e=0;e<NUM_EVENT;e++) {
-        Serial.print("\n[");
-        for(int i=0;i<8;i++) {
-            Serial.print(eventid[e].val[i],HEX); Serial.print(", ");
-        }
-    }
-}
-void printSortedEvents() {
-    Serial.print("\Sorted events");
-    for(int i=0; i<NUM_EVENT; i++) {
-        Serial.print("\n");
-        Serial.print(i); Serial.print(": ");
-        int e = eventIndex[i];
-        Serial.print(e); Serial.print(": ");
-        for(int j=0;j<8;j++) {
-            Serial.print(eventid[e].val[j]);
-            Serial.print(".");
-        }
-    }
-}
 
 
 
