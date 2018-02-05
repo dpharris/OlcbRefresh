@@ -45,7 +45,7 @@ For example, **EEADDR(channels[0].rate)** will return the offset to that item in
 Only eventIDs are copied to RAM into the eventids[] array.  <br>
 #### In Flash:<br>
 **EIDTab[]** holds the offset of each eventID into the EEPROM and RAM struct{}, and the associated flags indicating P/C.<br>
-    It is initialized at compile-time using three macros: CEID(), PEID(), and PCEID().
+    It is initialized at compile-time using three macros: **CEID()**, **PEID()**, and **PCEID()**.
     Fore example, **CEID(channels.event0)** provides the memory offset to teh event, and indicates it is a consumer-event.  
 #### In RAM:
 **eventidIndex[]** contains sorted index into **eventidOffset[]**.<br>
