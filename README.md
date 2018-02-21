@@ -122,8 +122,6 @@ For example there are some selected lines of code from the OlcbBasicNode example
   const char SNII_const_data[] PROGMEM = "\001OpenLCB\000DPHOlcbBasicNode\0001.0\000" OlcbCommonVersion ; 
   uint8_t protocolIdentValue[6] = {0xD7,0x58,0x00,0,0,0};
   ButtonLed* buttons[] = { &pA,&pA,&pB,&pB,&pC,&pC,&pD,&pD };
-  PCE pce(&nodal, &txBuffer, pceCallback, restore, &link);
-  BG bg(&pce, buttons, patterns, NUM_EVENT, &blue, &gold, &txBuffer);
 ```
 Most of the **processing** is hidden as functions in the #include files.  
 
