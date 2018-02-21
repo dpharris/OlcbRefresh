@@ -146,7 +146,7 @@ void PCE::sendTeach(EventID e) {   /// DPH added for Clock
         // see if we consume the listed event
         //Event event;
         rcv->getEventID(&eventid);
-        int index = 0;
+        int index = -1; //
         // find consumers of event
           while (-1 != (index = eventid.findIndexInArray(eventsIndex, nEvents, index))) {
            // yes, we have to reply with ConsumerIdentified

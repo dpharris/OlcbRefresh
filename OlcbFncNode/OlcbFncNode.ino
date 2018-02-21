@@ -22,6 +22,50 @@
 //   Bob Jacobsen 2010, 2012
 //      based on examples by Alex Shepherd and David Harris
 //==============================================================
+
+/*
+            <group replication='4'>
+              <name>EventIDs</name>
+              <repname>EventID</repname>
+              <string size='16'><name>Description</name></string>
+              <int size='1'>
+                <name>Function</name>
+                <default>0</default>
+                <map>
+                  <relation><property>0</property><value>Off</value></relation>
+                  <relation><property>1</property><value>Blink(period,duty)</value></relation>
+                  <relation><property>2</property><value>Dstrobe(period,duty)</value></relation>
+                  <relation><property>3</property><value>Fade(lumen,rate)</value></relation>
+                  <relation><property>4</property><value>Servo(target,rate)</value></relation>
+                  <relation><property>5</property><value>Input(sense,debounce)</value></relation>
+                  <relation><property>6</property><value>Sample(sense,debounce)</value></relation>
+                </map>
+              </int>
+              <int size='1'>
+                <name>Pin#</name>
+                <default>0</default>
+                <map>
+                  <relation><property>0</property><value>None</value></relation>
+                  <relation><property>1</property><value>pin12</value></relation>
+                  <relation><property>2</property><value>pin13</value></relation>
+                  <relation><property>3</property><value>pin14</value></relation>
+                  <relation><property>4</property><value>pin21</value></relation>
+                  <relation><property>5</property><value>pin22</value></relation>
+                  <relation><property>6</property><value>pin30</value></relation>                   
+                </map>
+              </int>
+              <int size='1'><name>Parameter1(0-255)</name>
+                   <description>period,target,sense</description>
+              </int>
+              <int size='1'><name>Parameter2(0-255)</name></int>
+              <eventid><name>EventID</name></eventid>
+            </group>
+
+*/
+
+
+
+
 //#include "debug.h"
 #include "OlcbCommonVersion.h"
 

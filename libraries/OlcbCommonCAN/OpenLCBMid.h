@@ -217,7 +217,7 @@ LinkControl link(&txBuffer, &nodeid);
 //Nodal_t nodal = { &nodeid, event, eventIndex, eidtab, NUM_EVENT };
 
 //PCE pce(&nodeid, event, eventIndex, eidtab, NUM_EVENT, &txBuffer, pceCallback, restore, &link);
-PCE pce(event, NUM_EVENT, eventIndex, &txBuffer, pceCallback, restore, &link);
+    PCE pce(event, NUM_EVENT, eventIndex, &txBuffer, pceCallback, restore, &link);
 //PCE::PCE(Event* evts, int nEvt, uint16_t* eIndex, OpenLcbCanBuffer* b, void (*cb)(uint16_t i), void (*rest)(), LinkControl* li)
 #ifndef OLCB_NO_BLUE_GOLD
     BG bg(&pce, buttons, patterns, NUM_EVENT, &blue, &gold, &txBuffer);
