@@ -1,3 +1,4 @@
+#if 1==0
 
 #ifndef MemStruct_h
 #define MemStruct_h
@@ -119,4 +120,6 @@ Index eventsIndex[NUM_EVENT];  // Sorted index to eventids
   void initTables();
   void printEventsIndex();
   void printEvents();
+#endif
+
 #endif

@@ -14,6 +14,8 @@
 *
 */
 
+#if 1==0   // depreciated
+
 // OpenLCB definitions
 #include "OpenLcbCanInterface.h"
 #include "OpenLcbCanBuffer.h"
@@ -175,4 +177,5 @@ bool Olcb_loop() {
   return rcvFramePresent;
 }
 
+#endif
  

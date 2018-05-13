@@ -268,6 +268,9 @@ void produceFromInputs() {
   }
 }
 
+void userInitAll() {}
+void userSoftReset() {}
+void userHardReset() {}
 
 // Callback from a Configuration write
 // Use this to detect changes in the ndde's configuration
@@ -294,7 +297,7 @@ void produceFromInputs() {
           Serial.begin(DEBUG_BAUD_RATE);DEBUGL(F("\nAJS OlcbIo 16P 16C 24BoD 16Servo"));
         #endif  
       
-        nm.forceInitAll();   
+        //nm.forceInitAll();   
        
         // Setup Output Pins
         for(uint8_t i = 0; i < NUM_OUTPUTS; i++)

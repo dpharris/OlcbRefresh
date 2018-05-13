@@ -1,5 +1,5 @@
 
-#if 1==0
+#if 1==0  // depreciated
 
 /**
  * Specific implementation for CAN MP2515

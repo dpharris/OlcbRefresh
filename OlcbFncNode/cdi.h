@@ -1,3 +1,6 @@
+#if 1==0
+
+
 // CDI
 
 // <?xml version='1.0'?>
@@ -140,3 +143,4 @@ const char configDefInfo[] PROGMEM = R"(
 
 </cdi>)";
 */
+#endif

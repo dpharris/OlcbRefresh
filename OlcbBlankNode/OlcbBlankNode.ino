@@ -5,33 +5,33 @@
 //   David P Harris copyright 2017
 //==============================================================
 
+#define NUM_CHANNEL 0
 #define NUM_EVENT 3
 //#define USE_BG
 #define OLCB_NO_BLUE_GOLD
 
 #include "OpenLCBHeader.h"
 #include "AT90can.h"
-Can olcbcan;
 
 NodeID nodeid(5,1,1,1,3,255);    // This node's default ID; must be valid 
 
 // CDI
 //   Configuration Description Information in xml, must match MemStruct below
 //   See: http://openlcb.com/wp-content/uploads/2016/02/S-9.7.4.1-ConfigurationDescriptionInformation-2016-02-06.pdf
-extern "C" { 
-  const char configDefInfo[] PROGMEM = 
-      CDIheader R"(
-    // ===== Enter User definitions below =====
-      <group replication='1'>
-        <name>I/O Events</name>
-        <description>Define events associated with input and output pins</description>
-        <eventid><name>Consumer Event</name></eventid>
-        <eventid><name>Producer Event</name></eventid>
-        <eventid><name>P/C Event</name></eventid>
-      </group>
-    // ===== Enter User definitions above =====
-      )"CDIfooter;
-}
+  extern "C" { 
+    const char configDefInfo[] PROGMEM = 
+        // ===== Enter User definitions below =====
+        CDIheader R"(
+          <group replication='1'>
+            <name>I/O Events</name>
+            <description>Define events associated with input and output pins</description>
+            <eventid><name>Consumer Event</name></eventid>
+            <eventid><name>Producer Event</name></eventid>
+            <eventid><name>P/C Event</name></eventid>
+          </group>
+        )" CDIfooter;
+        // ===== Enter User definitions above =====
+  }
 
 // ===== MemStruct =====
 //  Memory structure of EEPROM, must match CDI above
@@ -45,7 +45,6 @@ extern "C" {
           } io;
         // ===== Enter User definitions above =====
     } MemStruct;                 // type definition
-    MemStruct *pmem = 0;   
 
 extern "C" { 
     // ===== eventidOffset =====
@@ -70,8 +69,6 @@ extern "C" {
         pACDI | pSNIP | pCDI,                                           // 2nd byte
         0, 0, 0, 0                                                      // remaining bytes
     };
-
-
 
 #ifndef OLCB_NO_BLUE_GOLD
     // Optional definition of Status indicators and/or buttons
@@ -112,7 +109,10 @@ extern "C" {
     void produceFromInputs() { }
 
 // ===== Process changes to Configuration =====
-    void configWritten(unsigned int address, unsigned int length) { }
+    void configWritten(unsigned int address, unsigned int length) {}
+    void userInitAll() {}
+    void userSoftReset() {}
+    void userHardReset() {}
 
 #include "OpenLCBMid.h"    // required
 

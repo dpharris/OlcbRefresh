@@ -1,3 +1,5 @@
+#if 1==0
+
 #include "MemStruct.h"
 #include "Event.h"
 #include "EventID.h"
@@ -256,3 +258,4 @@ void printEvents() {
   }
 }
 
+#endif

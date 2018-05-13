@@ -24,8 +24,6 @@ class OlcbNet {
         write((long) 0);
     };
     bool active;                          // flag net activity
-    //uint16_t length;
-    //uint8_t* data;
 };
 
 #endif // OlcbNet_h

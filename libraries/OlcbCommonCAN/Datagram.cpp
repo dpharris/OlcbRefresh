@@ -11,18 +11,6 @@
 
 //#pragma message("!!! compiling Datagram.cpp")
 
- /*
- void setDatagram(NodeID src, NodeID dst, uint16_t len, void* data);
- void isDatagram();
- void setDatagramReply(NodeID src, NodeID dst);
- void isDatagramReply();
- void setDatagramAck(NodeID src, NodeID dst);
- void isDatagramAck();
- void setDatagramNak(NodeID src, NodeID dst);
- void isDatagramNak();
- */
-
-//Datagram::Datagram(OpenLcbCanBuffer* b, unsigned int (*cb)(uint8_t tbuf[DATAGRAM_LENGTH], unsigned int length,  unsigned int from), LinkControl* ln) {
 Datagram::Datagram(OlcbCanInterface* b, unsigned int (*cb)(uint8_t tbuf[DATAGRAM_LENGTH], unsigned int length,  unsigned int from), LinkControl* ln) {
       buffer = b;
       link = ln;

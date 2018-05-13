@@ -19,8 +19,6 @@
 //#include "can.h"
 
 #include "OpenLcbCan.h"
-//#include "OpenLcbCanInterface.h"
-//#include "OpenLcbCanBuffer.h"
 
 #include "OlcbCanInterface.h"
 #include "OlcbCan.h"

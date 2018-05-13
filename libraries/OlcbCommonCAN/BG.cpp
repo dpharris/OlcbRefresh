@@ -3,8 +3,6 @@
 #include "BG.h"
 #include <EEPROM.h>
 #include "PCE.h"
-//#include "NodeMemory.h"
-//#include "OpenLcbCanBuffer.h"
 
 //#pragma message("!!! compiling BG_cpp")
 

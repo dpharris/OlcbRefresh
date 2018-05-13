@@ -37,16 +37,6 @@ class LinkControl;
 
 class Datagram {
   public:
-    /*
-     void setDatagram(NodeID src, NodeID dst, uint16_t len, void* data);
-     void isDatagram();
-     void setDatagramReply(NodeID src, NodeID dst);
-     void isDatagramReply();
-     void setDatagramAck(NodeID src, NodeID dst);
-     void isDatagramAck();
-     void setDatagramNak(NodeID src, NodeID dst);
-     void isDatagramNak();
-     */
   /**
    * Ask for the transmit buffer. If
    * it's in use, indicated by returning a 0 pointer,
@@ -73,7 +63,6 @@ class Datagram {
   //bool receivedFrame(OpenLcbCanBuffer* rcv);
   bool receivedFrame(OlcbCanInterface* rcv);
   
-  //Datagram(OpenLcbCanBuffer* b, unsigned int (*callback)(uint8_t tbuf[DATAGRAM_LENGTH], unsigned int length, unsigned int from), LinkControl* link);
   Datagram(OlcbCanInterface* b, unsigned int (*callback)(uint8_t tbuf[DATAGRAM_LENGTH], unsigned int length, unsigned int from), LinkControl* link);
   
   private:

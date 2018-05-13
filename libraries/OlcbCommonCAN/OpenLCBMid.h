@@ -11,8 +11,6 @@
 
 #define NV(x) EEADDR(nodeVar.x)
 
-//#include "OpenLcbCanInterface.h"
-//#include "OpenLcbCanBuffer.h"
 #include "NodeID.h"
 #include "EventID.h"
 #include "Event.h"
@@ -48,7 +46,7 @@ OlcbCanInterface     txBuffer(&olcbcanTx);  // CAN send buffer
 
 #define LAST_EEPROM sizeof(MemStruct)
 
-// flashGet
+// flashGet  -- might be useful in future
 //template <typename T> T flashGet(const T* sce) {
 //    static T r;
 //    memcpy_P (&r, sce, sizeof (T));
@@ -60,7 +58,6 @@ OlcbCanInterface     txBuffer(&olcbcanTx);  // CAN send buffer
 MemStruct *pmem = 0;
 #define SNII_var_data &pmem->nodeVar.nodeName           // location of SNII_var_data EEPROM, and address of nodeName
 #define SNII_var_offset sizeof(pmem->nodeVar.nodeName)  // location of nodeDesc
-
 
 extern "C" {
 
@@ -122,7 +119,8 @@ extern "C" {
         } else if (space == 0xFD) {
             // Configuration space
             EEPROM.write(address, val);
-            //configWritten(address, val);
+            //eepromDirty = true;                 // ???
+            //configWritten(address, val, 0);
         }
         // all other spaces not written
     }
@@ -145,7 +143,7 @@ extern "C" {
     void printEvents() {
         Serial.print(F("\nprintEvents "));
         Serial.print(F("\n#  flags  EventID"));
-        for(int i=0;i<8;i++) {
+        for(int i=0;i<NUM_EVENT;i++) {
             //Serial.print(F("\n  offset: ")); Serial.print(events[i].offset,HEX);
             Serial.print("\n"); Serial.print(i);
             //Serial.print(":"); Serial.print(eidtab[i].offset,HEX);
@@ -182,6 +180,23 @@ extern "C" {
     }
 } // end of extern
 
+#define CFG_CMD_UPDATE_COMPLETE 0xA8
+void configWritten(unsigned int address, unsigned int length, unsigned int func) {
+    Serial.print("\nconfigWritten "); Serial.print(address,HEX); dP(" func:"); dPH(func);
+    for(unsigned i=0; i<NUM_EVENT; i++) {
+        uint16_t off = getOffset(i);
+        if(address>=off && address<off+8) eepromDirty = true;
+    }
+    if(func == CFG_CMD_UPDATE_COMPLETE) {
+        dP("\ncomplete, eepromDirty="); dP(eepromDirty);
+        if(eepromDirty) {
+            Olcb_softReset();   // trigger re-init from EEPROM.  ??? should this be in Olcb_loop()???
+        }
+    }
+    if(userConfigWritten) userConfigWritten(address, length, func);
+}
+
+
 LinkControl link(&txBuffer, &nodeid);
 
 #ifndef OLCB_NO_STREAM
@@ -198,8 +213,8 @@ LinkControl link(&txBuffer, &nodeid);
 #ifndef OLCB_NO_DATAGRAM
     unsigned int datagramCallback(uint8_t *rbuf, unsigned int length, unsigned int from);
     Datagram dg(&txBuffer, datagramCallback, &link);
-    Configuration cfg(&dg, &str, getRead, getWrite, (void (*)())0, configWritten);
-    //Configuration cfg(&dg, &str, getRead, getWrite, (void (*)())0, (void (*)(unsigned int, unsigned int))0 );
+    //Configuration cfg(&dg, &str, getRead, getWrite, (void (*)())0, configWritten);
+    Configuration cfg(&dg, &str, getRead, getWrite, soft_restart, configWritten);
 
     unsigned int datagramCallback(uint8_t *rbuf, unsigned int length, unsigned int from) {
         // invoked when a datagram arrives
@@ -214,11 +229,8 @@ LinkControl link(&txBuffer, &nodeid);
     #define dg  0
 #endif
 
-//Nodal_t nodal = { &nodeid, event, eventIndex, eidtab, NUM_EVENT };
+    PCE pce(event, NUM_EVENT, eventIndex, &txBuffer, pceCallback, &link);
 
-//PCE pce(&nodeid, event, eventIndex, eidtab, NUM_EVENT, &txBuffer, pceCallback, restore, &link);
-    PCE pce(event, NUM_EVENT, eventIndex, &txBuffer, pceCallback, restore, &link);
-//PCE::PCE(Event* evts, int nEvt, uint16_t* eIndex, OpenLcbCanBuffer* b, void (*cb)(uint16_t i), void (*rest)(), LinkControl* li)
 #ifndef OLCB_NO_BLUE_GOLD
     BG bg(&pce, buttons, patterns, NUM_EVENT, &blue, &gold, &txBuffer);
 #else
@@ -237,13 +249,14 @@ extern "C" {
     extern void writeEID(int index) {
         // All write to EEPROM, may have to restore to RAM.
         Serial.print("\nwriteEID() "); Serial.print(index);
+        eepromDirty = true; // flag eeprom changed
         EEPROM.put(getOffset(index), event[index].eid);
     }
 }
 
-void restore() {
+//void restore() {
     //initTables   !!!!!!!!
-}
+//}
 
 static int sortCompare(const void* a, const void* b){
     uint16_t ia = *(uint16_t*)a;
@@ -260,14 +273,14 @@ static int sortCompare(const void* a, const void* b){
 
 
 extern void initTables(){        // initialize tables
-    
+    dP("\n initTables");
     for(unsigned int e=0; e<NUM_EVENT; e++) {
         eventIndex[e] = e;
         EEPROM.get(getOffset(e), event[e].eid);
         event[e].flags |= getFlags(e);
     }
 
-    /*
+    /* testing
     eventid[0].val[7]=7;
     eventid[1].val[7]=4;
     eventid[2].val[7]=5;
@@ -286,10 +299,10 @@ extern void initTables(){        // initialize tables
 
 }
 
-//extern can_init();
-// ===== System Interface  
+// ===== System Interface
 void Olcb_init() {       // was setup()
             Serial.print("\nIn olcb::init");
+    eepromDirty = false;
     nm.setup(&nodeid, event, NUM_EVENT, (uint16_t)sizeof(MemStruct));
             Serial.print("\nIn olcb::init1");
     
@@ -299,17 +312,22 @@ void Olcb_init() {       // was setup()
             Serial.print("\nIn olcb::init2");
 
     PIP_setup(&txBuffer, &link);
-    //SNII_setup((uint8_t)sizeof(SNII_const_data), SNII_var_offset, &txBuffer, &link);
-            Serial.print("\nIn olcb::init3");
-    //SNII_setup((uint8_t)32, SNII_var_offset, &txBuffer, &link);
     SNII_setup((uint8_t)sizeof(SNII_const_data), SNII_var_offset, &txBuffer, &link);
             Serial.print("\nIn olcb::init4");
-    //can.init();
     olcbcanTx.init();
             Serial.print("\nIn olcb::init5");
     link.reset();
             Serial.print("\nIn olcb::init6");
 }
+
+// Soft reset, reinitiatize from EEPROM, but maintain present CAN Link.
+void Olcb_softReset() {
+    dP(F("\nIn olcb_softReset"));
+    nm.setup(&nodeid, event, NUM_EVENT, (uint16_t)sizeof(MemStruct));
+    dP(F("\nIn olcb::softreset nm.setup()"));
+    initTables();
+}
+
 
 // Main processing loop
 //
@@ -326,7 +344,6 @@ bool Olcb_process() {   // was loop()
 
     if (link.linkInitialized()) {
         if (rcvFramePresent && rxBuffer.isForHere(link.getAlias()) ) {
-        //if (rcvFramePresent && rxBuffer.isForHere(nodeid) ) {
 #ifndef OLCB_NO_DATAGRAM
             handled |= dg.receivedFrame(&rxBuffer);  // has to process frame level
 #endif
@@ -355,12 +372,9 @@ bool Olcb_process() {   // was loop()
 #endif
         PIP_check();
         SNII_check();
-        //produceFromInputs();
+        //produceFromInputs();  ??
     }
     return rcvFramePresent;
 }
-
-
-
 
 #endif /* OpenLCBMid_h */

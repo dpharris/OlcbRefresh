@@ -26,22 +26,13 @@ class OlcbInterface { //: public OlcbNet {
 
     OlcbNet* net;
     
-//    OlcbInterface(OlcbNet* _net) { net=_net; }
-    //  virtual  OlcbInterface(OlcbNet* _net);
-    
     // Initialize a buffer for transmission
     virtual void init(NodeID nid);
         
     // Start of basic message structure
         
-        //virtual void setFrameTypeCAN();
-        //virtual bool isFrameTypeCAN();
-        
     virtual void setFrameTypeOpenLcb();
     virtual bool isFrameTypeOpenLcb();
-        
-        //virtual void setVariableField(uint16_t f);
-        //virtual uint16_t getVariableField();
         
         virtual void setSource(NodeID nid);
         virtual NodeID getSource();

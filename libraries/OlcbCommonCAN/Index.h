@@ -48,21 +48,4 @@ public:
 };
 
 
-/*
- *  A subclass can be defined to allow more indexes, if wanted.
- *  EgL this would allow:
- *      int i = channels[evIndex[i].index].input[evIndex[i].index2];
- *  Rather than having to derive these from a single sequential index:
- *      int i = channels[evIndex[i].index/4].input[evIndex[i].index%4];
- 
- class Index2 : public Index {
- public:
- uint16_t index2;
- void Index2::print();
- void Index2::print(uint16_t n) ;
- void Index2::sort(uint16_t n);
- };
- */
-
-
 #endif /* Index_h */

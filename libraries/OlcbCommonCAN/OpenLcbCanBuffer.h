@@ -1,7 +1,7 @@
 #ifndef OpenLcbCanBuffer_h
 #define OpenLcbCanBuffer_h
 
-#if 1==0
+#if 1==0  // depreciated
 
 //#pragma message("!!! compiling OpenLcbCanBuffer_h")
 

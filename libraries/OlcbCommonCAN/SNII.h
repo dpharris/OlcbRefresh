@@ -7,7 +7,6 @@
  */
 
 #include "OlcbCanInterface.h"
-//class OpenLcbCanBuffer;
 class LinkControl;
 
 #include <stdint.h>
@@ -20,7 +19,6 @@ class LinkControl;
 *   var_comment_offset: Starting address of "comment" user-defined value in 0xFB memory space
 *
 */
-//void SNII_setup(uint8_t count, uint8_t var_comment_offset, OpenLcbCanBuffer* b, LinkControl* link);
 void SNII_setup(uint8_t count, uint8_t var_comment_offset, OlcbCanInterface* b, LinkControl* link);
 
 /**
@@ -38,7 +36,6 @@ void SNII_check();
 * 
 * Assumes destination address check has already passed previously
 */
-//bool SNII_receivedFrame(OpenLcbCanBuffer* rcv);
 bool SNII_receivedFrame(OlcbCanInterface* rcv);
 
 #endif

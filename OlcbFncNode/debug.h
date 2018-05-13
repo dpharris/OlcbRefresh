@@ -1,3 +1,5 @@
+#if 1==0
+
 //  Stuff that helps debugging
 
 #define debug
@@ -53,6 +55,6 @@
 //
 // Discussion about small print libs: http://www.stm32duino.com/viewtopic.php?f=18&t=1014&sid=5c5245c090173bb2c480248a537d973f
 
-
+#endif
 
 

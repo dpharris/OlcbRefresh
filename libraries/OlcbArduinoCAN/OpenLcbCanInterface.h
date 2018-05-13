@@ -1,7 +1,7 @@
 #ifndef OpenLcbCanInterface_h
 #define OpenLcbCanInterface_h
 
-#if 1==0
+#if 1==0  // depreciated
 
 //#pragma message("!!! compiling OpenLcbCanInterface_h")
 

@@ -27,7 +27,7 @@ class Configuration {
                         const uint8_t (*getRead)(uint32_t address, int space),
                         void (*getWrite)(uint32_t address, int space, uint8_t val),
                         void (*restart)(),
-                        void (*uCB)(unsigned int address, unsigned int length)
+                        void (*wCB)(unsigned int address, unsigned int length, unsigned int func)
             );
             
   void check(); 
@@ -52,7 +52,7 @@ class Configuration {
   const uint8_t (*getRead)(uint32_t address, int space);
   void (*getWrite)(uint32_t address, int space, uint8_t val);
   void (*restart)();
-  void (*userWriteCB)(unsigned int address, unsigned int length);
+  void (*writeCB)(unsigned int address, unsigned int length, unsigned int func);
  
 };
 

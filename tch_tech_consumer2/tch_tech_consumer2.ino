@@ -10,17 +10,6 @@
 //==============================================================
 
 #define DEBUG
-#ifdef DEBUG
-    #define dP(x) Serial.print(x)
-    #define dPH(x) Serial.print(x,HEX)
-    #define dPL Serial.println()
-    #define dPN(x) Serial.print("\n" #x ":")
-#else
-    #define dP(x) 
-    #define dPH(x) 
-    #define dPL 
-    #define dPN(x) 
-#endif
 
 // Number of channels implemented. Each corresonds 
 // to an input or output pin.
@@ -208,6 +197,20 @@ void produceFromInputs() {
   //}
 }
 
+
+void userInitAll() {
+    dP("\nForced Initialization");
+    // initialize descriptions
+    EEPROM.put(EEADDR(nodeVar.nodeName),"TCH Consumer32");
+    EEPROM.put(EEADDR(nodeVar.nodeDesc),"Testing");
+}
+
+// userSoftReset() - include any initialization after a soft reset, ie after configuration changes.
+void userSoftReset() {}
+
+// userHardReset() - include any initialization after a hard reset, ie on boot-up.
+void userHardReset() {}
+
 // ===== Callback from a Configuration write =====
 // Use this to detect changes in the ndde's configuration
 // This may be useful to take immediate action on a change.
@@ -232,23 +235,13 @@ void configWritten(unsigned int address, unsigned int length) {
 
 // ==== Setup does initial configuration =============================
 void setup() {
-  // set up serial comm; may not be space for this!
-  while(!Serial){}
-  delay(250);Serial.begin(115200);Serial.print(F("\nTCH Consumer-32\n"));
-
-  #define FORCEALLINIT
-  #ifdef FORCEALLINIT
-      Serial.print("\nForced Initialization");
-      nm.forceInitAll();
-      // initialize descriptions
-      EEPROM.put(EEADDR(nodeVar.nodeName),"TCH Consumer32");
-      EEPROM.put(EEADDR(nodeVar.nodeDesc),"Testing");
-      //  char s[16];
-      //for(int i=0; i<32; i++) {
-      //  printf(s, "output%i",i);
-        //EEPROM.put(EEADDR(inputs[0].desc),s);
-      //}
+  #ifdef DEBUG
+    // set up serial comm; may not be space for this!
+    while(!Serial){}
+    delay(250);Serial.begin(115200);Serial.print(F("\nTCH Consumer-32\n"));
   #endif
+    
+  nm.forceInitAll();
   
   Olcb_init();
   printEeprom();

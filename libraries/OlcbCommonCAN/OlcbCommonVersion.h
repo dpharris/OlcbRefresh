@@ -6,6 +6,6 @@
  *
  */
 
-#define OlcbCommonVersion "0.6.1"
+#define OlcbCommonVersion "0.7.1"
 
 #endif

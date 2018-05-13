@@ -1,3 +1,5 @@
+#if 1==0
+
 /* *************************************************
  * EEPROM memory layout
  *     See NodeMemory.h for background info
@@ -105,3 +107,4 @@ Event events[NUM_EVENT] = { Event() };   // repeated for all eight events.
 #endif
 */
 
+#endif

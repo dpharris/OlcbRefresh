@@ -6,6 +6,18 @@
 //
 //
 
+#ifdef DEBUG
+    #define dP(x) Serial.print(x)
+    #define dPH(x) Serial.print(x,HEX)
+    #define dPL Serial.println()
+    #define dPN(x) Serial.print("\n" #x ":") Serial.print(x)
+#else
+    #define dP(x)
+    #define dPH(x)
+    #define dPL
+    #define dPN(x)
+#endif
+
 #ifndef OpenLCBHeader_h
 #define OpenLCBHeader_h
 //#include "OlcbCanCLass.h"
@@ -21,9 +33,8 @@ typedef struct NodeVar_ {
     char     nodeName[20];  // optional node-name, used by ACDI
     char     nodeDesc[24];  // optional node-description, used by ACDI
 } NodeVar;
-//extern NodeVar* pNodeVars = 0;
-//#define NV(x) EEADDR(nodeVar.x)
 
+bool eepromDirty;
 
 // ===== eventidOffset Support =====================================
 //   Note: this allows system routines to initialize event[]
@@ -34,9 +45,6 @@ typedef struct {
 } EIDTab;
 
 
-//#include <EEPROM.h>
-//#include "Can.h"
-//#include "OpenLcbCanBuffer.h"
 #include "OlcbCanInterface.h"
 #include "PIP.h"
 #include "SNII.h"
@@ -100,12 +108,6 @@ typedef struct {
     </cdi>"
 
 
-
-
-//extern "C" {
-//    extern const EIDTab eidtab[] PROGMEM;
-//}
-// Mark as waiting to have Identify sent
 #define IDENT_FLAG 0x01
 
 #define EEADDR(x)  ((uint16_t)(&(((MemStruct*)0)->x)))
@@ -141,27 +143,40 @@ typedef struct {
 
 //#define Can OlcbCanClass
 
-extern void pceCallback(unsigned int i);
-extern void restore();
+extern void configWritten(unsigned int address, unsigned int length, unsigned int func);
+//extern void restore() __attribute__((weak));
+extern void Olcb_softReset() __attribute__((weak));
+extern void userUsrClear() __attribute__((weak));
+extern void userMfgClear() __attribute__((weak));
+extern void userSoftReset() __attribute__((weak));
+extern void userHardReset() __attribute__((weak));
+extern void userInitAll() __attribute__((weak));
+extern void userFactoryReset() __attribute__((weak));
+extern void userConfigWritten(unsigned int address, unsigned int length, unsigned int func) __attribute__((weak));
+extern void pceCallback(unsigned int index)  __attribute__((weak));
+extern void produceFromInputs() __attribute__((weak));
 
-////Nodal* nodal;
 extern PCE pce;
 
-// Establish location of node Name and Node Decsription in memory
-//#define SNII_var_data &pmem->nodeName           // location of SNII_var_data EEPROM, and address of nodeName
-//#define SNII_var_offset sizeof(pmem->nodeName)  // location of nodeDesc
-//#define SNII_var_data 12           // location of SNII_var_data EEPROM, and address of nodeName
-//#define SNII_var_offset 20          // location of nodeDesc
-
-
 Event event[NUM_EVENT];             // operating flags
-//EventID eventid[NUM_EVENT];         // copy of EIDs from EEPROM
 uint16_t eventIndex[NUM_EVENT];     // Sorted index to eventids
-//uint16_t eventOffset[NUM_EVENT];    // stored in flash
 
-
-
-
-
+// soft-rest
+#include <avr/wdt.h>
+void wdt_init(void) __attribute__((naked)) __attribute__((section(".init3")));
+void wdt_init(void) {
+    MCUSR = 0;
+    wdt_disable();
+    return;
+}
+//#define soft_restart()         \
+//    do {                       \
+//        wdt_enable(WDTO_15MS); \
+//        for(;;){}              \
+//    } while(0)
+void soft_restart() {
+    wdt_enable(WDTO_15MS);
+    for(;;){}
+};
 
 #endif /* OpenLCBHeader_h */

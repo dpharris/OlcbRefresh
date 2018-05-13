@@ -6,6 +6,7 @@
 //
 //
 
+/*
 #ifndef Nodal_h
 #define Nodal_h
 
@@ -20,5 +21,5 @@ typedef struct {
     const uint16_t* eventidOffset;
     uint16_t nevent;
 } Nodal_t;
-
+*/
 #endif /* Nodal_h */

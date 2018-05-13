@@ -38,7 +38,6 @@ class ButtonLed;
 class BG {
   public:
 
-  //BG(PCE* pce, ButtonLed** buttons, uint32_t* patterns, uint8_t nEvents, ButtonLed* blue, ButtonLed* gold, OpenLcbCanBuffer* buffer);
     BG(PCE* pce, ButtonLed** buttons, uint32_t* patterns, uint8_t nEvents, ButtonLed* blue, ButtonLed* gold, OlcbInterface* buffer);
   
   void check();

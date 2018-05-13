@@ -10,17 +10,6 @@
 //==============================================================
 
 #define DEBUG
-#ifdef DEBUG
-    #define dP(x) Serial.print(x)
-    #define dPH(x) Serial.print(x,HEX)
-    #define dPL Serial.println()
-    #define dPN(x) Serial.print("\n" #x ":")
-#else
-    #define dP(x) 
-    #define dPH(x) 
-    #define dPL 
-    #define dPN(x) 
-#endif
 
 // Number of channels implemented. Each corresonds 
 // to an input or output pin.
@@ -28,9 +17,7 @@
 // total number of events, two per channel
 #define NUM_EVENT 2*NUM_CHANNEL
   
-//#include "debug.h"
 #include "OpenLCBHeader.h"
-//#include "mockCan.h"
 #include "AT90can.h"
 
 //NodeID nodeid(5,1,1,1,3,255);    // This node's default ID; must be valid 
@@ -189,16 +176,55 @@ void produceFromInputs() {
   }
 }
 
+/* Config tool: 
+ *  More: Reset/Reboot -- causes a reboot --> reads nid, and reads and sorts eids --> userInit();
+ *  More: Update Complete -- no reboot --> reads and sorts eids --> userInit();
+ *  Reset segment: Usr clear -- new set of new set of eids and blank strings (in system code), doesn't have to reboot --> userClear();
+ *  Reset segment: Mfr clear -- original set of eids, blank strings --> userMfrClear().
+ *  
+ */
+
+// userInitAll() -- include any initialization after Factory reset "Mfg clear" or "User clear"
+void userInitAll() {
+    // initialize descriptions
+    EEPROM.put(EEADDR(nodeVar.nodeName),"OlcbBasicNode");
+    EEPROM.put(EEADDR(nodeVar.nodeDesc),"Testing");
+    EEPROM.put(EEADDR(inputs[0].desc),"Input0");
+    EEPROM.put(EEADDR(inputs[1].desc),"Input1");
+    EEPROM.put(EEADDR(outputs[0].desc),"Output0");
+    EEPROM.put(EEADDR(outputs[1].desc),"Output1"); 
+}
+
+// userSoftReset() - include any initialization after a soft reset, ie after configuration changes.
+void userSoftReset() {
+  #ifdef DEBUG  
+    Serial.flush();
+  #endif
+  asm volatile("jmp 0x000\n\t");
+}
+
+// userHardReset() - include any initialization after a hard reset, ie on boot-up.
+void userHardReset() {
+  #ifdef DEBUG  
+    Serial.flush();
+  #endif
+  noInterrupts();
+  wdt_enable(WDTO_15MS);
+  while(1); // wait to die and be reborn....
+}
+
 // ===== Callback from a Configuration write =====
 // Use this to detect changes in the ndde's configuration
 // This may be useful to take immediate action on a change.
+// param address - address in space of change
+// param length  - length of change
+// NB: if address=0 and length==0xffff, then user indicated UPDATE_COMPLETE
 // 
-//void userConfigWrite(unsigned int address, unsigned int length) {
-void configWritten(unsigned int address, unsigned int length) {
-  Serial.print("\nuserConfigWrite "); Serial.print(address,HEX);
+
+void userConfigWritten(unsigned int address, unsigned int length, unsigned int func) {
+  Serial.print("\nuserConfigWritten "); Serial.print(address,HEX);
+  Serial.print(" func="); Serial.print(func,HEX);
   //Serial.print(":"); Serial.print(length,HEX);
-  // resets the board:
-  //if( address==0 && length==0xFFFF ) setup();
   // example: if a servo's position changed, then update it immediately
   // uint8_t posn;
   // for(unsigned i=0; i<NCHANNEL; i++) {
@@ -213,49 +239,52 @@ void configWritten(unsigned int address, unsigned int length) {
 
 // ==== Setup does initial configuration =============================
 void setup() {
-  // set up serial comm; may not be space for this!
-  while(!Serial){}
-  delay(250);Serial.begin(115200);Serial.print(F("\nOlcbBasicNode\n"));
 
-  //#define FORCEALLINIT
-  #ifdef FORCEALLINIT
-      nm.forceInitAll();
-      // initialize descriptions
-      EEPROM.put(EEADDR(nodeVar.nodeName),"OlcbBasicNode");
-      EEPROM.put(EEADDR(nodeVar.nodeDesc),"Testing");
-      EEPROM.put(EEADDR(inputs[0].desc),"Input0");
-      EEPROM.put(EEADDR(inputs[1].desc),"Input1");
-      EEPROM.put(EEADDR(outputs[0].desc),"Output0");
-      EEPROM.put(EEADDR(outputs[1].desc),"Output1");
+  #ifdef DEBUG
+    // set up serial comm; may not be space for this!
+    while(!Serial){}
+    delay(250);Serial.begin(115200);dP(F("\nOlcbBasicNode\n"));
+    delay(1000);
   #endif
   
+  //nm.forceInitAll();  // uncomment if factory reset required.
+
   Olcb_init();
   printEeprom();
 }
 
 // ==== Loop ===========================================
 void loop() {
-    bool activity = Olcb_process();
-    static long T = millis()+5000;
-    if(millis()>T) {
-      T+=5000;
-      Serial.print("\n.");
-    }
-    if (activity) {
-        // blink blue to show that the frame was received
-        //Serial.print("\nrcv");
-        blue.blink(0x1);
-    }
-    //if (OpenLcb_can_active) { // set when a frame sent
-    if (olcbcanTx.active) { // set when a frame sent
-        gold.blink(0x1);
-        //Serial.print("\nsnd");
-        olcbcanTx.active = false;
-    }
-    // handle the status lights  
-    blue.process();
-    gold.process();
-   
+  bool activity = Olcb_process();
+  static long T = millis()+5000;
+  if(millis()>T) {
+    T+=5000;
+    Serial.print("\n.");
+  }
+  if (activity) {
+      // blink blue to show that the frame was received
+      //Serial.print("\nrcv");
+      blue.blink(0x1);
+  }
+  //if (OpenLcb_can_active) { // set when a frame sent
+  if (olcbcanTx.active) { // set when a frame sent
+      gold.blink(0x1);
+      //Serial.print("\nsnd");
+      olcbcanTx.active = false;
+  }
+  // handle the status lights  
+  blue.process();
+  gold.process();
+  
+  if(produceFromInputs) produceFromInputs();
+
+  /*
+  if(millis() > 10000) {
+    Serial.print("\n\nReset ...");
+    delay(1000);
+    userHardReset();
+  }
+  */
 }
 
 

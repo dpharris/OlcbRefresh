@@ -6,7 +6,6 @@
 #include "EventID.h"
 #include "Event.h"
 #include "LinkControl.h"
-//#include "OpenLcbCanBuffer.h"
 #include "OlcbCanInterface.h"
 #include "lib_debug_print_common.h"
 
@@ -26,7 +25,7 @@ extern "C" {
     extern void writeEID(int index);
 }
 
-PCE::PCE(Event* evts, int nEvt, uint16_t* eIndex, OlcbCanInterface* b, void (*cb)(unsigned int i), void (*rest)(), LinkControl* li)
+PCE::PCE(Event* evts, int nEvt, uint16_t* eIndex, OlcbCanInterface* b, void (*cb)(unsigned int i), LinkControl* li)
 {
       //events = evts;
     events = evts;
@@ -34,7 +33,6 @@ PCE::PCE(Event* evts, int nEvt, uint16_t* eIndex, OlcbCanInterface* b, void (*cb
     nEvents = nEvt;
     buffer = b;
     callback = cb;
-    restore = rest;
     link = li;
        
       // mark as needing transmit of IDs, otherwise not interesting
@@ -236,7 +234,6 @@ void PCE::sendTeach(EventID e) {   /// DPH added for Clock
                 save = true;
             }
         }
-        //if (save) (*store)();   NEED TO FIX dph
-        if (save) (*restore)(); // restore eventids to memory, if necessary
+        // eeprom flagged dirty in writeEID()
   }
 

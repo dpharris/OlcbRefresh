@@ -10,7 +10,6 @@
 
 extern "C" {
     extern uint16_t getOffset(uint16_t index);
-    //extern void EventID::writeEID(int index);
     extern void writeEID(int index);
 }
 
@@ -39,6 +38,7 @@ void NodeMemory::forceInitEvents() {
 extern void printEvents();
 extern void initTables();
 extern void userInitEventIDOffsets();
+extern void userInitAll();
 
 void NodeMemory::setup(NodeID* nid, Event* _cE, uint8_t _nC, uint16_t eeprom_size) {
     //LDEBUG("\nIn NodeMemory::setup");
@@ -50,12 +50,10 @@ void NodeMemory::setup(NodeID* nid, Event* _cE, uint8_t _nC, uint16_t eeprom_siz
     //    LDEBUG("\n");LDEBUG(i);
     //    LDEBUG(":");LDEBUG2(eventidOffset[i],HEX);
     //}
-                            Serial.print("\nIn NodeMemory::setup");
 
     if (checkNidOK()) {    // the nodeID is ok, but need new set of eventIDs
         // leave NodeID and count, reset rest
         //LDEBUG("\ncheckNidOK'd");
-                            Serial.print("\nIn NodeMemory::setup NID ok");
 
         // read NodeID from non-volative memory
         uint8_t* p;
@@ -72,13 +70,16 @@ void NodeMemory::setup(NodeID* nid, Event* _cE, uint8_t _nC, uint16_t eeprom_siz
         // handle the rest
         reset(nid, cE, nC);  // !!!
 
-    } else if (!checkAllOK()) {  // All trash, so reint everything.
+    } else if (!checkAllOK()) {  // All trash, so reinit everything.
         //LDEBUG("\n!checkAllOK");
-                            Serial.print(F("\nIn NodeMemory::setup !checkAllOK"));
         // fires a factory reset
+        //clear EEPROM
+        for(unsigned i=0; i<eeprom_size; i++)
+            EEPROM.update(i,0);
         nextEID = 0;
         // handle the rest
         reset(nid, cE, nC);
+        userInitAll();  // user init
     }
     
     // read NodeID from non-volative memory
@@ -91,11 +92,9 @@ void NodeMemory::setup(NodeID* nid, Event* _cE, uint8_t _nC, uint16_t eeprom_siz
     //LDEBUG("\nOut NodeMemory::setup");
 }
 
-// Factory reset: write to EEPROM new set of eventIDs and then magic, nextEID and nodeID
-// !! simplify to reset() ?
+// write to EEPROM new set of eventIDs and then magic, nextEID and nodeID
 void NodeMemory::reset(NodeID* nid, Event* cE, uint8_t nC) {
     //LDEBUG("\nNodeMemory::reset1");
-                        Serial.print(F("\nNodeMemory::reset1"));
     for (uint16_t e=0; e<nC; e++) {
         //setToNewEventID(nid, getOffset(e));
         //uint16_t off = eidtab[e].offset;
@@ -108,7 +107,6 @@ void NodeMemory::reset(NodeID* nid, Event* cE, uint8_t nC) {
 
 // store to EEPROM magic, nextEID, and NodeID
 void NodeMemory::store(NodeID* nid) {
-                        Serial.print(F("\nNodeMemory::store"));
     
     int addr = startAddress;
     // write tag
@@ -132,12 +130,9 @@ void NodeMemory::store(NodeID* nid) {
 void NodeMemory::setToNewEventID(NodeID* nid, uint16_t offset) {
     //LDEBUG("\nIn setToNewEventID1");
     //LDEBUG(" offset="); LDEBUG2(offset,HEX);
-    //Serial.print("\nIn NodeMemory::setToNewEventID offset=");Serial.print(offset);
     EventID eid = *((EventID*)nid);
-    //Serial.print("\n nid="); for(int i=0;i<6;++i){Serial.print(nid->val[i],HEX);Serial.print(".");}
     eid.val[6] = (nextEID>>8)&0xFF;
     eid.val[7] = nextEID&0xFF;
-    //eid.print();
     EEPROM.put(offset, eid);
 }
 

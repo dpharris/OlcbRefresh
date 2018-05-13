@@ -4,6 +4,8 @@
 
 #include "lib_debug_print_common.h"
 
+extern bool eepromDirty;
+
 #define CONFIGURATION_DATAGRAM_CODE 0x20
 
 // define the operation codes, full byte
@@ -48,7 +50,7 @@
                         const uint8_t (*gr)(uint32_t address, int space),
                         void (*gw)(uint32_t address, int space, uint8_t value),
                         void (*res)(),
-                        void (*uCB)(unsigned int address, unsigned int length)
+                        void (*wCB)(unsigned int address, unsigned int length, unsigned int func)
                  ){
     dg = d;
     str = s;
@@ -56,7 +58,7 @@
     getWrite = gw;
     getRead = gr;
     restart = res;
-    userWriteCB = uCB;
+    writeCB = wCB;
 }
 
 void Configuration::check() {
@@ -160,12 +162,13 @@ void Configuration::processWrite(uint8_t* data, int length) {
         getWrite(address+i, space, data[i+6]);
     }
     // notify user App by callback
-    if(userWriteCB) userWriteCB(address, length);
+    //eepromDirty = true;  // mark eeprom changed
+    if(writeCB) writeCB(address, length, 0);
 }
 
 void Configuration::processCmd(uint8_t* data, int length) {
     //logstr("  processCmd\n");
-        
+    //dP("\nConfiguration::processCmd");
     switch (data[1]&0xFC) {
         case CFG_CMD_GET_CONFIG: {  // to partition local variable below
             // reply with canned message
@@ -202,7 +205,7 @@ void Configuration::processCmd(uint8_t* data, int length) {
             break;
           }
         case CFG_CMD_UPDATE_COMPLETE:
-            userWriteCB(0, 0xFFFF);
+            if(writeCB) writeCB(0, 0, CFG_CMD_UPDATE_COMPLETE);
             break;
         case CFG_CMD_RESETS: {
             // will handle, mark as done.
@@ -227,5 +230,6 @@ void Configuration::processCmd(uint8_t* data, int length) {
             // these do nothing in this implementation
             break;
     }
+    //dP("\nexit Configuration::processCmd");
 }
 

@@ -3,7 +3,6 @@
 #include "OlcbCanInterface.h"
 #include "SNII.h"
 #include "LinkControl.h"
-//#include "OpenLcbCanBuffer.h"
 #include "OpenLcbCan.h"
 
 #include "lib_debug_print_common.h"

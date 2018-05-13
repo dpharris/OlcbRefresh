@@ -55,12 +55,7 @@ class NodeMemory {
    * clear name strings. This count EEPROM address 0 (e.g. _not_ starting
    * at end of event strings; this is the full memory clear)   
    */
-  //void setup(NodeID* nid, Event* events, uint8_t numEvents, uint8_t* data,
-  //          uint16_t extraBytes, uint16_t clearBytes);
-//  void setup(NodeID* nid, Event* cE, const uint16_t* eventidOffset, uint8_t nC, uint8_t* data, uint16_t extraBytes, uint16_t clearBytes);
   void setup(NodeID* nid, Event* cE, uint8_t nC, uint16_t eeprom_size);
-  //void setupInMem(uint8_t *m, int n, Event *events, int num_event);
-  //void setupInEeprom(uint8_t *m, int n, Event *events, int num_event);
     
   /*
    * Move to a completely new set of values, e.g. a "default" reset
@@ -69,7 +64,6 @@ class NodeMemory {
    * clear name strings counting from zero (e.g. _not_ starting
    * at end of event strings; this is the full memory clear)
    */
-  //void reset(NodeID* nid, Event* events, uint8_t numEvents, uint16_t clearBytes);
   void reset(NodeID* nid, Event* events, uint8_t numEvents);
 
   /** 
@@ -92,7 +86,6 @@ class NodeMemory {
   void store(NodeID* nid, Event* cE, uint16_t* eventidOffset, uint8_t nC, NodeMemory eOff);
   void store(NodeID* nid);
     
-  //void storeToEEPROM(uint8_t *m, int n);
   /*
    * Get a new, forever unique EventID and put in 
    * given EventID location. Does not do a EEPROM store,
@@ -110,5 +103,6 @@ class NodeMemory {
   int startAddress; // address of 1st byte in EEPROM
   uint16_t nextEID; // count of EventIDs provided to date
 };
+
 
 #endif

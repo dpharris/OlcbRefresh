@@ -67,29 +67,7 @@ Index* Index::findIndex(void* ms, uint16_t s, uint16_t is, Index* start) {
     if(hh.hash==p->hash) return p;
     return nullptr;
 }
-/*
- Index* Index::findIndexOfMsg(Msg* ms, uint16_t s, uint16_t is, Index* start) {
- LDEBUG(F("\nIn findIndexOfMsg:"));
- LDEBUG(F("\nms=")); LDEBUG(ms);
- LDEBUG(F("\ns=")); LDEBUG(s);
- LDEBUG(F("\nis=")); LDEBUG(is);
- LDEBUG(F("\nstart.hash=")); LDEBUG(start->hash);
- Index* i = this->findIndex(ms, s, is, start);
- if(i!=nullptr) return i;
- return nullptr;
- }
- */
- /*
- int Index::findIndexOfEventID(EventID* eid, uint16_t is, uint16_t start) {
-   //int i = this->findIndex(eid, sizeof(*eid), is, start);
-   //if(i<0) return -1;
-   //if(equal(eid,channels[i].eventid,8)) return i;
-   //return -1;
-     
-     Index* i = this->findIndex(eid, sizeof(*eid), is, start);
-     return i->index;
- }
- */
+
 
 void Index::print() {
     LDEBUG(F("["));LDEBUG2(hash,HEX);
@@ -109,25 +87,3 @@ void Index::sort(uint16_t n) {
     qsort(this, n, sizeof(*this), Index::sortCompare);
 }
 
-//EventID Index::getEID() {}
-
-/*  continuation of subclassing
- void Index2::print() {
- LDEBUG(F("["));LDEBUG(hash);
- LDEBUG(F(","));LDEBUG(index);
- LDEBUG(F(","));LDEBUG(index2);
- LDEBUG(F("]"));
- }
- 
- void Index2::print(uint16_t n) {
- LDEBUG(F("\nIndex2::"));
- for(int i=0;i<n;i++) {
- LDEBUG("\n");LDEBUG(i);LDEBUG(" ");
- (this+i)->print();
- }
- }
- void Index2::sort(uint16_t n) {
- LDEBUG(F("\nsize="));LDEBUG(sizeof(this));
- qsort(this, n, sizeof(*this), Index::hashCompare);
- }
- */

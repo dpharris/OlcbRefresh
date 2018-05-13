@@ -114,7 +114,6 @@ bool LinkControl::sendAMR() {
 
 bool LinkControl::sendFrame() {
     //LDEBUG("\nIn LinkControl::sendFrame");
-  //if (!OpenLcb_can_xmt_ready(txBuffer)) return false;  // couldn't send just now
     if (!txBuffer->net->txReady()) return false; // couldn't send just now
   //OpenLcb_can_queue_xmt_wait(txBuffer);  // wait for queue, but earlier check says will succeed
     txBuffer->net->write(200); // wait for queue, but earlier check says will succeed

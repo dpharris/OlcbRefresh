@@ -47,16 +47,6 @@ class NodeID {
       }
       return 0;
   }
-    /**
-     * Check to see if this object is equal
-     * to any in an array of NodeIDs
-     */
-  //NodeID* findAliasInArray(NodeID* array, int len) {
-  //  for (int i = 0; i<len; i++) {
-  //    if (array[i].alias==this->alias) return array+i;
-  //  }
-  //    return 0;
-  //}
     
 };
 
