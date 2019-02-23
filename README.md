@@ -37,7 +37,8 @@ parallels this program structure:
     } MemStruct;
     Memstruct *pmem;
 ```
-The system constant parts of these two items are provided, and only the user-app parts are needed in the sketch.  'pmem' is used to retrieve od=ffsets within Memstruct, and the macro EEADDR(x) returns this offset, which is useful in code to refer to and manipulate Memstruct fields.  
+The system constant parts of these two items are provided, and only the user-app parts are needed in the sketch.  'pmem' is used to retrieve offsets within Memstruct, and the macro EEADDR(x) returns this offset, which is useful in code to refer to and manipulate Memstruct fields.  
+
 For example, **EEADDR(channels[0].rate)** will return the offset to that item in Memstruct, and it can be used to retrieve its value: **int r = EEPROM.get(EEADDR(channels[0].rate))**.  
 
 
